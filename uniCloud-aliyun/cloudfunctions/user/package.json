@@ -1,0 +1,9 @@
+{
+  "name": "user",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "nodemailer": "^6.8.0",
+    "token": "file:../common/token"
+  },
+  "extensions": {}
+}

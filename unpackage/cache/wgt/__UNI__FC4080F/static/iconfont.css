@@ -1,0 +1,33 @@
+@font-face {
+  font-family: "iconfont";
+  src: url('/static/iconfont.ttf') format('truetype');
+}
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+}
+
+.icon-xinghao:before {
+  content: "\e68b";
+}
+
+.icon-shouye:before {
+  content: "\e631";
+}
+
+.icon-gerenzhongxin:before {
+  content: "\e603";
+}
+
+.icon-jinianzhaox:before {
+  content: "\e6bf";
+}
+
+.icon-wode-wodefensi:before {
+  content: "\e641";
+}
+
+.icon-aixin:before {
+  content: "\e6c8";
+}

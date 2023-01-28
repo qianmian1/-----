@@ -1,0 +1,1 @@
+<view class="box-1 data-v-f8db88d0"><scroll-view scroll-x="true" class="tab-list data-v-f8db88d0"><view class="tab-scroll_box data-v-f8db88d0"><view wx:for="{{a}}" wx:for-item="item" wx:key="b" class="{{['tab-scroll_item', 'data-v-f8db88d0', item.c && 'as']}}" bindtap="{{item.d}}">{{item.a}}</view></view></scroll-view></view>
