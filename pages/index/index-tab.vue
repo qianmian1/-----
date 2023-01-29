@@ -81,7 +81,10 @@
           break
         case '3':
           data.list = res.result.wuqi
-
+          break
+        case '10':
+          data.list = res.result.Monster
+          Monster
           break
       }
     })

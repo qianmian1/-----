@@ -12,6 +12,12 @@
     <view v-if="value==='setprop'">
       <list-2></list-2>
     </view>
+    <view v-if="value==='spawn'">
+      <list-3></list-3>
+    </view>
+    <view v-if="value==='setConst'">
+      <list-4></list-4>
+    </view>
   </view>
 
 </template>
@@ -22,14 +28,14 @@
     reactive,
     watch,
   } from "vue";
-  let value = ref('setprop')
+  let value = ref('spawn')
 
   function fh() {
     uni.navigateTo({
       url: '/pages/index/index-swich'
     })
   }
-  uni.$on('update', (date) => {
+  uni.$on('updata', (date) => {
     value.value = date.value
   })
 </script>
