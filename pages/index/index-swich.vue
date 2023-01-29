@@ -34,7 +34,7 @@
   })
 
   function gh(item) {
-    uni.$emit('update', {
+    uni.$emit('updata', {
       value: item.text
     })
     uni.switchTab({

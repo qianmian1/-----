@@ -23,7 +23,7 @@ const _sfc_main = {
     code: false,
     zhucheMa: "",
     token: "",
-    UID: ""
+    UID: "10012"
   },
   onLaunch: function() {
     console.log("App Launch");
