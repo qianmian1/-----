@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const miyao = 'qwert';
+//const jsencrypt = require('jsencrypt')
 const db = uniCloud.database({
   throwOnNotFound: false
 })
@@ -12,11 +13,9 @@ function Generate_Token(username) {
   })
 };
 // 解密token
-function Declassification_Token(token1) {
-  let token = token1.split(" ")[1]
-
+function Declassification_Token(token) {
   let auth = jwt.verify(
-    token, miyao)
+    token1.split(" ")[1], miyao)
   let userid = auth.username;
   return userid
 };
@@ -62,5 +61,6 @@ module.exports = {
   Generate_Token,
   RandomNumber,
   Declassification_Token,
-  Query
+  Query,
+  //  jsencrypt
 }

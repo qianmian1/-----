@@ -41,6 +41,9 @@
   color: #333;
   font-size: 14px;
 }
+.box .my-content .my-comtent_list .numbr.data-v-c9d32acc {
+  margin: auto;
+}
 .box .my-content .my-comtent_list .text-box .text.ad.data-v-c9d32acc {
   color: red;
 }

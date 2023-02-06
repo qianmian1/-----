@@ -7302,7 +7302,6 @@ const pages = [
   {
     path: "pages/index/index-tab",
     style: {
-      navigationStyle: "custom",
       navigationBarTitleText: "",
       enablePullDownRefresh: false
     }
@@ -9771,3 +9770,4 @@ exports.resolveComponent = resolveComponent;
 exports.s = s$1;
 exports.t = t$1;
 exports.unref = unref;
+exports.watch = watch;

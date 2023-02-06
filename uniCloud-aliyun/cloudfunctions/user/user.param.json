@@ -3,7 +3,7 @@
 // 配置教程参考：https://uniapp.dcloud.net.cn/uniCloud/quickstart?id=runparam
 
 {
-  "username": "123456789",
-  "password": "123456789",
-  "api": "Service"
+  "username": "2673288230@qq.com",
+  "password": "123",
+  "api": "login"
 }

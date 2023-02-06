@@ -14,15 +14,12 @@ if (!Math) {
 }
 const _sfc_main = {
   globalData: {
-    username: "",
-    password: "",
-    api: "",
-    Switch: "",
     ServiceIp: "xiaosu520.xyz",
     Plugins: "470683",
-    code: false,
     zhucheMa: "",
+    code: false,
     token: "",
+    list: [],
     UID: "10012"
   },
   onLaunch: function() {

@@ -48,35 +48,11 @@
               api: this.api
             }
           }).then(res => {
-            if (res.result.code === 200 || res.result.code === 201) {
-              uni.showToast({
-                title: '登陆成功',
-                icon: 'success'
+            setTimeout(() => {
+              uni.redirectTo({
+                url: '/pages/index/index'
               })
-              if (!res.result.RandomNumber) {
-                this.$store.dispatch('ayuncupdatatoken', {
-                  token: res.result.token
-                })
-                this.$store.dispatch('ayuncUpDataServiceIp', {
-                  ServiceIp: res.result.ServiceIp
-                })
-              } else {
-                this.$store.dispatch('ayuncupdatatoken', {
-                  token: res.result.token
-                })
-                this.$store.dispatch('ayuncUpDataServiceIp', {
-                  ServiceIp: res.result.ServiceIp
-                })
-                this.$store.dispatch('ayuncUpDataRandomNumber', {
-                  RandomNumber: res.result.RandomNumber
-                })
-              }
-              setTimeout(() => {
-                uni.redirectTo({
-                  url: '/pages/index/index'
-                })
-              }, 1000)
-            }
+            }, 1000)
           }).catch(e => {
             if (e.message == "密码错误") {
               uni.showToast({
