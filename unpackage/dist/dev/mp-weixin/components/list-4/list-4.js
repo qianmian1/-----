@@ -2,13 +2,11 @@
 const common_vendor = require("../../common/vendor.js");
 if (!Array) {
   const _easycom_uni_number_box2 = common_vendor.resolveComponent("uni-number-box");
-  const _easycom_uni_icons2 = common_vendor.resolveComponent("uni-icons");
-  (_easycom_uni_number_box2 + _easycom_uni_icons2)();
+  _easycom_uni_number_box2();
 }
 const _easycom_uni_number_box = () => "../../uni_modules/uni-number-box/components/uni-number-box/uni-number-box.js";
-const _easycom_uni_icons = () => "../../uni_modules/uni-icons/components/uni-icons/uni-icons.js";
 if (!Math) {
-  (_easycom_uni_number_box + _easycom_uni_icons)();
+  _easycom_uni_number_box();
 }
 const _sfc_main = {
   __name: "list-4",
@@ -19,7 +17,6 @@ const _sfc_main = {
     let UID = "<@" + getApp().globalData.UID + ">";
     let date = a + " " + vModelValu.value.toString() + " " + UID;
     let CarryOut = () => {
-      console.log(date);
       common_vendor.index.showToast({
         title: "\u8BF7\u6C42\u4E2D",
         icon: "none"
@@ -50,12 +47,7 @@ const _sfc_main = {
           min: 1,
           modelValue: common_vendor.unref(vModelValu)
         }),
-        d: common_vendor.p({
-          type: "arrowright",
-          size: "16",
-          color: "#666"
-        }),
-        e: common_vendor.o((...args) => common_vendor.unref(CarryOut) && common_vendor.unref(CarryOut)(...args))
+        d: common_vendor.o((...args) => common_vendor.unref(CarryOut) && common_vendor.unref(CarryOut)(...args))
       };
     };
   }

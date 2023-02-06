@@ -1,26 +1,16 @@
 <template>
   <view>
-    <view class="container">
-      <view class="box-bg">
-        <view class="h">
-          <!-- #ifndef MP-WEIXIN-->
-          <!--  <view :style="{height:statusBarHeight+'px',position:'absolute'}" class="he"></view> -->
-          <!-- #endif -->
-          <!-- #ifndef APP-PLUS-->
-          <view :style="{height:statusBarHeight+'px',position:'absolute'}" class="he"></view>
-          <!-- #endif -->
-        </view>
-        <uni-nav-bar leftIcon="back" :rightText="Search" fixed="true" @clickLeft="back" @clickRight="cd">
-          <view class="input-view">
-            <uni-icons class="input-uni-icon" type="search" size="18" color="#999" />
-            <input confirm-type="search" class="nav-bar-input" v-model="search" type="text" placeholder="输入搜索关键词"
-              @confirm="confirm" @focus="cd" />
-          </view>
-        </uni-nav-bar>
+    <view class="box1">
+      <view class="input-box">
+        <input confirm-type="search" class="input" v-model="search" type="text" placeholder="输入搜索关键词"
+          @confirm="confirm" />
+      </view>
+      <view class="box-txt" @tap="cd">
+        <text>重置</text>
       </view>
     </view>
-    <scroll-view scroll-y="true" class="scro">
-      <view v-for="(item,index) in data.list" :key="index" @tap="fh(item)">
+    <scroll-view scroll-y="true" class="scro" lower-threshold="100px" @scrolltolower="h()">
+      <view v-for="item in data.list" :key="item.id" @tap="fh(item)">
         <view class=".box">
           <view>{{item.text}}</view>
         </view>
@@ -37,13 +27,6 @@
   import {
     onLoad
   } from '@dcloudio/uni-app';
-  // #ifndef MP-WEIXIN
-  const MenuButtonBoundingClientRect = uni.getMenuButtonBoundingClientRect().height
-  const statusBarHeight = ref(uni.getSystemInfoSync().statusBarHeight + MenuButtonBoundingClientRect)
-  //#endif
-  // //#ifndef APP-PLUS
-  // const statusBarHeight = ref(uni.getSystemInfoSync().statusBarHeight)
-  // //#endif
   let Search = ref('搜索')
   let data = reactive({
     list: []
@@ -61,7 +44,6 @@
         tab: 'commandlist'
       }
     }).then(res => {
-
       switch (id.value) {
         case '0':
           data.list = res.result.wupinList
@@ -84,7 +66,6 @@
           break
         case '10':
           data.list = res.result.Monster
-          Monster
           break
       }
     })
@@ -95,47 +76,41 @@
   })
 
   function cd() {
-    if (Search.value === '搜索') {
-      Search.value = '取消'
-    } else {
-      Search.value = '搜索'
-      if (getApp().globalData.list.length !== 0) {
-        data.list = getApp().globalData.list
-      }
-    }
+    data.list = getApp().globalData.list
+    search.value = ''
+    uni.showToast({
+      title: '已成功重置',
+      icon: 'success'
+    })
+  }
+  let h = (item) => {
+    console.log('被触发');
   }
 
   function confirm() {
-    data.Search = '取消'
-    const s = new Set()
-    // let i = 0
-    // let qe = search.value + '1' + '1' + '1' + '1' + '1' + '1' + '1'
-    // let y = true
+    let c = []
+    const text = new RegExp(search.value)
     getApp().globalData.list = data.list
-    data.list.forEach(item => {
-      // i++
-      try {
-        if (item.text === search.value) {
-          s.add(item)
-          throw ('11221')
+    data.list.forEach((item, i) => {
+      if (text.test(item.text)) {
+        item.id = i
+        c.push(item)
+        // console.log(c);
+        data.list = c
+
+      } else {
+        if (c !== getApp().globalData.list.length && c.length != 0) {
+          uni.showToast({
+            title: '共搜索' + data.list.length + '条内容'
+          })
+        } else if (i == c.length) {
+          uni.showToast({
+            title: '未找到该内容',
+            icon: "error"
+          })
         }
-      } catch (e) {}
-      //else if (y === true) {
-      //   for (; i < item.text.length;) {
-      //     console.log(item.text[i]);
-      //     if (item.text[i] === qe[i]) {
-      //       console.log(111112);
-      //       s.add(item)
-      //       y = false
-      //       return
-      //     } else {
-      //       return
-      //     }
-      //   }
-      // }
+      }
     })
-    let c = [...s]
-    data.list = c
   }
 
   function back() {
@@ -167,6 +142,30 @@
     }
   }
 
+  .box1 {
+    display: flex;
+    height: 30px;
+    align-items: center;
+
+    .box-txt {
+      width: 35px;
+      height: 50%;
+      background-color: skyblue;
+      font-size: 12px;
+    }
+
+    .input-box {
+      border: 5px solid #ffffff;
+      border-radius: 5px;
+      margin: 5px 5px;
+
+      .input {
+        background-color: #ffffff;
+        margin: auto;
+        font-size: 12px;
+      }
+    }
+  }
 
   $nav-height:30px;
 
@@ -178,11 +177,9 @@
 
   .h {
 
-    .he {
-      margin: 0;
-      padding: 0;
-      background-color: #ffffff;
-    }
+    margin: 0;
+    padding: 0;
+    background-color: #ffffff;
   }
 
 

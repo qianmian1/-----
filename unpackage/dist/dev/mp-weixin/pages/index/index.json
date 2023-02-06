@@ -4,6 +4,8 @@
     "list": "../../components/list/list",
     "list-2": "../../components/list-2/list-2",
     "list-3": "../../components/list-3/list-3",
-    "list-4": "../../components/list-4/list-4"
+    "list-4": "../../components/list-4/list-4",
+    "list-5": "../../components/list-5/list-5",
+    "tab": "../../components/tab/tab"
   }
 }

@@ -12,7 +12,7 @@
         <view v-if="showText" class="t-c" @tap="getCode">{{hi}}</view>
         <view v-else class="t-c" style="background-color: #A7A7A7;">重新发送({{ second }})</view>
       </view>
-      <button @tap="testValidate()">验证</button>
+      <button @tap="testValidate(option.username)">验证</button>
     </form>
   </view>
 </template>
@@ -37,11 +37,11 @@
         }
       };
     },
-    onLoad() {
-      this.getCode()
+    onLoad(option) {
+      this.getCode(option.username)
     },
     methods: {
-      testSend() {
+      testSend(username) {
         uni.showLoading({
           mask: true
         })
@@ -49,7 +49,7 @@
           name: "emailCode",
           data: {
             method: 'sendCode',
-            email: getApp().globalData.username,
+            email: username,
           }
         }).then((res) => {
           uni.hideLoading();
@@ -72,7 +72,7 @@
         });
       },
       //当前登录按钮操作
-      testValidate() {
+      testValidate(username) {
         if (!this.code) {
           uni.showToast({
             duration: 1500,
@@ -90,7 +90,7 @@
           data: {
             code: this.code,
             method: 'validateCode',
-            email: getApp().globalData.username,
+            email: username,
             codeId: this.codeId,
             effectiveTime: 300
           }
@@ -135,13 +135,16 @@
           }
         }).catch(e => {
           uni.hideLoading()
+          uni.showToast({
+            title: '发送失败',
+            icon: 'error'
+          })
         })
       },
-
       //获取短信验证码
-      getCode() {
+      getCode(username) {
         let that = this;
-        that.testSend()
+        that.testSend(username)
         let interval = setInterval(() => {
           that.showText = false;
           let times = that.second - 1;

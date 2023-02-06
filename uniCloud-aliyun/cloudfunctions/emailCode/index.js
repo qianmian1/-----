@@ -110,7 +110,7 @@ exports.main = async (event, context) => {
         secure: true,
         auth: {
           user: 'suya.o@qq.com',
-          pass: 'bagtaudlkccnecid'
+          pass: 'kdpdzbfwtgngecfa'
         }
 
       }

@@ -29,35 +29,11 @@ const _sfc_main = {
             api: this.api
           }
         }).then((res) => {
-          if (res.result.code === 200 || res.result.code === 201) {
-            common_vendor.index.showToast({
-              title: "\u767B\u9646\u6210\u529F",
-              icon: "success"
+          setTimeout(() => {
+            common_vendor.index.redirectTo({
+              url: "/pages/index/index"
             });
-            if (!res.result.RandomNumber) {
-              this.$store.dispatch("ayuncupdatatoken", {
-                token: res.result.token
-              });
-              this.$store.dispatch("ayuncUpDataServiceIp", {
-                ServiceIp: res.result.ServiceIp
-              });
-            } else {
-              this.$store.dispatch("ayuncupdatatoken", {
-                token: res.result.token
-              });
-              this.$store.dispatch("ayuncUpDataServiceIp", {
-                ServiceIp: res.result.ServiceIp
-              });
-              this.$store.dispatch("ayuncUpDataRandomNumber", {
-                RandomNumber: res.result.RandomNumber
-              });
-            }
-            setTimeout(() => {
-              common_vendor.index.redirectTo({
-                url: "/pages/index/index"
-              });
-            }, 1e3);
-          }
+          }, 1e3);
         }).catch((e) => {
           if (e.message == "\u5BC6\u7801\u9519\u8BEF") {
             common_vendor.index.showToast({

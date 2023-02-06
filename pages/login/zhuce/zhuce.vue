@@ -4,26 +4,22 @@
     <view class="input-box">
       <view class="input-boxname">
         <view class="input-boxname1">
-          <text class="txt" @click="yu()" :style="Color1">服主注册</text>
-          <text class="txt" @click="yi()" :style="Color2">玩家注册</text>
+          <view v-for="(item,index) in data.list" :key="index" class="txt" :class="{color:color===index}"
+            @tap="chken(index)">{{item.name}}
+          </view>
         </view>
       </view>
       <text>用户名</text>
       <input type="text" v-model="username" placeholder="请输入邮箱格式的用户名" />
-    </view>
-    <view class="input-box">
       <text>密码</text>
-      <input v-model="password" placeholder="密码" type="password" />
-    </view>
-    <view class="input-box">
-      <text>{{ServiceIo}}</text>
-      <input v-model="ServiceIp" :placeholder="ServiceIo" type="text" />
-    </view>
-    <view>
-      <view class="input-box">
-        <text>{{Switch}}</text>
-        <input v-model="Plugins" placeholder="token" type="text" />
-      </view>
+      <uni-easyinput type="password" v-model="password" maxlength=16 placeholder="请输入密码" :styles="data.styles">
+      </uni-easyinput>
+      <text>{{text}}</text>
+      <input type="text" v-model="ip" placeholder="请输入ip地址或域名" />
+      <text>{{text_1}}</text>
+      <input type="text" v-model="token" :placeholder="'请输入插件'+text_1" />
+      <text>{{text_2}}</text>
+      <input type="text" v-model="UID" placeholder="请输入游戏UID" />
     </view>
 
     <view class="but-box">
@@ -32,155 +28,80 @@
   </view>
 </template>
 
-<script>
-  export default {
-    data() {
-      return {
-        username: '',
-        password: '',
-        ServiceIp: '',
-        api: 'Service',
-        Plugins: '',
-        Service: '服务器ip',
-        Switch: '插件token',
-        Color1: 'color: red;',
-        Color2: 'color: black;',
-        ServiceIo: 'ip或域名',
+<script setup>
+  import {
+    reactive,
+    ref,
+    watch
+  } from "vue";
+  let username = ref('')
+  let password = ref('')
+  let color = ref(0)
+  let text = ref('IP地址或域名')
+  let ip = ref('')
+  let text_1 = ref('插件token')
+  let token = ref('')
+  let text_2 = ref('游戏UID')
+  let UID = ref('')
+  let api = ref('Service')
+  let code = ref(getApp().globalData.code)
+  let data = reactive({
+    list: [{
+        name: '服主注册'
+      },
+      {
+        name: '玩家注册'
       }
+    ],
+    styles: {
+      color: '#666',
+      background: 'rgba(255, 255, 255, .1)',
+      border: ' 1px solid #ffffff'
     },
-    onReady() {
-      if (getApp().globalData.code === true) {
-        uni.showLoading({
-          mask: true
-        })
-        this.login()
-        setTimeout(() => {
-          uni.hideLoading()
-        }, 2000)
-      }
-    },
-    onLoad() {
+    date: {
 
-    },
-    methods: {
-      yu() {
-        this.Service = '服务器ip'
-        this.api = 'Service'
-        this.Color1 = 'color: red;'
-        this.Switch = '插件token'
-        this.Color2 = 'color: black;'
-        this.ServiceIo = 'ip或域名'
-      },
-      yi() {
-        this.tu = '注册码'
-        this.api = 'Player'
-        this.Color1 = 'color: black;'
-        this.Color2 = 'color: red;'
-        this.Switch = '游戏UID'
-        this.ServiceIo = '请输入注册码（也可不填）'
-      },
-      login() {
-        if (getApp().globalData.code === false) {
-          getApp().globalData.username = this.username
-          // console.log(getApp().globalData.username);
-          getApp().globalData.password = this.password
-          // console.log(getApp().globalData.password);
-          getApp().globalData.ServiceIp = this.ServiceIp
-          // console.log(getApp().globalData.ServiceIp);
-          getApp().globalData.Plugins = this.Plugins
-          // console.log(getApp().globalData.Plugins);
-          getApp().globalData.api = this.api
-          // console.log(getApp().globalData.api);
-          getApp().globalData.Switch = this.Switch
-          // console.log(getApp().globalData.Switch);
-          uni.navigateTo({
-            url: '/pages/login/yanzhenma'
-          })
-          return
+    }
+  })
+  watch(code, () => {
+    login()
+  })
+  let login = () => {
+    let date = data.date
+    if (api === 'Service') {
+      date.UID = UID.value
+      date.ip = ip.value
+      date.token = token
+    } else {
+      date.zhudema = token.value
+      date.UID = UID.value
+    }
+    if (code === true) {
+      uniCloud.callFunction({
+        name: 'user',
+        data: {
+          username: username.value,
+          password: password.value,
+          api: api.value,
+          date: date
         }
-        if (getApp().globalData.Switch === true) {
-          //服主注册
-          uniCloud.callFunction({
-            name: 'user',
-            data: {
-              username: getApp().globalData.username,
-              password: getApp().globalData.password,
-              ip: getApp().globalData.ServiceIp,
-              Plugins: getApp().globalData.Plugins,
-              api: getApp().globalData.api
-            }
-          }).then(res => {
-            if (res.result.code == 200) {
-              uni.showToast({
-                duration: 1500,
-                title: '注册成功',
-                icon: 'success'
-              })
-              getApp().globalData.code = false
-              getApp().globalData.token = res.result.token
-              getApp().globalData.Plugins = res.result.Plugins
-              getApp().globalData.RandomNumber = res.result.RandomNumber
-              setTimeout(() => {
-                uni.redirectTo({
-                  url: '/pages/index/index'
-                })
-              }, 1000)
-            }
-          }).catch(e => {
-            getApp().globalData.code = false
-            console.log(e.message);
-            if (e.message === '用户已被注册') {
-              uni.showToast({
-                duration: 1500,
-                title: '用户已被注册',
-                icon: 'error'
-              })
-              this.username = ""
-            }
-          })
-        } else {
-          //玩家注册
-          uniCloud.callFunction({
-            name: 'user',
-            data: {
-              username: getApp().globalData.username,
-              password: getApp().globalData.password,
-              zhucheMa: getApp().globalData.ServiceIp,
-              UID: getApp().globalData.Plugins,
-              api: getApp().globalData.api
-            }
-          }).then(res => {
-            if (res.result.code == 200) {
-              uni.showToast({
-                duration: 1500,
-                title: '注册成功',
-                icon: 'success'
-              })
-              getApp().globalData.code = false
-              getApp().globalData.token = res.result.token
-              getApp().globalData.UID = res.result.UID
-              console.log(getApp().globalData.UID);
-              if (res.result.plugins) {
-                getApp().globalData.zhucheMa = res.result.zhucheMa
-                getApp().globalData.Plugins = res.result.Plugins
-                getApp().globalData.ServiceIp = res.result.ServiceIp
-              }
-              uni.redirectTo({
-                url: '/pages/index/index'
-              })
-            }
-          }).catch(e => {
-            getApp().globalData.code = false
-            if (e.message === '用户已被注册') {
-              uni.showToast({
-                duration: 1500,
-                title: '用户已被注册',
-                icon: 'error'
-              })
-              this.username = ""
-            }
-          })
-        }
+      })
+    } else {
+      uni.showToast({
+        title: '请验证',
+        icon: 'none'
+      })
+      uni.navigateTo({
+        url: '/pages/login/yanzhenma?username:' + username.value.toString()
+      })
+    }
+    let chken = (index) => {
+      color.value = index
+      if (index === 1) {
+        api.value = 'Player'
+        text_1.value = '邀请码'
+      } else {
+        api.value = 'Service'
+        text_1.value = '游戏UID'
       }
     }
   }
@@ -233,8 +154,11 @@
             font-size: 14px;
             display: inline;
             text-align: center;
-          }
 
+            &.color {
+              color: red;
+            }
+          }
         }
       }
 
@@ -265,6 +189,8 @@
 
     .input-box {
       .btn {
+        background-color: skyblue;
+        width: 50%;
         border: 2rpx solid rgba(255, 255, 255, 0.8);
       }
     }

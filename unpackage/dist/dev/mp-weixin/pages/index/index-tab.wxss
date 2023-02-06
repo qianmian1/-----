@@ -32,11 +32,32 @@
   border-bottom: 1px solid #ccc;
   padding: 20rpx 0;
 }
+.box1 {
+  display: flex;
+  height: 30px;
+  align-items: center;
+}
+.box1 .box-txt {
+  width: 35px;
+  height: 50%;
+  background-color: skyblue;
+  font-size: 12px;
+}
+.box1 .input-box {
+  border: 5px solid #ffffff;
+  border-radius: 5px;
+  margin: 5px 5px;
+}
+.box1 .input-box .input {
+  background-color: #ffffff;
+  margin: auto;
+  font-size: 12px;
+}
 .box-bg {
   background-color: #F5F5F5;
   padding: 5px 0;
 }
-.h .he {
+.h {
   margin: 0;
   padding: 0;
   background-color: #ffffff;

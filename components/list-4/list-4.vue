@@ -6,8 +6,7 @@
           <view class="my-comtent_list-title">
             <text>{{text_2}}</text>
           </view>
-          <uni-number-box :max="99999" :min="1" v-model="vModelValu"></uni-number-box>
-          <uni-icons type="arrowright" size="16" color="#666"></uni-icons>
+          <uni-number-box :max="99999" :min="1" v-model="vModelValu" class='numbr'></uni-number-box>
         </view>
       </view>
       <view class="btn-box">
@@ -30,7 +29,6 @@
   let date = a + ' ' + vModelValu.value.toString() + ' ' + UID
   name: "list-4"
   let CarryOut = () => {
-    console.log(date);
     uni.showToast({
       title: '请求中',
       icon: 'none'
@@ -73,6 +71,10 @@
         background-color: #ffffff;
         color: #333;
         font-size: 14px;
+
+        .numbr {
+          margin: auto;
+        }
 
         .text-box {
           .text {

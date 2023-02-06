@@ -47,22 +47,19 @@
     }, {
       "path": "pages/index/index-tab",
       "style": {
-        "navigationStyle": "custom",
+        "navigationBarTitleText": "",
+        "enablePullDownRefresh": false
+      }
+
+    }, {
+      "path": "pages/index/index-swich",
+      "style": {
         "navigationBarTitleText": "",
         "enablePullDownRefresh": false
       }
 
     }
-      ,{
-            "path" : "pages/index/index-swich",
-            "style" :                                                                                    
-            {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false
-            }
-            
-        }
-    ],
+  ],
   "globalStyle": {
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "uni-app",

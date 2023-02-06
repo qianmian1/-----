@@ -6,17 +6,23 @@
       </view>
       <text class="box-text" @tap="fh">切换命令</text>
     </view>
-    <view v-if="value==='give'">
+    <view v-show="value==='give'">
       <list></list>
     </view>
-    <view v-if="value==='setprop'">
+    <view v-show="value==='setprop'">
       <list-2></list-2>
     </view>
-    <view v-if="value==='spawn'">
+    <view v-show="value==='spawn'">
       <list-3></list-3>
     </view>
-    <view v-if="value==='setConst'">
+    <view v-show="value==='setConst'">
       <list-4></list-4>
+    </view>
+    <view v-show="value==='clear'">
+      <list-5></list-5>
+    </view>
+    <view v-show="value===1">
+      <tab :height="height" :v_right="'flex-end'"></tab>
     </view>
   </view>
 
@@ -28,7 +34,10 @@
     reactive,
     watch,
   } from "vue";
-  let value = ref('spawn')
+  // let flex-start='flex-start'
+  let value = ref('clear')
+  let height = ref(uni.getSystemInfoSync().screenHeight - (uni.getSystemInfoSync().statusBarHeight + uni
+    .getMenuButtonBoundingClientRect().height))
 
   function fh() {
     uni.navigateTo({
@@ -43,6 +52,7 @@
 <style lang="scss" scoped>
   page {
     background-color: #f5f5f5;
+    overflow: hidden;
   }
 
   .box {
