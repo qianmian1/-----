@@ -2,7 +2,7 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "jsencrypt": "^3.3.1",
-    "token": "file:../common/token"
+    "token1": "file:../common/token1"
   },
   "extensions": {}
 }

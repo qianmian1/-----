@@ -29,11 +29,7 @@ const _sfc_main = {
             api: this.api
           }
         }).then((res) => {
-          setTimeout(() => {
-            common_vendor.index.redirectTo({
-              url: "/pages/index/index"
-            });
-          }, 1e3);
+          console.log(res);
         }).catch((e) => {
           if (e.message == "\u5BC6\u7801\u9519\u8BEF") {
             common_vendor.index.showToast({

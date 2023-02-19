@@ -14,14 +14,26 @@ const eva = require('./eva.js')
 const db = uniCloud.database({
   throwOnNotFound: false
 })
-const {
-  Generate_Token,
-  RandomNumber,
-  Declassification_Token,
-  Query,
-} = require('token')
+const token1 = require('token1')
 exports.main = async (event, context) => {
-  if (Fun[event.api] !== 'function') {
-    throw Error('无接口')
+  try {
+    if (event.api === 'login') {
+      return await Fun['login'](event, db, bcrypt, token1)
+    } else if (event.api === 'enroll') {
+      return await Fun['enroll'](event, db, bcrypt, token1)
+    }
+    if (Fun[event.api] !== 'function') {
+      throw Error('无接口')
+    }
+    let data = await Fun[event.api](event, db)
+    return {
+      code: 200,
+      data
+    }
+  } catch (error) {
+    return {
+      succes: false,
+      errorMessage: error.message
+    }
   }
 }

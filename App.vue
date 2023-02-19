@@ -4,7 +4,7 @@
       ServiceIp: 'xiaosu520.xyz',
       Plugins: '470683',
       zhucheMa: '',
-      code: false,
+      code: true,
       token: '',
       list: [],
       UID: '10012'

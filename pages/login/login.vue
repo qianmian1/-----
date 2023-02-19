@@ -48,11 +48,12 @@
               api: this.api
             }
           }).then(res => {
-            setTimeout(() => {
-              uni.redirectTo({
-                url: '/pages/index/index'
-              })
-            }, 1000)
+            console.log(res);
+            // setTimeout(() => {
+            //   uni.redirectTo({
+            //     url: '/pages/index/index'
+            //   })
+            // }, 1000)
           }).catch(e => {
             if (e.message == "密码错误") {
               uni.showToast({
