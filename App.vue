@@ -4,10 +4,12 @@
       ServiceIp: 'xiaosu520.xyz',
       Plugins: '470683',
       zhucheMa: '',
-      code: false,
+      code: true,
       token: '',
       list: [],
-      UID: '10012'
+      UID: '10012',
+      asstoken: '',
+      assxtoken: ''
     },
     onLaunch: function() {
       console.log('App Launch')

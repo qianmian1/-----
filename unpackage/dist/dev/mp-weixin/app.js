@@ -1,5 +1,5 @@
 "use strict";
-Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
+Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
 const common_vendor = require("./common/vendor.js");
 const store_index = require("./store/index.js");
 if (!Math) {
@@ -17,10 +17,12 @@ const _sfc_main = {
     ServiceIp: "xiaosu520.xyz",
     Plugins: "470683",
     zhucheMa: "",
-    code: false,
+    code: true,
     token: "",
     list: [],
-    UID: "10012"
+    UID: "10012",
+    asstoken: "",
+    assxtoken: ""
   },
   onLaunch: function() {
     console.log("App Launch");
@@ -32,7 +34,7 @@ const _sfc_main = {
     common_vendor.index.setStorageSync("token", getApp().globalData.token);
   }
 };
-const App = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__file", "E:/\u6307\u4EE4\u6267\u884C\u5668/App.vue"]]);
+const App = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__file", "E:/指令执行器/App.vue"]]);
 function createApp() {
   const app = common_vendor.createSSRApp(App);
   app.use(store_index.store);

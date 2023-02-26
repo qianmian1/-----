@@ -47,7 +47,7 @@
   let aq = ref(0)
   let ad = ref(0)
   let a = 'setprop'
-  let UID = '<' + '@' + getApp().globalData.UID + '>'
+  let UID = '@' + getApp().globalData.UID
   let date = a + ' ' + value.value + ' ' + h.value + ' ' + UID
   let vModelValue = ref(1)
   let list = reactive({

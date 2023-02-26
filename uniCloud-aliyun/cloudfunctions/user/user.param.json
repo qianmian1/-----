@@ -3,7 +3,5 @@
 // 配置教程参考：https://uniapp.dcloud.net.cn/uniCloud/quickstart?id=runparam
 
 {
-  "username": "2673288230@qq.com",
-  "password": "123",
-  "api": "login"
+  "token": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjoiMTQ3MjgwNTc2MEBxcS5jb20iLCJpYXQiOjE2NzYxODQ1ODIsImV4cCI6MTY3NjYxNjU4Mn0.LDsrPkugPYVosCLfAzQZG7n17L6Q5nEoA1EZyU2h5uo"
 }

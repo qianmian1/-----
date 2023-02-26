@@ -4,20 +4,24 @@ const common_assets = require("../../common/assets.js");
 const _sfc_main = {
   data() {
     return {
-      title: "\u9A8C\u8BC1\u7801",
+      title: "验证码",
+      //填写logo或者app名称，也可以用：欢迎回来，看您需求
       second: 60,
-      hi: "\u53D1\u9001\u9A8C\u8BC1\u7801",
+      //默认60秒
+      hi: "发送验证码",
       showText: true,
+      //判断短信是否发送
       code: "",
+      //验证码
       codeId: "",
       statusJson: {
-        "-5": "\u9A8C\u8BC1\u5931\u8D25",
-        "-4": "\u9A8C\u8BC1\u7801\u5DF2\u4F7F\u7528",
-        "-3": "\u9A8C\u8BC1\u7801\u5DF2\u5931\u6548",
-        "-2": "\u5F53\u524D\u90AE\u7BB1\u672A\u53D1\u9001\u9A8C\u8BC1\u7801",
-        "-1": "\u8FD8\u672A\u53D1\u9001\u9A8C\u8BC1\u7801",
-        "0": "\u9A8C\u8BC1\u7801\u4E0D\u6B63\u786E",
-        "1": "\u9A8C\u8BC1\u6210\u529F"
+        "-5": "验证失败",
+        "-4": "验证码已使用",
+        "-3": "验证码已失效",
+        "-2": "当前邮箱未发送验证码",
+        "-1": "还未发送验证码",
+        "0": "验证码不正确",
+        "1": "验证成功"
       }
     };
   },
@@ -42,24 +46,25 @@ const _sfc_main = {
           common_vendor.index.showToast({
             duration: 1500,
             icon: "none",
-            title: "\u53D1\u9001\u6210\u529F",
+            title: "发送成功",
             mask: true
           });
         } else {
           common_vendor.index.showToast({
             duration: 1500,
-            title: "\u53D1\u9001\u5931\u8D25",
+            title: "发送失败",
             mask: true,
             icon: "none"
           });
         }
       });
     },
+    //当前登录按钮操作
     testValidate(username) {
       if (!this.code) {
         common_vendor.index.showToast({
           duration: 1500,
-          title: "\u8BF7\u8F93\u5165\u9A8C\u8BC1\u7801",
+          title: "请输入验证码",
           mask: true,
           icon: "none"
         });
@@ -83,7 +88,7 @@ const _sfc_main = {
           case 1:
             common_vendor.index.showToast({
               duration: 1500,
-              title: "\u9A8C\u8BC1\u6210\u529F",
+              title: "验证成功",
               mask: true,
               icon: "none"
             });
@@ -95,7 +100,7 @@ const _sfc_main = {
           case 0:
             common_vendor.index.showToast({
               duration: 1500,
-              title: "\u9A8C\u8BC1\u5931\u8D25\uFF0C\u8BF7\u68C0\u67E5\u9A8C\u8BC1\u7801",
+              title: "验证失败，请检查验证码",
               mask: true,
               icon: "none"
             });
@@ -103,7 +108,7 @@ const _sfc_main = {
           case -3:
             common_vendor.index.showToast({
               duration: 1500,
-              title: "\u9A8C\u8BC1\u7801\u5DF2\u5931\u6548",
+              title: "验证码已失效",
               mask: true,
               icon: "none"
             });
@@ -111,7 +116,7 @@ const _sfc_main = {
           case -4:
             common_vendor.index.showToast({
               duration: 1500,
-              title: "\u9A8C\u8BC1\u7801\u5DF2\u4F7F\u7528",
+              title: "验证码已使用",
               mask: true,
               icon: "none"
             });
@@ -119,11 +124,12 @@ const _sfc_main = {
       }).catch((e) => {
         common_vendor.index.hideLoading();
         common_vendor.index.showToast({
-          title: "\u53D1\u9001\u5931\u8D25",
+          title: "发送失败",
           icon: "error"
         });
       });
     },
+    //获取短信验证码
     getCode(username) {
       let that = this;
       that.testSend(username);
@@ -134,7 +140,7 @@ const _sfc_main = {
       }, 1e3);
       setTimeout(() => {
         clearInterval(interval);
-        that.hi = "\u91CD\u65B0\u53D1\u9001";
+        that.hi = "重新发送";
         that.second = 60;
         that.showText = true;
       }, 6e4);
@@ -159,5 +165,5 @@ function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
     k: common_vendor.o(($event) => $options.testValidate(_ctx.option.username))
   });
 }
-const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["render", _sfc_render], ["__file", "E:/\u6307\u4EE4\u6267\u884C\u5668/pages/login/yanzhenma.vue"]]);
+const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["render", _sfc_render], ["__file", "E:/指令执行器/pages/login/yanzhenma.vue"]]);
 wx.createPage(MiniProgramPage);

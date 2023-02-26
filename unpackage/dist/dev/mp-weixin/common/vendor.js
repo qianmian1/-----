@@ -103,8 +103,8 @@ const remove = (arr, el) => {
     arr.splice(i2, 1);
   }
 };
-const hasOwnProperty$1 = Object.prototype.hasOwnProperty;
-const hasOwn$1 = (val, key) => hasOwnProperty$1.call(val, key);
+const hasOwnProperty$2 = Object.prototype.hasOwnProperty;
+const hasOwn$1 = (val, key) => hasOwnProperty$2.call(val, key);
 const isArray = Array.isArray;
 const isMap = (val) => toTypeString(val) === "[object Map]";
 const isSet = (val) => toTypeString(val) === "[object Set]";
@@ -123,6 +123,7 @@ const toRawType = (value) => {
 const isPlainObject = (val) => toTypeString(val) === "[object Object]";
 const isIntegerKey = (key) => isString(key) && key !== "NaN" && key[0] !== "-" && "" + parseInt(key, 10) === key;
 const isReservedProp = /* @__PURE__ */ makeMap(
+  // the leading comma is intentional so empty string "" is also included
   ",key,ref,ref_for,ref_key,onVnodeBeforeMount,onVnodeMounted,onVnodeBeforeUpdate,onVnodeUpdated,onVnodeBeforeUnmount,onVnodeUnmounted"
 );
 const isBuiltInDirective = /* @__PURE__ */ makeMap("bind,cloak,else-if,else,for,html,if,model,on,once,pre,show,slot,text,memo");
@@ -154,7 +155,7 @@ const def = (obj, key, value) => {
     value
   });
 };
-const toNumber = (val) => {
+const looseToNumber = (val) => {
   const n2 = parseFloat(val);
   return isNaN(n2) ? val : n2;
 };
@@ -470,8 +471,8 @@ const LOCALE_ZH_HANT = "zh-Hant";
 const LOCALE_EN = "en";
 const LOCALE_FR = "fr";
 const LOCALE_ES = "es";
-const hasOwnProperty = Object.prototype.hasOwnProperty;
-const hasOwn = (val, key) => hasOwnProperty.call(val, key);
+const hasOwnProperty$1 = Object.prototype.hasOwnProperty;
+const hasOwn = (val, key) => hasOwnProperty$1.call(val, key);
 const defaultFormatter = new BaseFormatter();
 function include(str, parts) {
   return !!parts.find((part) => str.indexOf(part) !== -1);
@@ -864,19 +865,19 @@ const HOOK_FAIL = "fail";
 const HOOK_COMPLETE = "complete";
 const globalInterceptors = {};
 const scopedInterceptors = {};
-function wrapperHook(hook) {
+function wrapperHook(hook, params) {
   return function(data) {
-    return hook(data) || data;
+    return hook(data, params) || data;
   };
 }
-function queue$1(hooks, data) {
+function queue$1(hooks, data, params) {
   let promise = false;
   for (let i2 = 0; i2 < hooks.length; i2++) {
     const hook = hooks[i2];
     if (promise) {
-      promise = Promise.resolve(wrapperHook(hook));
+      promise = Promise.resolve(wrapperHook(hook, params));
     } else {
-      const res = hook(data);
+      const res = hook(data, params);
       if (isPromise$1(res)) {
         promise = Promise.resolve(res);
       }
@@ -906,7 +907,7 @@ function wrapperOptions(interceptors2, options = {}) {
     }
     const oldCallback = options[name];
     options[name] = function callbackInterceptor(res) {
-      queue$1(hooks, res).then((res2) => {
+      queue$1(hooks, res, options).then((res2) => {
         return isFunction(oldCallback) && oldCallback(res2) || res2;
       });
     };
@@ -950,7 +951,7 @@ function invokeApi(method, api, options, params) {
     if (isArray(interceptor.invoke)) {
       const res = queue$1(interceptor.invoke, options);
       return res.then((options2) => {
-        return api(wrapperOptions(interceptor, options2), ...params);
+        return api(wrapperOptions(getApiInterceptorHooks(method), options2), ...params);
       });
     } else {
       return api(wrapperOptions(interceptor, options), ...params);
@@ -1367,7 +1368,7 @@ function initWrapper(protocols2) {
             keyOption = keyOption(fromArgs[key], fromArgs, toArgs);
           }
           if (!keyOption) {
-            console.warn(`\u5FAE\u4FE1\u5C0F\u7A0B\u5E8F ${methodName} \u6682\u4E0D\u652F\u6301 ${key}`);
+            console.warn(`微信小程序 ${methodName} 暂不支持 ${key}`);
           } else if (isString(keyOption)) {
             toArgs[keyOption] = fromArgs[key];
           } else if (isPlainObject(keyOption)) {
@@ -1403,7 +1404,7 @@ function initWrapper(protocols2) {
     const protocol = protocols2[methodName];
     if (!protocol) {
       return function() {
-        console.error(`\u5FAE\u4FE1\u5C0F\u7A0B\u5E8F \u6682\u4E0D\u652F\u6301${methodName}`);
+        console.error(`微信小程序 暂不支持${methodName}`);
       };
     }
     return function(arg1, arg2) {
@@ -1497,12 +1498,12 @@ function populateParameters(fromRes, toRes) {
   const hostLanguage = language.replace(/_/g, "-");
   const parameters = {
     appId: "__UNI__FC4080F",
-    appName: "\u6307\u4EE4\u6267\u884C\u5668",
+    appName: "指令执行器",
     appVersion: "1.0.0",
     appVersionCode: "100",
     appLanguage: getAppLanguage(hostLanguage),
-    uniCompileVersion: "3.6.18",
-    uniRuntimeVersion: "3.6.18",
+    uniCompileVersion: "3.7.3",
+    uniRuntimeVersion: "3.7.3",
     uniPlatform: "mp-weixin",
     deviceBrand,
     deviceModel: model,
@@ -1519,6 +1520,7 @@ function populateParameters(fromRes, toRes) {
     hostFontSizeSetting: fontSizeSetting,
     windowTop: 0,
     windowBottom: 0,
+    // TODO
     osLanguage: void 0,
     osTheme: void 0,
     ua: void 0,
@@ -1640,7 +1642,7 @@ const getAppBaseInfo = {
       hostSDKVersion: SDKVersion,
       hostTheme: theme,
       appId: "__UNI__FC4080F",
-      appName: "\u6307\u4EE4\u6267\u884C\u5668",
+      appName: "指令执行器",
       appVersion: "1.0.0",
       appVersionCode: "100",
       appLanguage: getAppLanguage(hostLanguage)
@@ -1716,7 +1718,7 @@ function initGetProvider(providers) {
       isFunction(success) && success(res);
     } else {
       res = {
-        errMsg: "getProvider:fail:\u670D\u52A1[" + service + "]\u4E0D\u5B58\u5728"
+        errMsg: "getProvider:fail:服务[" + service + "]不存在"
       };
       isFunction(fail) && fail(res);
     }
@@ -1734,7 +1736,12 @@ const objectKeys = [
   "router",
   "worklet"
 ];
+const singlePageDisableKey = ["lanDebug", "router", "worklet"];
+const launchOption = wx.getLaunchOptionsSync ? wx.getLaunchOptionsSync() : null;
 function isWxKey(key) {
+  if (launchOption && launchOption.scene === 1154 && singlePageDisableKey.includes(key)) {
+    return false;
+  }
   return objectKeys.indexOf(key) > -1 || typeof wx[key] === "function";
 }
 function initWx() {
@@ -1784,8 +1791,19 @@ var shims = /* @__PURE__ */ Object.freeze({
   createSelectorQuery,
   shareVideoMessage
 });
+const compressImage = {
+  args(fromArgs, toArgs) {
+    if (fromArgs.compressedHeight && !toArgs.compressHeight) {
+      toArgs.compressHeight = fromArgs.compressedHeight;
+    }
+    if (fromArgs.compressedWidth && !toArgs.compressWidth) {
+      toArgs.compressWidth = fromArgs.compressedWidth;
+    }
+  }
+};
 var protocols = /* @__PURE__ */ Object.freeze({
   __proto__: null,
+  compressImage,
   redirectTo,
   previewImage,
   getSystemInfo,
@@ -1798,14 +1816,14 @@ var protocols = /* @__PURE__ */ Object.freeze({
 });
 const wx$1 = initWx();
 var index = initUni(shims, protocols, wx$1);
-function warn(msg, ...args) {
+function warn$1(msg, ...args) {
   console.warn(`[Vue warn] ${msg}`, ...args);
 }
 let activeEffectScope;
 class EffectScope {
   constructor(detached = false) {
     this.detached = detached;
-    this.active = true;
+    this._active = true;
     this.effects = [];
     this.cleanups = [];
     this.parent = activeEffectScope;
@@ -1813,8 +1831,11 @@ class EffectScope {
       this.index = (activeEffectScope.scopes || (activeEffectScope.scopes = [])).push(this) - 1;
     }
   }
+  get active() {
+    return this._active;
+  }
   run(fn2) {
-    if (this.active) {
+    if (this._active) {
       const currentEffectScope = activeEffectScope;
       try {
         activeEffectScope = this;
@@ -1823,17 +1844,25 @@ class EffectScope {
         activeEffectScope = currentEffectScope;
       }
     } else {
-      warn(`cannot run an inactive effect scope.`);
+      warn$1(`cannot run an inactive effect scope.`);
     }
   }
+  /**
+   * This should only be called on non-detached scopes
+   * @internal
+   */
   on() {
     activeEffectScope = this;
   }
+  /**
+   * This should only be called on non-detached scopes
+   * @internal
+   */
   off() {
     activeEffectScope = this.parent;
   }
   stop(fromParent) {
-    if (this.active) {
+    if (this._active) {
       let i2, l2;
       for (i2 = 0, l2 = this.effects.length; i2 < l2; i2++) {
         this.effects[i2].stop();
@@ -1854,7 +1883,7 @@ class EffectScope {
         }
       }
       this.parent = void 0;
-      this.active = false;
+      this._active = false;
     }
   }
 }
@@ -1865,6 +1894,9 @@ function recordEffectScope(effect, scope = activeEffectScope) {
   if (scope && scope.active) {
     scope.effects.push(effect);
   }
+}
+function getCurrentScope() {
+  return activeEffectScope;
 }
 const createDep = (effects) => {
   const dep = new Set(effects);
@@ -2022,7 +2054,7 @@ function trigger(target, type, key, newValue, oldValue, oldTarget) {
   if (type === "clear") {
     deps = [...depsMap.values()];
   } else if (key === "length" && isArray(target)) {
-    const newLength = toNumber(newValue);
+    const newLength = Number(newValue);
     depsMap.forEach((dep, key2) => {
       if (key2 === "length" || key2 >= newLength) {
         deps.push(dep);
@@ -2106,7 +2138,7 @@ const isNonTrackableKeys = /* @__PURE__ */ makeMap(`__proto__,__v_isRef,__isVue`
 const builtInSymbols = new Set(
   /* @__PURE__ */ Object.getOwnPropertyNames(Symbol).filter((key) => key !== "arguments" && key !== "caller").map((key) => Symbol[key]).filter(isSymbol)
 );
-const get = /* @__PURE__ */ createGetter();
+const get$1 = /* @__PURE__ */ createGetter();
 const shallowGet = /* @__PURE__ */ createGetter(false, true);
 const readonlyGet = /* @__PURE__ */ createGetter(true);
 const shallowReadonlyGet = /* @__PURE__ */ createGetter(true, true);
@@ -2137,6 +2169,11 @@ function createArrayInstrumentations() {
   });
   return instrumentations;
 }
+function hasOwnProperty(key) {
+  const obj = toRaw(this);
+  track(obj, "has", key);
+  return obj.hasOwnProperty(key);
+}
 function createGetter(isReadonly2 = false, shallow = false) {
   return function get3(target, key, receiver) {
     if (key === "__v_isReactive") {
@@ -2149,8 +2186,13 @@ function createGetter(isReadonly2 = false, shallow = false) {
       return target;
     }
     const targetIsArray = isArray(target);
-    if (!isReadonly2 && targetIsArray && hasOwn$1(arrayInstrumentations, key)) {
-      return Reflect.get(arrayInstrumentations, key, receiver);
+    if (!isReadonly2) {
+      if (targetIsArray && hasOwn$1(arrayInstrumentations, key)) {
+        return Reflect.get(arrayInstrumentations, key, receiver);
+      }
+      if (key === "hasOwnProperty") {
+        return hasOwnProperty;
+      }
     }
     const res = Reflect.get(target, key, receiver);
     if (isSymbol(key) ? builtInSymbols.has(key) : isNonTrackableKeys(key)) {
@@ -2210,7 +2252,7 @@ function deleteProperty(target, key) {
   }
   return result;
 }
-function has(target, key) {
+function has$1(target, key) {
   const result = Reflect.has(target, key);
   if (!isSymbol(key) || !builtInSymbols.has(key)) {
     track(target, "has", key);
@@ -2222,23 +2264,23 @@ function ownKeys(target) {
   return Reflect.ownKeys(target);
 }
 const mutableHandlers = {
-  get,
+  get: get$1,
   set: set$1,
   deleteProperty,
-  has,
+  has: has$1,
   ownKeys
 };
 const readonlyHandlers = {
   get: readonlyGet,
   set(target, key) {
     {
-      warn(`Set operation on key "${String(key)}" failed: target is readonly.`, target);
+      warn$1(`Set operation on key "${String(key)}" failed: target is readonly.`, target);
     }
     return true;
   },
   deleteProperty(target, key) {
     {
-      warn(`Delete operation on key "${String(key)}" failed: target is readonly.`, target);
+      warn$1(`Delete operation on key "${String(key)}" failed: target is readonly.`, target);
     }
     return true;
   }
@@ -2252,8 +2294,11 @@ const shallowReadonlyHandlers = /* @__PURE__ */ extend({}, readonlyHandlers, {
 });
 const toShallow = (value) => value;
 const getProto = (v2) => Reflect.getPrototypeOf(v2);
-function get$1(target, key, isReadonly2 = false, isShallow2 = false) {
-  target = target["__v_raw"];
+function get(target, key, isReadonly2 = false, isShallow2 = false) {
+  target = target[
+    "__v_raw"
+    /* ReactiveFlags.RAW */
+  ];
   const rawTarget = toRaw(target);
   const rawKey = toRaw(key);
   if (!isReadonly2) {
@@ -2272,8 +2317,11 @@ function get$1(target, key, isReadonly2 = false, isShallow2 = false) {
     target.get(key);
   }
 }
-function has$1(key, isReadonly2 = false) {
-  const target = this["__v_raw"];
+function has(key, isReadonly2 = false) {
+  const target = this[
+    "__v_raw"
+    /* ReactiveFlags.RAW */
+  ];
   const rawTarget = toRaw(target);
   const rawKey = toRaw(key);
   if (!isReadonly2) {
@@ -2285,7 +2333,10 @@ function has$1(key, isReadonly2 = false) {
   return key === rawKey ? target.has(key) : target.has(key) || target.has(rawKey);
 }
 function size(target, isReadonly2 = false) {
-  target = target["__v_raw"];
+  target = target[
+    "__v_raw"
+    /* ReactiveFlags.RAW */
+  ];
   !isReadonly2 && track(toRaw(target), "iterate", ITERATE_KEY);
   return Reflect.get(target, "size", target);
 }
@@ -2300,7 +2351,7 @@ function add(value) {
   }
   return this;
 }
-function set$1$1(key, value) {
+function set$2(key, value) {
   value = toRaw(value);
   const target = toRaw(this);
   const { has: has2, get: get3 } = getProto(target);
@@ -2350,7 +2401,10 @@ function clear() {
 function createForEach(isReadonly2, isShallow2) {
   return function forEach(callback, thisArg) {
     const observed = this;
-    const target = observed["__v_raw"];
+    const target = observed[
+      "__v_raw"
+      /* ReactiveFlags.RAW */
+    ];
     const rawTarget = toRaw(target);
     const wrap = isShallow2 ? toShallow : isReadonly2 ? toReadonly : toReactive;
     !isReadonly2 && track(rawTarget, "iterate", ITERATE_KEY);
@@ -2361,7 +2415,10 @@ function createForEach(isReadonly2, isShallow2) {
 }
 function createIterableMethod(method, isReadonly2, isShallow2) {
   return function(...args) {
-    const target = this["__v_raw"];
+    const target = this[
+      "__v_raw"
+      /* ReactiveFlags.RAW */
+    ];
     const rawTarget = toRaw(target);
     const targetIsMap = isMap(rawTarget);
     const isPair = method === "entries" || method === Symbol.iterator && targetIsMap;
@@ -2370,6 +2427,7 @@ function createIterableMethod(method, isReadonly2, isShallow2) {
     const wrap = isShallow2 ? toShallow : isReadonly2 ? toReadonly : toReactive;
     !isReadonly2 && track(rawTarget, "iterate", isKeyOnly ? MAP_KEY_ITERATE_KEY : ITERATE_KEY);
     return {
+      // iterator protocol
       next() {
         const { value, done } = innerIterator.next();
         return done ? { value, done } : {
@@ -2377,6 +2435,7 @@ function createIterableMethod(method, isReadonly2, isShallow2) {
           done
         };
       },
+      // iterable protocol
       [Symbol.iterator]() {
         return this;
       }
@@ -2395,62 +2454,86 @@ function createReadonlyMethod(type) {
 function createInstrumentations() {
   const mutableInstrumentations2 = {
     get(key) {
-      return get$1(this, key);
+      return get(this, key);
     },
     get size() {
       return size(this);
     },
-    has: has$1,
+    has,
     add,
-    set: set$1$1,
+    set: set$2,
     delete: deleteEntry,
     clear,
     forEach: createForEach(false, false)
   };
   const shallowInstrumentations2 = {
     get(key) {
-      return get$1(this, key, false, true);
+      return get(this, key, false, true);
     },
     get size() {
       return size(this);
     },
-    has: has$1,
+    has,
     add,
-    set: set$1$1,
+    set: set$2,
     delete: deleteEntry,
     clear,
     forEach: createForEach(false, true)
   };
   const readonlyInstrumentations2 = {
     get(key) {
-      return get$1(this, key, true);
+      return get(this, key, true);
     },
     get size() {
       return size(this, true);
     },
     has(key) {
-      return has$1.call(this, key, true);
+      return has.call(this, key, true);
     },
-    add: createReadonlyMethod("add"),
-    set: createReadonlyMethod("set"),
-    delete: createReadonlyMethod("delete"),
-    clear: createReadonlyMethod("clear"),
+    add: createReadonlyMethod(
+      "add"
+      /* TriggerOpTypes.ADD */
+    ),
+    set: createReadonlyMethod(
+      "set"
+      /* TriggerOpTypes.SET */
+    ),
+    delete: createReadonlyMethod(
+      "delete"
+      /* TriggerOpTypes.DELETE */
+    ),
+    clear: createReadonlyMethod(
+      "clear"
+      /* TriggerOpTypes.CLEAR */
+    ),
     forEach: createForEach(true, false)
   };
   const shallowReadonlyInstrumentations2 = {
     get(key) {
-      return get$1(this, key, true, true);
+      return get(this, key, true, true);
     },
     get size() {
       return size(this, true);
     },
     has(key) {
-      return has$1.call(this, key, true);
+      return has.call(this, key, true);
     },
-    add: createReadonlyMethod("add"),
-    set: createReadonlyMethod("set"),
-    delete: createReadonlyMethod("delete"),
-    clear: createReadonlyMethod("clear"),
+    add: createReadonlyMethod(
+      "add"
+      /* TriggerOpTypes.ADD */
+    ),
+    set: createReadonlyMethod(
+      "set"
+      /* TriggerOpTypes.SET */
+    ),
+    delete: createReadonlyMethod(
+      "delete"
+      /* TriggerOpTypes.DELETE */
+    ),
+    clear: createReadonlyMethod(
+      "clear"
+      /* TriggerOpTypes.CLEAR */
+    ),
     forEach: createForEach(true, true)
   };
   const iteratorMethods = ["keys", "values", "entries", Symbol.iterator];
@@ -2519,7 +2602,10 @@ function targetTypeMap(rawType) {
   }
 }
 function getTargetType(value) {
-  return value["__v_skip"] || !Object.isExtensible(value) ? 0 : targetTypeMap(toRawType(value));
+  return value[
+    "__v_skip"
+    /* ReactiveFlags.SKIP */
+  ] || !Object.isExtensible(value) ? 0 : targetTypeMap(toRawType(value));
 }
 function reactive(target) {
   if (isReadonly(target)) {
@@ -2543,7 +2629,13 @@ function createReactiveObject(target, isReadonly2, baseHandlers, collectionHandl
     }
     return target;
   }
-  if (target["__v_raw"] && !(isReadonly2 && target["__v_isReactive"])) {
+  if (target[
+    "__v_raw"
+    /* ReactiveFlags.RAW */
+  ] && !(isReadonly2 && target[
+    "__v_isReactive"
+    /* ReactiveFlags.IS_REACTIVE */
+  ])) {
     return target;
   }
   const existingProxy = proxyMap.get(target);
@@ -2560,21 +2652,36 @@ function createReactiveObject(target, isReadonly2, baseHandlers, collectionHandl
 }
 function isReactive(value) {
   if (isReadonly(value)) {
-    return isReactive(value["__v_raw"]);
+    return isReactive(value[
+      "__v_raw"
+      /* ReactiveFlags.RAW */
+    ]);
   }
-  return !!(value && value["__v_isReactive"]);
+  return !!(value && value[
+    "__v_isReactive"
+    /* ReactiveFlags.IS_REACTIVE */
+  ]);
 }
 function isReadonly(value) {
-  return !!(value && value["__v_isReadonly"]);
+  return !!(value && value[
+    "__v_isReadonly"
+    /* ReactiveFlags.IS_READONLY */
+  ]);
 }
 function isShallow(value) {
-  return !!(value && value["__v_isShallow"]);
+  return !!(value && value[
+    "__v_isShallow"
+    /* ReactiveFlags.IS_SHALLOW */
+  ]);
 }
 function isProxy(value) {
   return isReactive(value) || isReadonly(value);
 }
 function toRaw(observed) {
-  const raw = observed && observed["__v_raw"];
+  const raw = observed && observed[
+    "__v_raw"
+    /* ReactiveFlags.RAW */
+  ];
   return raw ? toRaw(raw) : observed;
 }
 function markRaw(value) {
@@ -2597,9 +2704,10 @@ function trackRefValue(ref2) {
 }
 function triggerRefValue(ref2, newVal) {
   ref2 = toRaw(ref2);
-  if (ref2.dep) {
+  const dep = ref2.dep;
+  if (dep) {
     {
-      triggerEffects(ref2.dep, {
+      triggerEffects(dep, {
         target: ref2,
         type: "set",
         key: "value",
@@ -2676,7 +2784,10 @@ class ComputedRefImpl {
     });
     this.effect.computed = this;
     this.effect.active = this._cacheable = !isSSR;
-    this["__v_isReadonly"] = isReadonly2;
+    this[
+      "__v_isReadonly"
+      /* ReactiveFlags.IS_READONLY */
+    ] = isReadonly2;
   }
   get value() {
     const self = toRaw(this);
@@ -2692,7 +2803,7 @@ class ComputedRefImpl {
   }
 }
 _a = "__v_isReadonly";
-function computed(getterOrOptions, debugOptions, isSSR = false) {
+function computed$1(getterOrOptions, debugOptions, isSSR = false) {
   let getter;
   let setter;
   const onlyGetter = isFunction(getterOrOptions);
@@ -2719,7 +2830,7 @@ function pushWarningContext(vnode) {
 function popWarningContext() {
   stack.pop();
 }
-function warn$1(msg, ...args) {
+function warn(msg, ...args) {
   pauseTracking();
   const instance = stack.length ? stack[stack.length - 1].component : null;
   const appWarnHandler = instance && instance.appContext.config.warnHandler;
@@ -2733,7 +2844,8 @@ function warn$1(msg, ...args) {
     ]);
   } else {
     const warnArgs = [`[Vue warn]: ${msg}`, ...args];
-    if (trace.length && true) {
+    if (trace.length && // avoid spamming console during tests
+    true) {
       warnArgs.push(`
 `, ...formatTrace(trace));
     }
@@ -2805,35 +2917,122 @@ function formatProp(key, value, raw) {
   }
 }
 const ErrorTypeStrings = {
-  ["sp"]: "serverPrefetch hook",
-  ["bc"]: "beforeCreate hook",
-  ["c"]: "created hook",
-  ["bm"]: "beforeMount hook",
-  ["m"]: "mounted hook",
-  ["bu"]: "beforeUpdate hook",
-  ["u"]: "updated",
-  ["bum"]: "beforeUnmount hook",
-  ["um"]: "unmounted hook",
-  ["a"]: "activated hook",
-  ["da"]: "deactivated hook",
-  ["ec"]: "errorCaptured hook",
-  ["rtc"]: "renderTracked hook",
-  ["rtg"]: "renderTriggered hook",
-  [0]: "setup function",
-  [1]: "render function",
-  [2]: "watcher getter",
-  [3]: "watcher callback",
-  [4]: "watcher cleanup function",
-  [5]: "native event handler",
-  [6]: "component event handler",
-  [7]: "vnode hook",
-  [8]: "directive hook",
-  [9]: "transition hook",
-  [10]: "app errorHandler",
-  [11]: "app warnHandler",
-  [12]: "ref function",
-  [13]: "async component loader",
-  [14]: "scheduler flush. This is likely a Vue internals bug. Please open an issue at https://new-issue.vuejs.org/?repo=vuejs/core"
+  [
+    "sp"
+    /* LifecycleHooks.SERVER_PREFETCH */
+  ]: "serverPrefetch hook",
+  [
+    "bc"
+    /* LifecycleHooks.BEFORE_CREATE */
+  ]: "beforeCreate hook",
+  [
+    "c"
+    /* LifecycleHooks.CREATED */
+  ]: "created hook",
+  [
+    "bm"
+    /* LifecycleHooks.BEFORE_MOUNT */
+  ]: "beforeMount hook",
+  [
+    "m"
+    /* LifecycleHooks.MOUNTED */
+  ]: "mounted hook",
+  [
+    "bu"
+    /* LifecycleHooks.BEFORE_UPDATE */
+  ]: "beforeUpdate hook",
+  [
+    "u"
+    /* LifecycleHooks.UPDATED */
+  ]: "updated",
+  [
+    "bum"
+    /* LifecycleHooks.BEFORE_UNMOUNT */
+  ]: "beforeUnmount hook",
+  [
+    "um"
+    /* LifecycleHooks.UNMOUNTED */
+  ]: "unmounted hook",
+  [
+    "a"
+    /* LifecycleHooks.ACTIVATED */
+  ]: "activated hook",
+  [
+    "da"
+    /* LifecycleHooks.DEACTIVATED */
+  ]: "deactivated hook",
+  [
+    "ec"
+    /* LifecycleHooks.ERROR_CAPTURED */
+  ]: "errorCaptured hook",
+  [
+    "rtc"
+    /* LifecycleHooks.RENDER_TRACKED */
+  ]: "renderTracked hook",
+  [
+    "rtg"
+    /* LifecycleHooks.RENDER_TRIGGERED */
+  ]: "renderTriggered hook",
+  [
+    0
+    /* ErrorCodes.SETUP_FUNCTION */
+  ]: "setup function",
+  [
+    1
+    /* ErrorCodes.RENDER_FUNCTION */
+  ]: "render function",
+  [
+    2
+    /* ErrorCodes.WATCH_GETTER */
+  ]: "watcher getter",
+  [
+    3
+    /* ErrorCodes.WATCH_CALLBACK */
+  ]: "watcher callback",
+  [
+    4
+    /* ErrorCodes.WATCH_CLEANUP */
+  ]: "watcher cleanup function",
+  [
+    5
+    /* ErrorCodes.NATIVE_EVENT_HANDLER */
+  ]: "native event handler",
+  [
+    6
+    /* ErrorCodes.COMPONENT_EVENT_HANDLER */
+  ]: "component event handler",
+  [
+    7
+    /* ErrorCodes.VNODE_HOOK */
+  ]: "vnode hook",
+  [
+    8
+    /* ErrorCodes.DIRECTIVE_HOOK */
+  ]: "directive hook",
+  [
+    9
+    /* ErrorCodes.TRANSITION_HOOK */
+  ]: "transition hook",
+  [
+    10
+    /* ErrorCodes.APP_ERROR_HANDLER */
+  ]: "app errorHandler",
+  [
+    11
+    /* ErrorCodes.APP_WARN_HANDLER */
+  ]: "app warnHandler",
+  [
+    12
+    /* ErrorCodes.FUNCTION_REF */
+  ]: "ref function",
+  [
+    13
+    /* ErrorCodes.ASYNC_COMPONENT_LOADER */
+  ]: "async component loader",
+  [
+    14
+    /* ErrorCodes.SCHEDULER */
+  ]: "scheduler flush. This is likely a Vue internals bug. Please open an issue at https://new-issue.vuejs.org/?repo=vuejs/core"
 };
 function callWithErrorHandling(fn2, instance, type, args) {
   let res;
@@ -2891,7 +3090,7 @@ function logError(err, type, contextVNode, throwInDev = true) {
     if (contextVNode) {
       pushWarningContext(contextVNode);
     }
-    warn$1(`Unhandled error${info ? ` during execution of ${info}` : ``}`);
+    warn(`Unhandled error${info ? ` during execution of ${info}` : ``}`);
     if (contextVNode) {
       popWarningContext();
     }
@@ -2912,7 +3111,7 @@ let postFlushIndex = 0;
 const resolvedPromise = /* @__PURE__ */ Promise.resolve();
 let currentFlushPromise = null;
 const RECURSION_LIMIT = 100;
-function nextTick(fn2) {
+function nextTick$1(fn2) {
   const p2 = currentFlushPromise || resolvedPromise;
   return fn2 ? p2.then(this ? fn2.bind(this) : fn2) : p2;
 }
@@ -3026,7 +3225,12 @@ function flushJobs(seen) {
         if (check(job)) {
           continue;
         }
-        callWithErrorHandling(job, null, 14);
+        callWithErrorHandling(
+          job,
+          null,
+          14
+          /* ErrorCodes.SCHEDULER */
+        );
       }
     }
   } finally {
@@ -3048,7 +3252,7 @@ function checkRecursiveUpdates(seen, fn2) {
     if (count > RECURSION_LIMIT) {
       const instance = fn2.ownerInstance;
       const componentName = instance && getComponentName(instance.type);
-      warn$1(`Maximum recursive updates exceeded${componentName ? ` in component <${componentName}>` : ``}. This means you have a reactive effect that is mutating its own dependencies and thus recursively triggering itself. Possible sources include component template, render function, updated hook or watcher source function.`);
+      warn(`Maximum recursive updates exceeded${componentName ? ` in component <${componentName}>` : ``}. This means you have a reactive effect that is mutating its own dependencies and thus recursively triggering itself. Possible sources include component template, render function, updated hook or watcher source function.`);
       return true;
     } else {
       seen.set(fn2, count + 1);
@@ -3058,7 +3262,7 @@ function checkRecursiveUpdates(seen, fn2) {
 let devtools;
 let buffer = [];
 let devtoolsNotInstalled = false;
-function emit(event, ...args) {
+function emit$1(event, ...args) {
   if (devtools) {
     devtools.emit(event, ...args);
   } else if (!devtoolsNotInstalled) {
@@ -3072,7 +3276,16 @@ function setDevtoolsHook(hook, target) {
     devtools.enabled = true;
     buffer.forEach(({ event, args }) => devtools.emit(event, ...args));
     buffer = [];
-  } else if (typeof window !== "undefined" && window.HTMLElement && !((_b = (_a2 = window.navigator) === null || _a2 === void 0 ? void 0 : _a2.userAgent) === null || _b === void 0 ? void 0 : _b.includes("jsdom"))) {
+  } else if (
+    // handle late devtools injection - only do this if we are in an actual
+    // browser environment to avoid the timer handle stalling test runner exit
+    // (#4815)
+    typeof window !== "undefined" && // some envs mock window but not fully
+    // eslint-disable-next-line no-restricted-globals
+    window.HTMLElement && // also exclude jsdom
+    // eslint-disable-next-line no-restricted-globals
+    !((_b = (_a2 = window.navigator) === null || _a2 === void 0 ? void 0 : _a2.userAgent) === null || _b === void 0 ? void 0 : _b.includes("jsdom"))
+  ) {
     const replay = target.__VUE_DEVTOOLS_HOOK_REPLAY__ = target.__VUE_DEVTOOLS_HOOK_REPLAY__ || [];
     replay.push((newHook) => {
       setDevtoolsHook(newHook, target);
@@ -3090,43 +3303,61 @@ function setDevtoolsHook(hook, target) {
   }
 }
 function devtoolsInitApp(app, version2) {
-  emit("app:init", app, version2, {
+  emit$1("app:init", app, version2, {
     Fragment,
     Text,
     Comment,
     Static
   });
 }
-const devtoolsComponentAdded = /* @__PURE__ */ createDevtoolsComponentHook("component:added");
-const devtoolsComponentUpdated = /* @__PURE__ */ createDevtoolsComponentHook("component:updated");
-const _devtoolsComponentRemoved = /* @__PURE__ */ createDevtoolsComponentHook("component:removed");
+const devtoolsComponentAdded = /* @__PURE__ */ createDevtoolsComponentHook(
+  "component:added"
+  /* DevtoolsHooks.COMPONENT_ADDED */
+);
+const devtoolsComponentUpdated = /* @__PURE__ */ createDevtoolsComponentHook(
+  "component:updated"
+  /* DevtoolsHooks.COMPONENT_UPDATED */
+);
+const _devtoolsComponentRemoved = /* @__PURE__ */ createDevtoolsComponentHook(
+  "component:removed"
+  /* DevtoolsHooks.COMPONENT_REMOVED */
+);
 const devtoolsComponentRemoved = (component) => {
-  if (devtools && typeof devtools.cleanupBuffer === "function" && !devtools.cleanupBuffer(component)) {
+  if (devtools && typeof devtools.cleanupBuffer === "function" && // remove the component if it wasn't buffered
+  !devtools.cleanupBuffer(component)) {
     _devtoolsComponentRemoved(component);
   }
 };
 function createDevtoolsComponentHook(hook) {
   return (component) => {
-    emit(
+    emit$1(
       hook,
       component.appContext.app,
       component.uid,
+      // fixed by xxxxxx
+      // 为 0 是 App，无 parent 是 Page 指向 App
       component.uid === 0 ? void 0 : component.parent ? component.parent.uid : 0,
       component
     );
   };
 }
-const devtoolsPerfStart = /* @__PURE__ */ createDevtoolsPerformanceHook("perf:start");
-const devtoolsPerfEnd = /* @__PURE__ */ createDevtoolsPerformanceHook("perf:end");
+const devtoolsPerfStart = /* @__PURE__ */ createDevtoolsPerformanceHook(
+  "perf:start"
+  /* DevtoolsHooks.PERFORMANCE_START */
+);
+const devtoolsPerfEnd = /* @__PURE__ */ createDevtoolsPerformanceHook(
+  "perf:end"
+  /* DevtoolsHooks.PERFORMANCE_END */
+);
 function createDevtoolsPerformanceHook(hook) {
   return (component, type, time) => {
-    emit(hook, component.appContext.app, component.uid, component, type, time);
+    emit$1(hook, component.appContext.app, component.uid, component, type, time);
   };
 }
 function devtoolsComponentEmit(component, event, params) {
-  emit("component:emit", component.appContext.app, component, event, params);
+  emit$1("component:emit", component.appContext.app, component, event, params);
 }
-function emit$1(instance, event, ...rawArgs) {
+function emit(instance, event, ...rawArgs) {
   if (instance.isUnmounted)
     return;
   const props = instance.vnode.props || EMPTY_OBJ;
@@ -3135,14 +3366,14 @@ function emit$1(instance, event, ...rawArgs) {
     if (emitsOptions) {
       if (!(event in emitsOptions) && true) {
         if (!propsOptions || !(toHandlerKey(event) in propsOptions)) {
-          warn$1(`Component emitted event "${event}" but it is neither declared in the emits option nor as an "${toHandlerKey(event)}" prop.`);
+          warn(`Component emitted event "${event}" but it is neither declared in the emits option nor as an "${toHandlerKey(event)}" prop.`);
         }
       } else {
         const validator = emitsOptions[event];
         if (isFunction(validator)) {
           const isValid = validator(...rawArgs);
           if (!isValid) {
-            warn$1(`Invalid event arguments: event validation failed for event "${event}".`);
+            warn(`Invalid event arguments: event validation failed for event "${event}".`);
           }
         }
       }
@@ -3158,7 +3389,7 @@ function emit$1(instance, event, ...rawArgs) {
       args = rawArgs.map((a2) => isString(a2) ? a2.trim() : a2);
     }
     if (number) {
-      args = rawArgs.map(toNumber);
+      args = rawArgs.map(looseToNumber);
     }
   }
   {
@@ -3167,11 +3398,12 @@ function emit$1(instance, event, ...rawArgs) {
   {
     const lowerCaseEvent = event.toLowerCase();
     if (lowerCaseEvent !== event && props[toHandlerKey(lowerCaseEvent)]) {
-      warn$1(`Event "${lowerCaseEvent}" is emitted in component ${formatComponentName(instance, instance.type)} but the handler is registered for "${event}". Note that HTML attributes are case-insensitive and you cannot use v-on to listen to camelCase events when using in-DOM templates. You should probably use "${hyphenate(event)}" instead of "${event}".`);
+      warn(`Event "${lowerCaseEvent}" is emitted in component ${formatComponentName(instance, instance.type)} but the handler is registered for "${event}". Note that HTML attributes are case-insensitive and you cannot use v-on to listen to camelCase events when using in-DOM templates. You should probably use "${hyphenate(event)}" instead of "${event}".`);
     }
   }
   let handlerName;
-  let handler = props[handlerName = toHandlerKey(event)] || props[handlerName = toHandlerKey(camelize(event))];
+  let handler = props[handlerName = toHandlerKey(event)] || // also try camelCase event handler (#2249)
+  props[handlerName = toHandlerKey(camelize(event))];
   if (!handler && isModelListener2) {
     handler = props[handlerName = toHandlerKey(hyphenate(event))];
   }
@@ -3249,7 +3481,7 @@ function setCurrentRenderingInstance(instance) {
 function provide(key, value) {
   if (!currentInstance) {
     {
-      warn$1(`provide() can only be used inside setup().`);
+      warn(`provide() can only be used inside setup().`);
     }
   } else {
     let provides = currentInstance.provides;
@@ -3272,32 +3504,32 @@ function inject(key, defaultValue, treatDefaultAsFactory = false) {
     } else if (arguments.length > 1) {
       return treatDefaultAsFactory && isFunction(defaultValue) ? defaultValue.call(instance.proxy) : defaultValue;
     } else {
-      warn$1(`injection "${String(key)}" not found.`);
+      warn(`injection "${String(key)}" not found.`);
     }
   } else {
-    warn$1(`inject() can only be used inside setup() or functional components.`);
+    warn(`inject() can only be used inside setup() or functional components.`);
   }
 }
 const INITIAL_WATCHER_VALUE = {};
 function watch(source, cb, options) {
   if (!isFunction(cb)) {
-    warn$1(`\`watch(fn, options?)\` signature has been moved to a separate API. Use \`watchEffect(fn, options?)\` instead. \`watch\` now only supports \`watch(source, cb, options?) signature.`);
+    warn(`\`watch(fn, options?)\` signature has been moved to a separate API. Use \`watchEffect(fn, options?)\` instead. \`watch\` now only supports \`watch(source, cb, options?) signature.`);
   }
   return doWatch(source, cb, options);
 }
 function doWatch(source, cb, { immediate, deep, flush, onTrack, onTrigger } = EMPTY_OBJ) {
   if (!cb) {
     if (immediate !== void 0) {
-      warn$1(`watch() "immediate" option is only respected when using the watch(source, callback, options?) signature.`);
+      warn(`watch() "immediate" option is only respected when using the watch(source, callback, options?) signature.`);
     }
     if (deep !== void 0) {
-      warn$1(`watch() "deep" option is only respected when using the watch(source, callback, options?) signature.`);
+      warn(`watch() "deep" option is only respected when using the watch(source, callback, options?) signature.`);
     }
   }
   const warnInvalidSource = (s2) => {
-    warn$1(`Invalid watch source: `, s2, `A watch source can only be a getter/effect function, a ref, a reactive object, or an array of these types.`);
+    warn(`Invalid watch source: `, s2, `A watch source can only be a getter/effect function, a ref, a reactive object, or an array of these types.`);
   };
-  const instance = currentInstance;
+  const instance = getCurrentScope() === (currentInstance === null || currentInstance === void 0 ? void 0 : currentInstance.scope) ? currentInstance : null;
   let getter;
   let forceTrigger = false;
   let isMultiSource = false;
@@ -3316,14 +3548,24 @@ function doWatch(source, cb, { immediate, deep, flush, onTrack, onTrigger } = EM
       } else if (isReactive(s2)) {
         return traverse(s2);
       } else if (isFunction(s2)) {
-        return callWithErrorHandling(s2, instance, 2);
+        return callWithErrorHandling(
+          s2,
+          instance,
+          2
+          /* ErrorCodes.WATCH_GETTER */
+        );
       } else {
         warnInvalidSource(s2);
       }
     });
   } else if (isFunction(source)) {
     if (cb) {
-      getter = () => callWithErrorHandling(source, instance, 2);
+      getter = () => callWithErrorHandling(
+        source,
+        instance,
+        2
+        /* ErrorCodes.WATCH_GETTER */
+      );
     } else {
       getter = () => {
         if (instance && instance.isUnmounted) {
@@ -3346,7 +3588,12 @@ function doWatch(source, cb, { immediate, deep, flush, onTrack, onTrigger } = EM
   let cleanup;
   let onCleanup = (fn2) => {
     cleanup = effect.onStop = () => {
-      callWithErrorHandling(fn2, instance, 4);
+      callWithErrorHandling(
+        fn2,
+        instance,
+        4
+        /* ErrorCodes.WATCH_CLEANUP */
+      );
     };
   };
   let oldValue = isMultiSource ? new Array(source.length).fill(INITIAL_WATCHER_VALUE) : INITIAL_WATCHER_VALUE;
@@ -3362,6 +3609,7 @@ function doWatch(source, cb, { immediate, deep, flush, onTrack, onTrigger } = EM
         }
         callWithAsyncErrorHandling(cb, instance, 3, [
           newValue,
+          // pass undefined as the old value when it's changed for the first time
           oldValue === INITIAL_WATCHER_VALUE ? void 0 : isMultiSource && oldValue[0] === INITIAL_WATCHER_VALUE ? [] : oldValue,
           onCleanup
         ]);
@@ -3376,7 +3624,7 @@ function doWatch(source, cb, { immediate, deep, flush, onTrack, onTrigger } = EM
   if (flush === "sync") {
     scheduler = job;
   } else if (flush === "post") {
-    scheduler = () => queuePostRenderEffect(job, instance && instance.suspense);
+    scheduler = () => queuePostRenderEffect$1(job, instance && instance.suspense);
   } else {
     job.pre = true;
     if (instance)
@@ -3395,7 +3643,7 @@ function doWatch(source, cb, { immediate, deep, flush, onTrack, onTrigger } = EM
       oldValue = effect.run();
     }
   } else if (flush === "post") {
-    queuePostRenderEffect(effect.run.bind(effect), instance && instance.suspense);
+    queuePostRenderEffect$1(effect.run.bind(effect), instance && instance.suspense);
   } else {
     effect.run();
   }
@@ -3438,7 +3686,10 @@ function createPathGetter(ctx, path) {
   };
 }
 function traverse(value, seen) {
-  if (!isObject$2(value) || value["__v_skip"]) {
+  if (!isObject$2(value) || value[
+    "__v_skip"
+    /* ReactiveFlags.SKIP */
+  ]) {
     return value;
   }
   seen = seen || /* @__PURE__ */ new Set();
@@ -3493,7 +3744,13 @@ function registerKeepAliveHook(hook, type, target = currentInstance) {
   }
 }
 function injectToKeepAliveRoot(hook, type, target, keepAliveRoot) {
-  const injected = injectHook(type, hook, keepAliveRoot, true);
+  const injected = injectHook(
+    type,
+    hook,
+    keepAliveRoot,
+    true
+    /* prepend */
+  );
   onUnmounted(() => {
     remove(keepAliveRoot[type], injected);
   }, target);
@@ -3523,25 +3780,55 @@ function injectHook(type, hook, target = currentInstance, prepend = false) {
     return wrappedHook;
   } else {
     const apiName = toHandlerKey((ErrorTypeStrings[type] || type.replace(/^on/, "")).replace(/ hook$/, ""));
-    warn$1(`${apiName} is called when there is no active component instance to be associated with. Lifecycle injection APIs can only be used during execution of setup().`);
+    warn(`${apiName} is called when there is no active component instance to be associated with. Lifecycle injection APIs can only be used during execution of setup().`);
   }
 }
-const createHook$1 = (lifecycle) => (hook, target = currentInstance) => (!isInSSRComponentSetup || lifecycle === "sp") && injectHook(lifecycle, (...args) => hook(...args), target);
-const onBeforeMount = createHook$1("bm");
-const onMounted = createHook$1("m");
-const onBeforeUpdate = createHook$1("bu");
-const onUpdated = createHook$1("u");
-const onBeforeUnmount = createHook$1("bum");
-const onUnmounted = createHook$1("um");
-const onServerPrefetch = createHook$1("sp");
-const onRenderTriggered = createHook$1("rtg");
-const onRenderTracked = createHook$1("rtc");
+const createHook$1 = (lifecycle) => (hook, target = currentInstance) => (
+  // post-create lifecycle registrations are noops during SSR (except for serverPrefetch)
+  (!isInSSRComponentSetup || lifecycle === "sp") && injectHook(lifecycle, (...args) => hook(...args), target)
+);
+const onBeforeMount = createHook$1(
+  "bm"
+  /* LifecycleHooks.BEFORE_MOUNT */
+);
+const onMounted = createHook$1(
+  "m"
+  /* LifecycleHooks.MOUNTED */
+);
+const onBeforeUpdate = createHook$1(
+  "bu"
+  /* LifecycleHooks.BEFORE_UPDATE */
+);
+const onUpdated = createHook$1(
+  "u"
+  /* LifecycleHooks.UPDATED */
+);
+const onBeforeUnmount = createHook$1(
+  "bum"
+  /* LifecycleHooks.BEFORE_UNMOUNT */
+);
+const onUnmounted = createHook$1(
+  "um"
+  /* LifecycleHooks.UNMOUNTED */
+);
+const onServerPrefetch = createHook$1(
+  "sp"
+  /* LifecycleHooks.SERVER_PREFETCH */
+);
+const onRenderTriggered = createHook$1(
+  "rtg"
+  /* LifecycleHooks.RENDER_TRIGGERED */
+);
+const onRenderTracked = createHook$1(
+  "rtc"
+  /* LifecycleHooks.RENDER_TRACKED */
+);
 function onErrorCaptured(hook, target = currentInstance) {
   injectHook("ec", hook, target);
 }
 function validateDirectiveName(name) {
   if (isBuiltInDirective(name)) {
-    warn$1("Do not use built-in directive ids as custom directive id: " + name);
+    warn("Do not use built-in directive ids as custom directive id: " + name);
   }
 }
 const COMPONENTS = "components";
@@ -3553,23 +3840,32 @@ function resolveAsset(type, name, warnMissing = true, maybeSelfReference = false
   if (instance) {
     const Component2 = instance.type;
     if (type === COMPONENTS) {
-      const selfName = getComponentName(Component2, false);
+      const selfName = getComponentName(
+        Component2,
+        false
+        /* do not include inferred name to avoid breaking existing code */
+      );
       if (selfName && (selfName === name || selfName === camelize(name) || selfName === capitalize(camelize(name)))) {
         return Component2;
       }
     }
-    const res = resolve(instance[type] || Component2[type], name) || resolve(instance.appContext[type], name);
+    const res = (
+      // local registration
+      // check instance[type] first which is resolved for options API
+      resolve(instance[type] || Component2[type], name) || // global registration
+      resolve(instance.appContext[type], name)
+    );
     if (!res && maybeSelfReference) {
       return Component2;
     }
     if (warnMissing && !res) {
       const extra = type === COMPONENTS ? `
 If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.` : ``;
-      warn$1(`Failed to resolve ${type.slice(0, -1)}: ${name}${extra}`);
+      warn(`Failed to resolve ${type.slice(0, -1)}: ${name}${extra}`);
     }
     return res;
   } else {
-    warn$1(`resolve${capitalize(type.slice(0, -1))} can only be used in render() or setup().`);
+    warn(`resolve${capitalize(type.slice(0, -1))} can only be used in render() or setup().`);
   }
 }
 function resolve(registry, name) {
@@ -3582,21 +3878,28 @@ const getPublicInstance = (i2) => {
     return getExposeProxy(i2) || i2.proxy;
   return getPublicInstance(i2.parent);
 };
-const publicPropertiesMap = /* @__PURE__ */ extend(/* @__PURE__ */ Object.create(null), {
-  $: (i2) => i2,
-  $el: (i2) => i2.__$el || (i2.__$el = {}),
-  $data: (i2) => i2.data,
-  $props: (i2) => shallowReadonly(i2.props),
-  $attrs: (i2) => shallowReadonly(i2.attrs),
-  $slots: (i2) => shallowReadonly(i2.slots),
-  $refs: (i2) => shallowReadonly(i2.refs),
-  $parent: (i2) => getPublicInstance(i2.parent),
-  $root: (i2) => getPublicInstance(i2.root),
-  $emit: (i2) => i2.emit,
-  $options: (i2) => resolveMergedOptions(i2),
-  $forceUpdate: (i2) => i2.f || (i2.f = () => queueJob(i2.update)),
-  $watch: (i2) => instanceWatch.bind(i2)
-});
+const publicPropertiesMap = (
+  // Move PURE marker to new line to workaround compiler discarding it
+  // due to type annotation
+  /* @__PURE__ */ extend(/* @__PURE__ */ Object.create(null), {
+    $: (i2) => i2,
+    // fixed by xxxxxx vue-i18n 在 dev 模式，访问了 $el，故模拟一个假的
+    // $el: i => i.vnode.el,
+    $el: (i2) => i2.__$el || (i2.__$el = {}),
+    $data: (i2) => i2.data,
+    $props: (i2) => shallowReadonly(i2.props),
+    $attrs: (i2) => shallowReadonly(i2.attrs),
+    $slots: (i2) => shallowReadonly(i2.slots),
+    $refs: (i2) => shallowReadonly(i2.refs),
+    $parent: (i2) => getPublicInstance(i2.parent),
+    $root: (i2) => getPublicInstance(i2.root),
+    $emit: (i2) => i2.emit,
+    $options: (i2) => resolveMergedOptions(i2),
+    $forceUpdate: (i2) => i2.f || (i2.f = () => queueJob(i2.update)),
+    // $nextTick: i => i.n || (i.n = nextTick.bind(i.proxy!)),// fixed by xxxxxx
+    $watch: (i2) => instanceWatch.bind(i2)
+  })
+);
 const isReservedPrefix = (key) => key === "_" || key === "$";
 const hasSetupBinding = (state, key) => state !== EMPTY_OBJ && !state.__isScriptSetup && hasOwn$1(state, key);
 const PublicInstanceProxyHandlers = {
@@ -3625,7 +3928,11 @@ const PublicInstanceProxyHandlers = {
       } else if (data !== EMPTY_OBJ && hasOwn$1(data, key)) {
         accessCache[key] = 2;
         return data[key];
-      } else if ((normalizedProps = instance.propsOptions[0]) && hasOwn$1(normalizedProps, key)) {
+      } else if (
+        // only cache other properties when instance has declared (thus stable)
+        // props
+        (normalizedProps = instance.propsOptions[0]) && hasOwn$1(normalizedProps, key)
+      ) {
         accessCache[key] = 3;
         return props[key];
       } else if (ctx !== EMPTY_OBJ && hasOwn$1(ctx, key)) {
@@ -3642,20 +3949,28 @@ const PublicInstanceProxyHandlers = {
         track(instance, "get", key);
       }
       return publicGetter(instance);
-    } else if ((cssModule = type.__cssModules) && (cssModule = cssModule[key])) {
+    } else if (
+      // css module (injected by vue-loader)
+      (cssModule = type.__cssModules) && (cssModule = cssModule[key])
+    ) {
       return cssModule;
     } else if (ctx !== EMPTY_OBJ && hasOwn$1(ctx, key)) {
       accessCache[key] = 4;
       return ctx[key];
-    } else if (globalProperties = appContext.config.globalProperties, hasOwn$1(globalProperties, key)) {
+    } else if (
+      // global properties
+      globalProperties = appContext.config.globalProperties, hasOwn$1(globalProperties, key)
+    ) {
       {
         return globalProperties[key];
       }
-    } else if (currentRenderingInstance && (!isString(key) || key.indexOf("__v") !== 0)) {
+    } else if (currentRenderingInstance && (!isString(key) || // #1091 avoid internal isRef/isVNode checks on component instance leading
+    // to infinite warning loop
+    key.indexOf("__v") !== 0)) {
       if (data !== EMPTY_OBJ && isReservedPrefix(key[0]) && hasOwn$1(data, key)) {
-        warn$1(`Property ${JSON.stringify(key)} must be accessed via $data because it starts with a reserved character ("$" or "_") and is not proxied on the render context.`);
+        warn(`Property ${JSON.stringify(key)} must be accessed via $data because it starts with a reserved character ("$" or "_") and is not proxied on the render context.`);
       } else if (instance === currentRenderingInstance) {
-        warn$1(`Property ${JSON.stringify(key)} was accessed during render but is not defined on instance.`);
+        warn(`Property ${JSON.stringify(key)} was accessed during render but is not defined on instance.`);
       }
     }
   },
@@ -3665,17 +3980,17 @@ const PublicInstanceProxyHandlers = {
       setupState[key] = value;
       return true;
     } else if (setupState.__isScriptSetup && hasOwn$1(setupState, key)) {
-      warn$1(`Cannot mutate <script setup> binding "${key}" from Options API.`);
+      warn(`Cannot mutate <script setup> binding "${key}" from Options API.`);
       return false;
     } else if (data !== EMPTY_OBJ && hasOwn$1(data, key)) {
       data[key] = value;
       return true;
     } else if (hasOwn$1(instance.props, key)) {
-      warn$1(`Attempting to mutate prop "${key}". Props are readonly.`);
+      warn(`Attempting to mutate prop "${key}". Props are readonly.`);
       return false;
     }
     if (key[0] === "$" && key.slice(1) in instance) {
-      warn$1(`Attempting to mutate public property "${key}". Properties starting with $ are reserved and readonly.`);
+      warn(`Attempting to mutate public property "${key}". Properties starting with $ are reserved and readonly.`);
       return false;
     } else {
       if (key in instance.appContext.config.globalProperties) {
@@ -3705,7 +4020,7 @@ const PublicInstanceProxyHandlers = {
 };
 {
   PublicInstanceProxyHandlers.ownKeys = (target) => {
-    warn$1(`Avoid app logic that relies on enumerating keys on a component instance. The keys will be empty in production mode to avoid performance overhead.`);
+    warn(`Avoid app logic that relies on enumerating keys on a component instance. The keys will be empty in production mode to avoid performance overhead.`);
     return Reflect.ownKeys(target);
   };
 }
@@ -3721,6 +4036,8 @@ function createDevRenderContext(instance) {
       configurable: true,
       enumerable: false,
       get: () => publicPropertiesMap[key](instance),
+      // intercepted by the proxy so no need for implementation,
+      // but needed to prevent set errors
       set: NOOP
     });
   });
@@ -3744,7 +4061,7 @@ function exposeSetupStateOnRenderContext(instance) {
   Object.keys(toRaw(setupState)).forEach((key) => {
     if (!setupState.__isScriptSetup) {
       if (isReservedPrefix(key[0])) {
-        warn$1(`setup() return property ${JSON.stringify(key)} should not start with "$" or "_" which are reserved prefixes for Vue internals.`);
+        warn(`setup() return property ${JSON.stringify(key)} should not start with "$" or "_" which are reserved prefixes for Vue internals.`);
         return;
       }
       Object.defineProperty(ctx, key, {
@@ -3760,7 +4077,7 @@ function createDuplicateChecker() {
   const cache = /* @__PURE__ */ Object.create(null);
   return (type, key) => {
     if (cache[key]) {
-      warn$1(`${type} property "${key}" is already defined in ${cache[key]}.`);
+      warn(`${type} property "${key}" is already defined in ${cache[key]}.`);
     } else {
       cache[key] = type;
     }
@@ -3773,15 +4090,22 @@ function applyOptions$1(instance) {
   const ctx = instance.ctx;
   shouldCacheAccess = false;
   if (options.beforeCreate) {
-    callHook$1(options.beforeCreate, instance, "bc");
+    callHook$1(
+      options.beforeCreate,
+      instance,
+      "bc"
+      /* LifecycleHooks.BEFORE_CREATE */
+    );
   }
   const {
+    // state
     data: dataOptions,
     computed: computedOptions,
     methods,
     watch: watchOptions,
     provide: provideOptions,
     inject: injectOptions,
+    // lifecycle
     created,
     beforeMount,
     mounted,
@@ -3798,8 +4122,10 @@ function applyOptions$1(instance) {
     renderTriggered,
     errorCaptured,
     serverPrefetch,
+    // public API
     expose,
     inheritAttrs,
+    // assets
     components,
     directives,
     filters
@@ -3832,20 +4158,20 @@ function applyOptions$1(instance) {
           checkDuplicateProperties("Methods", key);
         }
       } else {
-        warn$1(`Method "${key}" has type "${typeof methodHandler}" in the component definition. Did you reference the function correctly?`);
+        warn(`Method "${key}" has type "${typeof methodHandler}" in the component definition. Did you reference the function correctly?`);
       }
     }
   }
   if (dataOptions) {
     if (!isFunction(dataOptions)) {
-      warn$1(`The data option must be a function. Plain object usage is no longer supported.`);
+      warn(`The data option must be a function. Plain object usage is no longer supported.`);
     }
     const data = dataOptions.call(publicThis, publicThis);
     if (isPromise$1(data)) {
-      warn$1(`data() returned a Promise - note data() cannot be async; If you intend to perform data fetching before component renders, use async setup() + <Suspense>.`);
+      warn(`data() returned a Promise - note data() cannot be async; If you intend to perform data fetching before component renders, use async setup() + <Suspense>.`);
     }
     if (!isObject$2(data)) {
-      warn$1(`data() should return an object.`);
+      warn(`data() should return an object.`);
     } else {
       instance.data = reactive(data);
       {
@@ -3869,12 +4195,12 @@ function applyOptions$1(instance) {
       const opt = computedOptions[key];
       const get3 = isFunction(opt) ? opt.bind(publicThis, publicThis) : isFunction(opt.get) ? opt.get.bind(publicThis, publicThis) : NOOP;
       if (get3 === NOOP) {
-        warn$1(`Computed property "${key}" has no getter.`);
+        warn(`Computed property "${key}" has no getter.`);
       }
       const set2 = !isFunction(opt) && isFunction(opt.set) ? opt.set.bind(publicThis) : () => {
-        warn$1(`Write operation failed: computed property "${key}" is readonly.`);
+        warn(`Write operation failed: computed property "${key}" is readonly.`);
       };
-      const c2 = computed$1({
+      const c2 = computed({
         get: get3,
         set: set2
       });
@@ -3904,7 +4230,12 @@ function applyOptions$1(instance) {
   }
   {
     if (created) {
-      callHook$1(created, instance, "c");
+      callHook$1(
+        created,
+        instance,
+        "c"
+        /* LifecycleHooks.CREATED */
+      );
     }
   }
   function registerLifecycleHook(register2, hook) {
@@ -3962,7 +4293,12 @@ function resolveInjections(injectOptions, ctx, checkDuplicateProperties = NOOP, 
     let injected;
     if (isObject$2(opt)) {
       if ("default" in opt) {
-        injected = inject(opt.from || key, opt.default, true);
+        injected = inject(
+          opt.from || key,
+          opt.default,
+          true
+          /* treat default function as factory */
+        );
       } else {
         injected = inject(opt.from || key);
       }
@@ -3979,7 +4315,7 @@ function resolveInjections(injectOptions, ctx, checkDuplicateProperties = NOOP, 
         });
       } else {
         {
-          warn$1(`injected property "${key}" is a ref and will be auto-unwrapped and no longer needs \`.value\` in the next minor release. To opt-in to the new behavior now, set \`app.config.unwrapInjectedRef = true\` (this config is temporary and will not be needed in the future.)`);
+          warn(`injected property "${key}" is a ref and will be auto-unwrapped and no longer needs \`.value\` in the next minor release. To opt-in to the new behavior now, set \`app.config.unwrapInjectedRef = true\` (this config is temporary and will not be needed in the future.)`);
         }
         ctx[key] = injected;
       }
@@ -4001,7 +4337,7 @@ function createWatcher(raw, ctx, publicThis, key) {
     if (isFunction(handler)) {
       watch(getter, handler);
     } else {
-      warn$1(`Invalid watch handler specified by key "${raw}"`, handler);
+      warn(`Invalid watch handler specified by key "${raw}"`, handler);
     }
   } else if (isFunction(raw)) {
     watch(getter, raw.bind(publicThis));
@@ -4013,11 +4349,11 @@ function createWatcher(raw, ctx, publicThis, key) {
       if (isFunction(handler)) {
         watch(getter, handler, raw);
       } else {
-        warn$1(`Invalid watch handler specified by key "${raw.handler}"`, handler);
+        warn(`Invalid watch handler specified by key "${raw.handler}"`, handler);
       }
     }
   } else {
-    warn$1(`Invalid watch option: "${key}"`, raw);
+    warn(`Invalid watch option: "${key}"`, raw);
   }
 }
 function resolveMergedOptions(instance) {
@@ -4054,7 +4390,7 @@ function mergeOptions(to, from, strats, asMixin = false) {
   }
   for (const key in from) {
     if (asMixin && key === "expose") {
-      warn$1(`"expose" option is ignored when declared in mixins or extends. It should only be declared in the base component itself.`);
+      warn(`"expose" option is ignored when declared in mixins or extends. It should only be declared in the base component itself.`);
     } else {
       const strat = internalOptionMergeStrats[key] || strats && strats[key];
       to[key] = strat ? strat(to[key], from[key]) : from[key];
@@ -4066,8 +4402,10 @@ const internalOptionMergeStrats = {
   data: mergeDataFn,
   props: mergeObjectOptions,
   emits: mergeObjectOptions,
+  // objects
   methods: mergeObjectOptions,
   computed: mergeObjectOptions,
+  // lifecycle
   beforeCreate: mergeAsArray$1,
   created: mergeAsArray$1,
   beforeMount: mergeAsArray$1,
@@ -4082,9 +4420,12 @@ const internalOptionMergeStrats = {
   deactivated: mergeAsArray$1,
   errorCaptured: mergeAsArray$1,
   serverPrefetch: mergeAsArray$1,
+  // assets
   components: mergeObjectOptions,
   directives: mergeObjectOptions,
+  // watch
   watch: mergeWatchOptions,
+  // provide / inject
   provide: mergeDataFn,
   inject: mergeInject
 };
@@ -4165,7 +4506,12 @@ function updateProps(instance, rawProps, rawPrevProps, optimized) {
   const rawCurrentProps = toRaw(props);
   const [options] = instance.propsOptions;
   let hasAttrsChanged = false;
-  if (!isInHmrContext(instance) && (optimized || patchFlag > 0) && !(patchFlag & 16)) {
+  if (
+    // always force full diff in dev
+    // - #1942 if hmr is enabled with sfc component
+    // - vite#872 non-sfc component used by sfc component
+    !isInHmrContext(instance) && (optimized || patchFlag > 0) && !(patchFlag & 16)
+  ) {
     if (patchFlag & 8) {
       const propsToUpdate = instance.vnode.dynamicProps;
       for (let i2 = 0; i2 < propsToUpdate.length; i2++) {
@@ -4182,7 +4528,15 @@ function updateProps(instance, rawProps, rawPrevProps, optimized) {
             }
           } else {
             const camelizedKey = camelize(key);
-            props[camelizedKey] = resolvePropValue(options, rawCurrentProps, camelizedKey, value, instance, false);
+            props[camelizedKey] = resolvePropValue(
+              options,
+              rawCurrentProps,
+              camelizedKey,
+              value,
+              instance,
+              false
+              /* isAbsent */
+            );
           }
         } else {
           if (value !== attrs[key]) {
@@ -4198,10 +4552,23 @@ function updateProps(instance, rawProps, rawPrevProps, optimized) {
     }
     let kebabKey;
     for (const key in rawCurrentProps) {
-      if (!rawProps || !hasOwn$1(rawProps, key) && ((kebabKey = hyphenate(key)) === key || !hasOwn$1(rawProps, kebabKey))) {
+      if (!rawProps || // for camelCase
+      !hasOwn$1(rawProps, key) && // it's possible the original props was passed in as kebab-case
+      // and converted to camelCase (#955)
+      ((kebabKey = hyphenate(key)) === key || !hasOwn$1(rawProps, kebabKey))) {
         if (options) {
-          if (rawPrevProps && (rawPrevProps[key] !== void 0 || rawPrevProps[kebabKey] !== void 0)) {
-            props[key] = resolvePropValue(options, rawCurrentProps, key, void 0, instance, true);
+          if (rawPrevProps && // for camelCase
+          (rawPrevProps[key] !== void 0 || // for kebab-case
+          rawPrevProps[kebabKey] !== void 0)) {
+            props[key] = resolvePropValue(
+              options,
+              rawCurrentProps,
+              key,
+              void 0,
+              instance,
+              true
+              /* isAbsent */
+            );
           }
         } else {
           delete props[key];
@@ -4278,10 +4645,16 @@ function resolvePropValue(options, props, key, value, instance, isAbsent) {
         value = defaultValue;
       }
     }
-    if (opt[0]) {
+    if (opt[
+      0
+      /* BooleanFlags.shouldCast */
+    ]) {
       if (isAbsent && !hasDefault) {
         value = false;
-      } else if (opt[1] && (value === "" || value === hyphenate(key))) {
+      } else if (opt[
+        1
+        /* BooleanFlags.shouldCastTrue */
+      ] && (value === "" || value === hyphenate(key))) {
         value = true;
       }
     }
@@ -4325,7 +4698,7 @@ function normalizePropsOptions(comp, appContext, asMixin = false) {
   if (isArray(raw)) {
     for (let i2 = 0; i2 < raw.length; i2++) {
       if (!isString(raw[i2])) {
-        warn$1(`props must be strings when using array syntax.`, raw[i2]);
+        warn(`props must be strings when using array syntax.`, raw[i2]);
       }
       const normalizedKey = camelize(raw[i2]);
       if (validatePropName(normalizedKey)) {
@@ -4334,7 +4707,7 @@ function normalizePropsOptions(comp, appContext, asMixin = false) {
     }
   } else if (raw) {
     if (!isObject$2(raw)) {
-      warn$1(`invalid props options`, raw);
+      warn(`invalid props options`, raw);
     }
     for (const key in raw) {
       const normalizedKey = camelize(key);
@@ -4344,8 +4717,14 @@ function normalizePropsOptions(comp, appContext, asMixin = false) {
         if (prop) {
           const booleanIndex = getTypeIndex(Boolean, prop.type);
           const stringIndex = getTypeIndex(String, prop.type);
-          prop[0] = booleanIndex > -1;
-          prop[1] = stringIndex < 0 || booleanIndex < stringIndex;
+          prop[
+            0
+            /* BooleanFlags.shouldCast */
+          ] = booleanIndex > -1;
+          prop[
+            1
+            /* BooleanFlags.shouldCastTrue */
+          ] = stringIndex < 0 || booleanIndex < stringIndex;
           if (booleanIndex > -1 || hasOwn$1(prop, "default")) {
             needCastKeys.push(normalizedKey);
           }
@@ -4363,13 +4742,13 @@ function validatePropName(key) {
   if (key[0] !== "$") {
     return true;
   } else {
-    warn$1(`Invalid prop name: "${key}" is a reserved property.`);
+    warn(`Invalid prop name: "${key}" is a reserved property.`);
   }
   return false;
 }
 function getType(ctor) {
-  const match = ctor && ctor.toString().match(/^\s*function (\w+)/);
-  return match ? match[1] : ctor === null ? "null" : "";
+  const match = ctor && ctor.toString().match(/^\s*(function|class) (\w+)/);
+  return match ? match[2] : ctor === null ? "null" : "";
 }
 function isSameType(a2, b) {
   return getType(a2) === getType(b);
@@ -4395,7 +4774,7 @@ function validateProps(rawProps, props, instance) {
 function validateProp(name, value, prop, isAbsent) {
   const { type, required, validator } = prop;
   if (required && isAbsent) {
-    warn$1('Missing required prop: "' + name + '"');
+    warn('Missing required prop: "' + name + '"');
     return;
   }
   if (value == null && !prop.required) {
@@ -4411,12 +4790,12 @@ function validateProp(name, value, prop, isAbsent) {
       isValid = valid;
     }
     if (!isValid) {
-      warn$1(getInvalidTypeMessage(name, value, expectedTypes));
+      warn(getInvalidTypeMessage(name, value, expectedTypes));
       return;
     }
   }
   if (validator && !validator(value)) {
-    warn$1('Invalid prop: custom validator check failed for prop "' + name + '".');
+    warn('Invalid prop: custom validator check failed for prop "' + name + '".');
   }
 }
 const isSimpleType = /* @__PURE__ */ makeMap("String,Number,Boolean,Function,Symbol,BigInt");
@@ -4495,20 +4874,20 @@ function createAppContext() {
     emitsCache: /* @__PURE__ */ new WeakMap()
   };
 }
-let uid = 0;
+let uid$1 = 0;
 function createAppAPI(render, hydrate) {
   return function createApp2(rootComponent, rootProps = null) {
     if (!isFunction(rootComponent)) {
       rootComponent = Object.assign({}, rootComponent);
     }
     if (rootProps != null && !isObject$2(rootProps)) {
-      warn$1(`root props passed to app.mount() must be an object.`);
+      warn(`root props passed to app.mount() must be an object.`);
       rootProps = null;
     }
     const context = createAppContext();
     const installedPlugins = /* @__PURE__ */ new Set();
     const app = context.app = {
-      _uid: uid++,
+      _uid: uid$1++,
       _component: rootComponent,
       _props: rootProps,
       _container: null,
@@ -4520,12 +4899,12 @@ function createAppAPI(render, hydrate) {
       },
       set config(v2) {
         {
-          warn$1(`app.config cannot be replaced. Modify individual options instead.`);
+          warn(`app.config cannot be replaced. Modify individual options instead.`);
         }
       },
       use(plugin2, ...options) {
         if (installedPlugins.has(plugin2)) {
-          warn$1(`Plugin has already been applied to target app.`);
+          warn(`Plugin has already been applied to target app.`);
         } else if (plugin2 && isFunction(plugin2.install)) {
           installedPlugins.add(plugin2);
           plugin2.install(app, ...options);
@@ -4533,7 +4912,7 @@ function createAppAPI(render, hydrate) {
           installedPlugins.add(plugin2);
           plugin2(app, ...options);
         } else {
-          warn$1(`A plugin must either be a function or an object with an "install" function.`);
+          warn(`A plugin must either be a function or an object with an "install" function.`);
         }
         return app;
       },
@@ -4542,7 +4921,7 @@ function createAppAPI(render, hydrate) {
           if (!context.mixins.includes(mixin)) {
             context.mixins.push(mixin);
           } else {
-            warn$1("Mixin has already been applied to target app" + (mixin.name ? `: ${mixin.name}` : ""));
+            warn("Mixin has already been applied to target app" + (mixin.name ? `: ${mixin.name}` : ""));
           }
         }
         return app;
@@ -4555,7 +4934,7 @@ function createAppAPI(render, hydrate) {
           return context.components[name];
         }
         if (context.components[name]) {
-          warn$1(`Component "${name}" has already been registered in target app.`);
+          warn(`Component "${name}" has already been registered in target app.`);
         }
         context.components[name] = component;
         return app;
@@ -4568,18 +4947,20 @@ function createAppAPI(render, hydrate) {
           return context.directives[name];
         }
         if (context.directives[name]) {
-          warn$1(`Directive "${name}" has already been registered in target app.`);
+          warn(`Directive "${name}" has already been registered in target app.`);
         }
         context.directives[name] = directive;
         return app;
       },
+      // fixed by xxxxxx
       mount() {
       },
+      // fixed by xxxxxx
       unmount() {
       },
       provide(key, value) {
         if (key in context.provides) {
-          warn$1(`App already provides property with key "${String(key)}". It will be overwritten with the new value.`);
+          warn(`App already provides property with key "${String(key)}". It will be overwritten with the new value.`);
         }
         context.provides[key] = value;
         return app;
@@ -4623,7 +5004,7 @@ function isSupported() {
   }
   return supported;
 }
-const queuePostRenderEffect = queuePostFlushCb;
+const queuePostRenderEffect$1 = queuePostFlushCb;
 const Fragment = Symbol("Fragment");
 const Text = Symbol("Text");
 const Comment = Symbol("Comment");
@@ -4638,12 +5019,12 @@ function guardReactiveProps(props) {
   return isProxy(props) || InternalObjectKey in props ? extend({}, props) : props;
 }
 const emptyAppContext = createAppContext();
-let uid$1 = 0;
+let uid = 0;
 function createComponentInstance(vnode, parent, suspense) {
   const type = vnode.type;
   const appContext = (parent ? parent.appContext : vnode.appContext) || emptyAppContext;
   const instance = {
-    uid: uid$1++,
+    uid: uid++,
     vnode,
     type,
     parent,
@@ -4653,7 +5034,10 @@ function createComponentInstance(vnode, parent, suspense) {
     subTree: null,
     effect: null,
     update: null,
-    scope: new EffectScope(true),
+    scope: new EffectScope(
+      true
+      /* detached */
+    ),
     render: null,
     proxy: null,
     exposed: null,
@@ -4662,14 +5046,20 @@ function createComponentInstance(vnode, parent, suspense) {
     provides: parent ? parent.provides : Object.create(appContext.provides),
     accessCache: null,
     renderCache: [],
+    // local resolved assets
     components: null,
     directives: null,
+    // resolved props and emits options
     propsOptions: normalizePropsOptions(type, appContext),
     emitsOptions: normalizeEmitsOptions(type, appContext),
+    // emit
     emit: null,
     emitted: null,
+    // props default value
     propsDefaults: EMPTY_OBJ,
+    // inheritAttrs
     inheritAttrs: type.inheritAttrs,
+    // state
     ctx: EMPTY_OBJ,
     data: EMPTY_OBJ,
     props: EMPTY_OBJ,
@@ -4678,10 +5068,13 @@ function createComponentInstance(vnode, parent, suspense) {
     refs: EMPTY_OBJ,
     setupState: EMPTY_OBJ,
     setupContext: null,
+    // suspense related
     suspense,
     suspenseId: suspense ? suspense.pendingId : 0,
     asyncDep: null,
     asyncResolved: false,
+    // lifecycle hooks
+    // not using enums here because it results in computed properties
     isMounted: false,
     isUnmounted: false,
     isDeactivated: false,
@@ -4704,7 +5097,7 @@ function createComponentInstance(vnode, parent, suspense) {
     instance.ctx = createDevRenderContext(instance);
   }
   instance.root = parent ? parent.root : instance;
-  instance.emit = emit$1.bind(null, instance);
+  instance.emit = emit.bind(null, instance);
   if (vnode.ce) {
     vnode.ce(instance);
   }
@@ -4724,7 +5117,7 @@ const isBuiltInTag = /* @__PURE__ */ makeMap("slot,component");
 function validateComponentName(name, config) {
   const appIsNativeTag = config.isNativeTag || NO;
   if (isBuiltInTag(name) || appIsNativeTag(name)) {
-    warn$1("Do not use built-in or reserved HTML elements as component id: " + name);
+    warn("Do not use built-in or reserved HTML elements as component id: " + name);
   }
 }
 function isStatefulComponent(instance) {
@@ -4733,7 +5126,10 @@ function isStatefulComponent(instance) {
 let isInSSRComponentSetup = false;
 function setupComponent(instance, isSSR = false) {
   isInSSRComponentSetup = isSSR;
-  const { props } = instance.vnode;
+  const {
+    props
+    /*, children*/
+  } = instance.vnode;
   const isStateful = isStatefulComponent(instance);
   initProps$1(instance, props, isStateful, isSSR);
   const setupResult = isStateful ? setupStatefulComponent(instance, isSSR) : void 0;
@@ -4759,7 +5155,7 @@ function setupStatefulComponent(instance, isSSR) {
       }
     }
     if (Component2.compilerOptions && isRuntimeOnly()) {
-      warn$1(`"compilerOptions" is only supported when using a build of Vue that includes the runtime compiler. Since you are using a runtime-only build, the options should be passed via your build tool config instead.`);
+      warn(`"compilerOptions" is only supported when using a build of Vue that includes the runtime compiler. Since you are using a runtime-only build, the options should be passed via your build tool config instead.`);
     }
   }
   instance.accessCache = /* @__PURE__ */ Object.create(null);
@@ -4778,7 +5174,7 @@ function setupStatefulComponent(instance, isSSR) {
     if (isPromise$1(setupResult)) {
       setupResult.then(unsetCurrentInstance, unsetCurrentInstance);
       {
-        warn$1(`setup() returned a Promise, but the version of Vue you are using does not support it yet.`);
+        warn(`setup() returned a Promise, but the version of Vue you are using does not support it yet.`);
       }
     } else {
       handleSetupResult(instance, setupResult, isSSR);
@@ -4794,7 +5190,7 @@ function handleSetupResult(instance, setupResult, isSSR) {
     }
   } else if (isObject$2(setupResult)) {
     if (isVNode(setupResult)) {
-      warn$1(`setup() should not return VNodes directly - return a render function instead.`);
+      warn(`setup() should not return VNodes directly - return a render function instead.`);
     }
     {
       instance.devtoolsRawSetupState = setupResult;
@@ -4804,7 +5200,7 @@ function handleSetupResult(instance, setupResult, isSSR) {
       exposeSetupStateOnRenderContext(instance);
     }
   } else if (setupResult !== void 0) {
-    warn$1(`setup() should return an object. Received: ${setupResult === null ? "null" : typeof setupResult}`);
+    warn(`setup() should return an object. Received: ${setupResult === null ? "null" : typeof setupResult}`);
   }
   finishComponentSetup(instance, isSSR);
 }
@@ -4824,9 +5220,12 @@ function finishComponentSetup(instance, isSSR, skipOptions) {
   }
   if (!Component2.render && instance.render === NOOP && !isSSR) {
     if (Component2.template) {
-      warn$1(`Component provided template option but runtime compilation is not supported in this build of Vue. Configure your bundler to alias "vue" to "vue/dist/vue.esm-bundler.js".`);
+      warn(
+        `Component provided template option but runtime compilation is not supported in this build of Vue. Configure your bundler to alias "vue" to "vue/dist/vue.esm-bundler.js".`
+        /* should not happen */
+      );
     } else {
-      warn$1(`Component is missing template or render function.`);
+      warn(`Component is missing template or render function.`);
     }
   }
 }
@@ -4839,11 +5238,11 @@ function createAttrsProxy(instance) {
         return target[key];
       },
       set() {
-        warn$1(`setupContext.attrs is readonly.`);
+        warn(`setupContext.attrs is readonly.`);
         return false;
       },
       deleteProperty() {
-        warn$1(`setupContext.attrs is readonly.`);
+        warn(`setupContext.attrs is readonly.`);
         return false;
       }
     }
@@ -4851,8 +5250,23 @@ function createAttrsProxy(instance) {
 }
 function createSetupContext(instance) {
   const expose = (exposed) => {
-    if (instance.exposed) {
-      warn$1(`expose() should be called only once per setup().`);
+    {
+      if (instance.exposed) {
+        warn(`expose() should be called only once per setup().`);
+      }
+      if (exposed != null) {
+        let exposedType = typeof exposed;
+        if (exposedType === "object") {
+          if (isArray(exposed)) {
+            exposedType = "array";
+          } else if (isRef(exposed)) {
+            exposedType = "ref";
+          }
+        }
+        if (exposedType !== "object") {
+          warn(`expose() should be passed a plain object, received ${exposedType}.`);
+        }
+      }
     }
     instance.exposed = exposed || {};
   };
@@ -4912,10 +5326,10 @@ function formatComponentName(instance, Component2, isRoot = false) {
   }
   return name ? classify(name) : isRoot ? `App` : `Anonymous`;
 }
-const computed$1 = (getterOrOptions, debugOptions) => {
-  return computed(getterOrOptions, debugOptions, isInSSRComponentSetup);
+const computed = (getterOrOptions, debugOptions) => {
+  return computed$1(getterOrOptions, debugOptions, isInSSRComponentSetup);
 };
-const version = "3.2.45";
+const version = "3.2.47";
 function unwrapper(target) {
   return unref(target);
 }
@@ -5025,10 +5439,10 @@ function flushCallbacks(instance) {
     }
   }
 }
-function nextTick$1(instance, fn2) {
+function nextTick(instance, fn2) {
   const ctx = instance.ctx;
   if (!ctx.__next_tick_pending && !hasComponentEffect(instance)) {
-    return nextTick(fn2 && fn2.bind(instance.proxy));
+    return nextTick$1(fn2 && fn2.bind(instance.proxy));
   }
   let _resolve;
   if (!ctx.__next_tick_callbacks) {
@@ -5036,7 +5450,12 @@ function nextTick$1(instance, fn2) {
   }
   ctx.__next_tick_callbacks.push(() => {
     if (fn2) {
-      callWithErrorHandling(fn2.bind(instance.proxy), instance, 14);
+      callWithErrorHandling(
+        fn2.bind(instance.proxy),
+        instance,
+        14
+        /* ErrorCodes.SCHEDULER */
+      );
     } else if (_resolve) {
       _resolve(instance.proxy);
     }
@@ -5112,7 +5531,7 @@ function patch(instance, data, oldData) {
 }
 function initAppConfig(appConfig) {
   appConfig.globalProperties.$nextTick = function $nextTick(fn2) {
-    return nextTick$1(this.$, fn2);
+    return nextTick(this.$, fn2);
   };
 }
 function onApplyOptions(options, instance, publicThis) {
@@ -5143,7 +5562,11 @@ function setRef$1(instance, isUnmount = false) {
   }
   const check = $mpPlatform === "mp-baidu" || $mpPlatform === "mp-toutiao";
   const doSetByRefs = (refs) => {
-    const mpComponents = ($scope.selectAllComponents(".r") || []).concat($scope.selectAllComponents(".r-i-f") || []);
+    const mpComponents = (
+      // 字节小程序 selectAllComponents 可能返回 null
+      // https://github.com/dcloudio/uni-app/issues/3954
+      ($scope.selectAllComponents(".r") || []).concat($scope.selectAllComponents(".r-i-f") || [])
+    );
     return refs.filter((templateRef) => {
       const refValue = findComponentPublicInstance(mpComponents, templateRef.i);
       if (check && refValue === null) {
@@ -5164,7 +5587,7 @@ function setRef$1(instance, isUnmount = false) {
   if ($scope._$setRef) {
     $scope._$setRef(doSet);
   } else {
-    nextTick$1(instance, doSet);
+    nextTick(instance, doSet);
   }
 }
 function toSkip(value) {
@@ -5221,7 +5644,7 @@ function setTemplateRef({ r: r2, f: f2 }, refValue, setupState) {
   }
 }
 function warnRef(ref2) {
-  warn$1("Invalid template ref type:", ref2, `(${typeof ref2})`);
+  warn("Invalid template ref type:", ref2, `(${typeof ref2})`);
 }
 var MPType;
 (function(MPType2) {
@@ -5229,7 +5652,7 @@ var MPType;
   MPType2["PAGE"] = "page";
   MPType2["COMPONENT"] = "component";
 })(MPType || (MPType = {}));
-const queuePostRenderEffect$1 = queuePostFlushCb;
+const queuePostRenderEffect = queuePostFlushCb;
 function mountComponent(initialVNode, options) {
   const instance = initialVNode.component = createComponentInstance(initialVNode, options.parentComponent, null);
   {
@@ -5290,10 +5713,19 @@ function renderComponentRoot(instance) {
     } else {
       fallthroughAttrs(inheritAttrs, props, propsOptions, Component2.props ? attrs : getFunctionalFallthrough(attrs));
       const render2 = Component2;
-      result = render2.length > 1 ? render2(props, { attrs, slots, emit: emit2 }) : render2(props, null);
+      result = render2.length > 1 ? render2(props, { attrs, slots, emit: emit2 }) : render2(
+        props,
+        null
+        /* we know it doesn't need it */
+      );
     }
   } catch (err) {
-    handleError(err, instance, 1);
+    handleError(
+      err,
+      instance,
+      1
+      /* ErrorCodes.RENDER_FUNCTION */
+    );
     result = false;
   }
   setRef$1(instance);
@@ -5352,7 +5784,7 @@ function toggleRecurse({ effect, update: update3 }, allowed) {
 }
 function setupRenderEffect(instance) {
   const updateScopedSlots = componentUpdateScopedSlotsFn.bind(instance);
-  instance.$updateScopedSlots = () => nextTick(() => queueJob(updateScopedSlots));
+  instance.$updateScopedSlots = () => nextTick$1(() => queueJob(updateScopedSlots));
   const componentUpdateFn = () => {
     if (!instance.isMounted) {
       onBeforeUnmount(() => {
@@ -5387,7 +5819,7 @@ function setupRenderEffect(instance) {
         endMeasure(instance, `patch`);
       }
       if (u2) {
-        queuePostRenderEffect$1(u2);
+        queuePostRenderEffect(u2);
       }
       {
         devtoolsComponentUpdated(instance);
@@ -5401,6 +5833,7 @@ function setupRenderEffect(instance) {
     componentUpdateFn,
     () => queueJob(instance.update),
     instance.scope
+    // track it in component's effect scope
   );
   const update3 = instance.update = effect.run.bind(effect);
   update3.id = instance.uid;
@@ -5422,9 +5855,9 @@ function unmountComponent(instance) {
     update3.active = false;
   }
   if (um) {
-    queuePostRenderEffect$1(um);
+    queuePostRenderEffect(um);
   }
-  queuePostRenderEffect$1(() => {
+  queuePostRenderEffect(() => {
     instance.isUnmounted = true;
   });
   {
@@ -5486,7 +5919,7 @@ function createVueApp(rootComponent, rootProps = null) {
     return instance;
   };
   app.unmount = function unmount() {
-    warn$1(`Cannot unmount an app.`);
+    warn(`Cannot unmount an app.`);
   };
   return app;
 }
@@ -5583,7 +6016,7 @@ function getCurrentUserInfo() {
   try {
     userInfo = JSON.parse(b64DecodeUnicode(tokenArr[1]));
   } catch (error) {
-    throw new Error("\u83B7\u53D6\u5F53\u524D\u7528\u6237\u4FE1\u606F\u51FA\u9519\uFF0C\u8BE6\u7EC6\u9519\u8BEF\u4FE1\u606F\u4E3A\uFF1A" + error.message);
+    throw new Error("获取当前用户信息出错，详细错误信息为：" + error.message);
   }
   userInfo.tokenExpired = userInfo.exp * 1e3;
   delete userInfo.exp;
@@ -5709,6 +6142,11 @@ function createInvoker(initialValue, instance) {
   return invoker;
 }
 const bubbles = [
+  // touch事件暂不做延迟，否则在 Android 上会影响性能，比如一些拖拽跟手手势等
+  // 'touchstart',
+  // 'touchmove',
+  // 'touchcancel',
+  // 'touchend',
   "tap",
   "longpress",
   "longtap",
@@ -5759,7 +6197,7 @@ function vFor(source, renderItem) {
     }
   } else if (typeof source === "number") {
     if (!Number.isInteger(source)) {
-      warn$1(`The v-for range expect an integer value but got ${source}.`);
+      warn(`The v-for range expect an integer value but got ${source}.`);
       return [];
     }
     ret = new Array(source);
@@ -5902,6 +6340,10 @@ const PAGE_INIT_HOOKS = [
   ON_REACH_BOTTOM,
   ON_PULL_DOWN_REFRESH,
   ON_ADD_TO_FAVORITES
+  // 'onReady', // lifetimes.ready
+  // 'onPageScroll', // 影响性能，开发者手动注册
+  // 'onShareTimeline', // 右上角菜单，开发者手动注册
+  // 'onShareAppMessage' // 右上角菜单，开发者手动注册
 ];
 function findHooks(vueOptions, hooks = /* @__PURE__ */ new Set()) {
   if (vueOptions) {
@@ -6141,12 +6583,20 @@ function findVmByVueId(instance, vuePid) {
   }
 }
 const builtInProps = [
+  // 百度小程序,快手小程序自定义组件不支持绑定动态事件，动态dataset，故通过props传递事件信息
+  // event-opts
   "eO",
+  // 组件 ref
   "uR",
+  // 组件 ref-in-for
   "uRIF",
+  // 组件 id
   "uI",
+  // 组件类型 m: 小程序组件
   "uT",
+  // 组件 props
   "uP",
+  // 小程序不能直接定义 $slots 的 props，所以通过 vueSlots 转换到 $slots
   "uS"
 ];
 function initDefaultProps(options, isBehavior = false) {
@@ -6371,6 +6821,13 @@ function parseComponent(vueOptions, { parse: parse2, mocks: mocks2, isPage: isPa
     addGlobalClass: true,
     pureDataPattern: /^uP$/
   };
+  if (isArray(vueOptions.mixins)) {
+    vueOptions.mixins.forEach((item) => {
+      if (isObject$2(item.options)) {
+        extend(options, item.options);
+      }
+    });
+  }
   if (vueOptions.options) {
     extend(options, vueOptions.options);
   }
@@ -6379,10 +6836,6 @@ function parseComponent(vueOptions, { parse: parse2, mocks: mocks2, isPage: isPa
     lifetimes: initLifetimes2({ mocks: mocks2, isPage: isPage2, initRelation: initRelation2, vueOptions }),
     pageLifetimes: {
       show() {
-        {
-          devtoolsComponentRemoved(this.$vm.$);
-          devtoolsComponentAdded(this.$vm.$);
-        }
         this.$vm && this.$vm.$callHook("onPageShow");
       },
       hide() {
@@ -6646,7 +7099,7 @@ function resetStoreState(store, state, hot) {
   scope.run(function() {
     forEachValue(wrappedGetters, function(fn2, key) {
       computedObj[key] = partial(fn2, store);
-      computedCache[key] = computed$1(function() {
+      computedCache[key] = computed(function() {
         return computedObj[key]();
       });
       Object.defineProperty(store.getters, key, {
@@ -6654,6 +7107,7 @@ function resetStoreState(store, state, hot) {
           return computedCache[key].value;
         },
         enumerable: true
+        // for local getters
       });
     });
   });
@@ -6824,9 +7278,13 @@ function registerGetter(store, type, rawGetter, local) {
   store._wrappedGetters[type] = function wrappedGetter(store2) {
     return rawGetter(
       local.state,
+      // local state
       local.getters,
+      // local getters
       store2.state,
+      // root state
       store2.getters
+      // root getters
     );
   };
 }
@@ -7329,13 +7787,13 @@ const tabBar = {
     {
       pagePath: "pages/index/index",
       iconPath: "static/tab/shouye.png",
-      text: "\u9996\u9875",
+      text: "首页",
       selectedIconPath: "static/tab/shouye1.png"
     },
     {
       pagePath: "pages/user/user",
       iconPath: "static/tab/gerenzhongxin.png",
-      text: "\u7528\u6237\u4E2D\u5FC3",
+      text: "用户中心",
       selectedIconPath: "static/tab/gerenzhongxin1.png"
     }
   ]
@@ -7627,10 +8085,7 @@ function g(e2) {
 function m(e2) {
   return e2 && "string" == typeof e2 ? JSON.parse(e2) : e2;
 }
-const y = true, _ = "mp-weixin", v = m([]);
-let S;
-S = _;
-const k = m('{\n    "address": [\n        "127.0.0.1",\n        "192.168.10.105"\n    ],\n    "debugPort": 9000,\n    "initialLaunchType": "local",\n    "servePort": 7000,\n    "skipFiles": [\n        "<node_internals>/**",\n        "C:/Program Files/HBuilderX.3.5.3.20220729/HBuilderX/plugins/unicloud/**/*.js"\n    ]\n}\n'), I = m('[{"provider":"aliyun","spaceName":"zhilingzhixingqi","spaceId":"mp-bb66a2cc-b974-4a2a-a182-e3809c06efba","clientSecret":"mpAHRqD1W28WEw2j87Y7KQ==","endpoint":"https://api.next.bspapp.com"}]') || [];
+const y = true, _ = "mp-weixin", v = m([]), S = _, k = m('{\n    "address": [\n        "127.0.0.1",\n        "192.168.10.105"\n    ],\n    "debugPort": 9001,\n    "initialLaunchType": "local",\n    "servePort": 7001,\n    "skipFiles": [\n        "<node_internals>/**",\n        "C:/Program Files/HBuilderX.3.5.3.20220729/HBuilderX/plugins/unicloud/**/*.js"\n    ]\n}\n'), I = m('[{"provider":"aliyun","spaceName":"zhilingzhixingqi","spaceId":"mp-bb66a2cc-b974-4a2a-a182-e3809c06efba","clientSecret":"mpAHRqD1W28WEw2j87Y7KQ==","endpoint":"https://api.next.bspapp.com"}]') || [];
 let T = "";
 try {
   T = "__UNI__FC4080F";
@@ -7641,7 +8096,6 @@ function C(e2, t2 = {}) {
   var n2, s2;
   return n2 = A, s2 = e2, Object.prototype.hasOwnProperty.call(n2, s2) || (A[e2] = t2), A[e2];
 }
-"app" === S && (A = index._globalUniCloudObj ? index._globalUniCloudObj : index._globalUniCloudObj = {});
 const P = ["invoke", "success", "fail", "complete"], E = C("_globalUniCloudInterceptor");
 function O(e2, t2) {
   E[e2] || (E[e2] = {}), f(t2) && Object.keys(t2).forEach((n2) => {
@@ -7671,7 +8125,7 @@ function R(e2, t2) {
 function L(e2) {
   O("callObject", e2);
 }
-const N = C("_globalUniCloudListener"), D = "response", F = "needLogin", q = "refreshToken", K = "clientdb", M = "cloudfunction", j = "cloudobject";
+const N = C("_globalUniCloudListener"), D = "response", F = "needLogin", q = "refreshToken", K = "clientdb", j = "cloudfunction", M = "cloudobject";
 function B(e2) {
   return N[e2] || (N[e2] = []), N[e2];
 }
@@ -7721,13 +8175,13 @@ function Y(e2, t2) {
     const r2 = "callFunction" === t2 && !s2;
     let i2;
     i2 = this.isReady ? Promise.resolve() : this.initUniCloud, n2 = n2 || {};
-    const { success: o2, fail: a2, complete: c2 } = V(n2), l2 = i2.then(() => s2 ? Promise.resolve() : U(R(t2, "invoke"), n2)).then(() => e2.call(this, n2)).then((e3) => s2 ? Promise.resolve(e3) : U(R(t2, "success"), e3).then(() => U(R(t2, "complete"), e3)).then(() => (r2 && z(D, { type: M, content: e3 }), Promise.resolve(e3))), (e3) => s2 ? Promise.reject(e3) : U(R(t2, "fail"), e3).then(() => U(R(t2, "complete"), e3)).then(() => (z(D, { type: M, content: e3 }), Promise.reject(e3))));
+    const { success: o2, fail: a2, complete: c2 } = V(n2), l2 = i2.then(() => s2 ? Promise.resolve() : U(R(t2, "invoke"), n2)).then(() => e2.call(this, n2)).then((e3) => s2 ? Promise.resolve(e3) : U(R(t2, "success"), e3).then(() => U(R(t2, "complete"), e3)).then(() => (r2 && z(D, { type: j, content: e3 }), Promise.resolve(e3))), (e3) => s2 ? Promise.reject(e3) : U(R(t2, "fail"), e3).then(() => U(R(t2, "complete"), e3)).then(() => (z(D, { type: j, content: e3 }), Promise.reject(e3))));
     if (!(o2 || a2 || c2))
       return l2;
     l2.then((e3) => {
-      o2 && o2(e3), c2 && c2(e3), r2 && z(D, { type: M, content: e3 });
+      o2 && o2(e3), c2 && c2(e3), r2 && z(D, { type: j, content: e3 });
     }, (e3) => {
-      a2 && a2(e3), c2 && c2(e3), r2 && z(D, { type: M, content: e3 });
+      a2 && a2(e3), c2 && c2(e3), r2 && z(D, { type: j, content: e3 });
     });
   } : function(t3) {
     t3 = t3 || {};
@@ -7759,11 +8213,6 @@ function ee() {
 }
 function te({ token: e2, tokenExpired: t2 } = {}) {
   e2 && X.setStorageSync("uni_id_token", e2), t2 && X.setStorageSync("uni_id_token_expired", t2);
-}
-function ne() {
-  if ("web" !== S)
-    return;
-  index.getStorageSync("__LAST_DCLOUD_APPID") !== T && (index.setStorageSync("__LAST_DCLOUD_APPID", T), console.warn("\u68C0\u6D4B\u5230\u5F53\u524D\u9879\u76EE\u4E0E\u4E0A\u6B21\u8FD0\u884C\u5230\u6B64\u7AEF\u53E3\u7684\u9879\u76EE\u4E0D\u4E00\u81F4\uFF0C\u81EA\u52A8\u6E05\u7406uni-id\u4FDD\u5B58\u7684token\u4FE1\u606F\uFF08\u4EC5\u5F00\u53D1\u8C03\u8BD5\u65F6\u751F\u6548\uFF09"), X.removeStorageSync("uni_id_token"), X.removeStorageSync("uniIdToken"), X.removeStorageSync("uni_id_token_expired"));
 }
 let se, re;
 function ie() {
@@ -7800,7 +8249,7 @@ var ce = { sign: function(e2, t2) {
 }, wrappedRequest: function(e2, t2) {
   return new Promise((n2, s2) => {
     t2(Object.assign(e2, { complete(e3) {
-      e3 || (e3 = {}), "web" === S && e3.errMsg && 0 === e3.errMsg.indexOf("request:fail") && console.warn("\u53D1\u5E03H5\uFF0C\u9700\u8981\u5728uniCloud\u540E\u53F0\u64CD\u4F5C\uFF0C\u7ED1\u5B9A\u5B89\u5168\u57DF\u540D\uFF0C\u5426\u5219\u4F1A\u56E0\u4E3A\u8DE8\u57DF\u95EE\u9898\u800C\u65E0\u6CD5\u8BBF\u95EE\u3002\u6559\u7A0B\u53C2\u8003\uFF1Ahttps://uniapp.dcloud.io/uniCloud/quickstart?id=useinh5");
+      e3 || (e3 = {});
       const t3 = e3.data && e3.data.header && e3.data.header["x-serverless-request-id"] || e3.header && e3.header["request-id"];
       if (!e3.statusCode || e3.statusCode >= 400)
         return s2(new Q({ code: "SYS_ERR", message: e3.errMsg || "request:fail", requestId: t3 }));
@@ -7813,7 +8262,7 @@ var ce = { sign: function(e2, t2) {
 }, toBase64: function(e2) {
   return c.stringify(a.parse(e2));
 } }, ue = { "uniCloud.init.paramRequired": "{param} required", "uniCloud.uploadFile.fileError": "filePath should be instance of File" };
-const { t: le } = initVueI18n({ "zh-Hans": { "uniCloud.init.paramRequired": "\u7F3A\u5C11\u53C2\u6570\uFF1A{param}", "uniCloud.uploadFile.fileError": "filePath\u5E94\u4E3AFile\u5BF9\u8C61" }, "zh-Hant": { "uniCloud.init.paramRequired": "\u7F3A\u5C11\u53C2\u6570\uFF1A{param}", "uniCloud.uploadFile.fileError": "filePath\u5E94\u4E3AFile\u5BF9\u8C61" }, en: ue, fr: { "uniCloud.init.paramRequired": "{param} required", "uniCloud.uploadFile.fileError": "filePath should be instance of File" }, es: { "uniCloud.init.paramRequired": "{param} required", "uniCloud.uploadFile.fileError": "filePath should be instance of File" }, ja: ue }, "zh-Hans");
+const { t: le } = initVueI18n({ "zh-Hans": { "uniCloud.init.paramRequired": "缺少参数：{param}", "uniCloud.uploadFile.fileError": "filePath应为File对象" }, "zh-Hant": { "uniCloud.init.paramRequired": "缺少参数：{param}", "uniCloud.uploadFile.fileError": "filePath应为File对象" }, en: ue, fr: { "uniCloud.init.paramRequired": "{param} required", "uniCloud.uploadFile.fileError": "filePath should be instance of File" }, es: { "uniCloud.init.paramRequired": "{param} required", "uniCloud.uploadFile.fileError": "filePath should be instance of File" }, ja: ue }, "zh-Hans");
 var he = class {
   constructor(e2) {
     ["spaceId", "clientSecret"].forEach((t2) => {
@@ -7857,7 +8306,7 @@ var he = class {
       return this._getAccessTokenPromise;
     this._getAccessTokenPromiseStatus = "pending";
     return this._getAccessTokenPromise = this.requestAuth(this.setupRequest({ method: "serverless.auth.user.anonymousAuthorize", params: "{}" }, "auth")).then((e2) => new Promise((t2, n2) => {
-      e2.result && e2.result.accessToken ? (this.setAccessToken(e2.result.accessToken), this._getAccessTokenPromiseStatus = "fulfilled", t2(this.accessToken)) : (this._getAccessTokenPromiseStatus = "rejected", n2(new Q({ code: "AUTH_FAILED", message: "\u83B7\u53D6accessToken\u5931\u8D25" })));
+      e2.result && e2.result.accessToken ? (this.setAccessToken(e2.result.accessToken), this._getAccessTokenPromiseStatus = "fulfilled", t2(this.accessToken)) : (this._getAccessTokenPromiseStatus = "rejected", n2(new Q({ code: "AUTH_FAILED", message: "获取accessToken失败" })));
     }), (e2) => (this._getAccessTokenPromiseStatus = "rejected", Promise.reject(e2))), this._getAccessTokenPromise;
   }
   authorize() {
@@ -7874,9 +8323,9 @@ var he = class {
   uploadFileToOSS({ url: e2, formData: t2, name: n2, filePath: s2, fileType: r2, onUploadProgress: i2 }) {
     return new Promise((o2, a2) => {
       const c2 = this.adapter.uploadFile({ url: e2, formData: t2, name: n2, filePath: s2, fileType: r2, header: { "X-OSS-server-side-encrpytion": "AES256" }, success(e3) {
-        e3 && e3.statusCode < 400 ? o2(e3) : a2(new Q({ code: "UPLOAD_FAILED", message: "\u6587\u4EF6\u4E0A\u4F20\u5931\u8D25" }));
+        e3 && e3.statusCode < 400 ? o2(e3) : a2(new Q({ code: "UPLOAD_FAILED", message: "文件上传失败" }));
       }, fail(e3) {
-        a2(new Q({ code: e3.code || "UPLOAD_FAILED", message: e3.message || e3.errMsg || "\u6587\u4EF6\u4E0A\u4F20\u5931\u8D25" }));
+        a2(new Q({ code: e3.code || "UPLOAD_FAILED", message: e3.message || e3.errMsg || "文件上传失败" }));
       } });
       "function" == typeof i2 && c2 && "function" == typeof c2.onProgressUpdate && c2.onProgressUpdate((e3) => {
         i2({ loaded: e3.totalBytesSent, total: e3.totalBytesExpectedToSend });
@@ -7889,11 +8338,11 @@ var he = class {
   }
   async uploadFile({ filePath: e2, cloudPath: t2, fileType: n2 = "image", onUploadProgress: s2, config: r2 }) {
     if ("string" !== d(t2))
-      throw new Q({ code: "INVALID_PARAM", message: "cloudPath\u5FC5\u987B\u4E3A\u5B57\u7B26\u4E32\u7C7B\u578B" });
+      throw new Q({ code: "INVALID_PARAM", message: "cloudPath必须为字符串类型" });
     if (!(t2 = t2.trim()))
-      throw new Q({ code: "CLOUDPATH_REQUIRED", message: "cloudPath\u4E0D\u53EF\u4E3A\u7A7A" });
+      throw new Q({ code: "CLOUDPATH_REQUIRED", message: "cloudPath不可为空" });
     if (/:\/\//.test(t2))
-      throw new Q({ code: "INVALID_PARAM", message: "cloudPath\u4E0D\u5408\u6CD5" });
+      throw new Q({ code: "INVALID_PARAM", message: "cloudPath不合法" });
     const i2 = r2 && r2.envType || this.config.envType, o2 = (await this.getOSSUploadOptionsFromPath({ env: i2, filename: t2 })).result, a2 = "https://" + o2.cdnDomain + "/" + o2.ossPath, { securityToken: c2, accessKeyId: u2, signature: l2, host: h2, ossPath: f2, id: p2, policy: g2, ossCallbackUrl: m2 } = o2, y2 = { "Cache-Control": "max-age=2592000", "Content-Disposition": "attachment", OSSAccessKeyId: u2, Signature: l2, host: h2, id: p2, key: f2, policy: g2, success_action_status: 200 };
     if (c2 && (y2["x-oss-security-token"] = c2), m2) {
       const e3 = JSON.stringify({ callbackUrl: m2, callbackBody: JSON.stringify({ fileId: p2, spaceId: this.config.spaceId }), callbackBodyType: "application/json" });
@@ -7904,16 +8353,16 @@ var he = class {
       return { success: true, filePath: e2, fileID: a2 };
     if ((await this.reportOSSUpload({ id: p2 })).success)
       return { success: true, filePath: e2, fileID: a2 };
-    throw new Q({ code: "UPLOAD_FAILED", message: "\u6587\u4EF6\u4E0A\u4F20\u5931\u8D25" });
+    throw new Q({ code: "UPLOAD_FAILED", message: "文件上传失败" });
   }
   getTempFileURL({ fileList: e2 } = {}) {
     return new Promise((t2, n2) => {
-      Array.isArray(e2) && 0 !== e2.length || n2(new Q({ code: "INVALID_PARAM", message: "fileList\u7684\u5143\u7D20\u5FC5\u987B\u662F\u975E\u7A7A\u7684\u5B57\u7B26\u4E32" })), t2({ fileList: e2.map((e3) => ({ fileID: e3, tempFileURL: e3 })) });
+      Array.isArray(e2) && 0 !== e2.length || n2(new Q({ code: "INVALID_PARAM", message: "fileList的元素必须是非空的字符串" })), t2({ fileList: e2.map((e3) => ({ fileID: e3, tempFileURL: e3 })) });
     });
   }
   async getFileInfo({ fileList: e2 } = {}) {
     if (!Array.isArray(e2) || 0 === e2.length)
-      throw new Q({ code: "INVALID_PARAM", message: "fileList\u7684\u5143\u7D20\u5FC5\u987B\u662F\u975E\u7A7A\u7684\u5B57\u7B26\u4E32" });
+      throw new Q({ code: "INVALID_PARAM", message: "fileList的元素必须是非空的字符串" });
     const t2 = { method: "serverless.file.resource.info", params: JSON.stringify({ id: e2.map((e3) => e3.split("?")[0]).join(",") }) };
     return { fileList: (await this.request(this.setupRequest(t2))).result };
   }
@@ -8108,11 +8557,11 @@ function Le(e2, t2) {
   xe.off(e2, t2);
 }
 const Ne = "loginStateChanged", De = "loginStateExpire", Fe = "loginTypeChanged", qe = "anonymousConverted", Ke = "refreshAccessToken";
-var Me;
+var je;
 !function(e2) {
   e2.ANONYMOUS = "ANONYMOUS", e2.WECHAT = "WECHAT", e2.WECHAT_PUBLIC = "WECHAT-PUBLIC", e2.WECHAT_OPEN = "WECHAT-OPEN", e2.CUSTOM = "CUSTOM", e2.EMAIL = "EMAIL", e2.USERNAME = "USERNAME", e2.NULL = "NULL";
-}(Me || (Me = {}));
-const je = ["auth.getJwt", "auth.logout", "auth.signInWithTicket", "auth.signInAnonymously", "auth.signIn", "auth.fetchAccessTokenWithRefreshToken", "auth.signUpWithEmailAndPassword", "auth.activateEndUserMail", "auth.sendPasswordResetEmail", "auth.resetPasswordWithToken", "auth.isUsernameRegistered"], Be = { "X-SDK-Version": "1.3.5" };
+}(je || (je = {}));
+const Me = ["auth.getJwt", "auth.logout", "auth.signInWithTicket", "auth.signInAnonymously", "auth.signIn", "auth.fetchAccessTokenWithRefreshToken", "auth.signUpWithEmailAndPassword", "auth.activateEndUserMail", "auth.sendPasswordResetEmail", "auth.resetPasswordWithToken", "auth.isUsernameRegistered"], Be = { "X-SDK-Version": "1.3.5" };
 function $e(e2, t2, n2) {
   const s2 = e2[t2];
   e2[t2] = function(t3) {
@@ -8139,7 +8588,7 @@ function We() {
 class ze {
   constructor(e2 = {}) {
     var t2;
-    this.config = e2, this._reqClass = new Se.adapter.reqClass({ timeout: this.config.timeout, timeoutMsg: `\u8BF7\u6C42\u5728${this.config.timeout / 1e3}s\u5185\u672A\u5B8C\u6210\uFF0C\u5DF2\u4E2D\u65AD`, restrictedMethods: ["post"] }), this._cache = Pe(this.config.env), this._localCache = (t2 = this.config.env, Ce[t2]), $e(this._reqClass, "post", [We]), $e(this._reqClass, "upload", [We]), $e(this._reqClass, "download", [We]);
+    this.config = e2, this._reqClass = new Se.adapter.reqClass({ timeout: this.config.timeout, timeoutMsg: `请求在${this.config.timeout / 1e3}s内未完成，已中断`, restrictedMethods: ["post"] }), this._cache = Pe(this.config.env), this._localCache = (t2 = this.config.env, Ce[t2]), $e(this._reqClass, "post", [We]), $e(this._reqClass, "upload", [We]), $e(this._reqClass, "download", [We]);
   }
   async post(e2) {
     return await this._reqClass.post(e2);
@@ -8167,18 +8616,18 @@ class ze {
     this._cache.removeStore(e2), this._cache.removeStore(t2);
     let i2 = this._cache.getStore(n2);
     if (!i2)
-      throw new Q({ message: "\u672A\u767B\u5F55CloudBase" });
+      throw new Q({ message: "未登录CloudBase" });
     const o2 = { refresh_token: i2 }, a2 = await this.request("auth.fetchAccessTokenWithRefreshToken", o2);
     if (a2.data.code) {
       const { code: e3 } = a2.data;
       if ("SIGN_PARAM_INVALID" === e3 || "REFRESH_TOKEN_EXPIRED" === e3 || "INVALID_REFRESH_TOKEN" === e3) {
-        if (this._cache.getStore(s2) === Me.ANONYMOUS && "INVALID_REFRESH_TOKEN" === e3) {
+        if (this._cache.getStore(s2) === je.ANONYMOUS && "INVALID_REFRESH_TOKEN" === e3) {
           const e4 = this._cache.getStore(r2), t3 = this._cache.getStore(n2), s3 = await this.send("auth.signInAnonymously", { anonymous_uuid: e4, refresh_token: t3 });
           return this.setRefreshToken(s3.refresh_token), this._refreshAccessToken();
         }
         Re(De), this._cache.removeStore(n2);
       }
-      throw new Q({ code: a2.data.code, message: `\u5237\u65B0access token\u5931\u8D25\uFF1A${a2.data.code}` });
+      throw new Q({ code: a2.data.code, message: `刷新access token失败：${a2.data.code}` });
     }
     if (a2.data.access_token)
       return Re(Ke), this._cache.setStore(e2, a2.data.access_token), this._cache.setStore(t2, a2.data.access_token_expire + Date.now()), { accessToken: a2.data.access_token, accessTokenExpire: a2.data.access_token_expire };
@@ -8187,7 +8636,7 @@ class ze {
   async getAccessToken() {
     const { accessTokenKey: e2, accessTokenExpireKey: t2, refreshTokenKey: n2 } = this._cache.keys;
     if (!this._cache.getStore(n2))
-      throw new Q({ message: "refresh token\u4E0D\u5B58\u5728\uFF0C\u767B\u5F55\u72B6\u6001\u5F02\u5E38" });
+      throw new Q({ message: "refresh token不存在，登录状态异常" });
     let s2 = this._cache.getStore(e2), r2 = this._cache.getStore(t2), i2 = true;
     return this._shouldRefreshAccessTokenHook && !await this._shouldRefreshAccessTokenHook(s2, r2) && (i2 = false), (!s2 || !r2 || r2 < Date.now()) && i2 ? this.refreshAccessToken() : { accessToken: s2, accessTokenExpire: r2 };
   }
@@ -8195,7 +8644,7 @@ class ze {
     const s2 = `x-tcb-trace_${this.config.env}`;
     let r2 = "application/x-www-form-urlencoded";
     const i2 = { action: e2, env: this.config.env, dataVersion: "2019-08-16", ...t2 };
-    if (-1 === je.indexOf(e2)) {
+    if (-1 === Me.indexOf(e2)) {
       const { refreshTokenKey: e3 } = this._cache.keys;
       this._cache.getStore(e3) && (i2.access_token = (await this.getAccessToken()).accessToken);
     }
@@ -8232,7 +8681,7 @@ class ze {
   }
   async send(e2, t2 = {}) {
     const n2 = await this.request(e2, t2, { onUploadProgress: t2.onUploadProgress });
-    if ("ACCESS_TOKEN_EXPIRED" === n2.data.code && -1 === je.indexOf(e2)) {
+    if ("ACCESS_TOKEN_EXPIRED" === n2.data.code && -1 === Me.indexOf(e2)) {
       await this.refreshAccessToken();
       const n3 = await this.request(e2, t2, { onUploadProgress: t2.onUploadProgress });
       if (n3.data.code)
@@ -8340,13 +8789,13 @@ class Ye {
     this.credential = { refreshToken: r2, accessToken: i2, accessTokenExpire: o2 }, this.user = new Ve(e2);
   }
   get isAnonymousAuth() {
-    return this.loginType === Me.ANONYMOUS;
+    return this.loginType === je.ANONYMOUS;
   }
   get isCustomAuth() {
-    return this.loginType === Me.CUSTOM;
+    return this.loginType === je.CUSTOM;
   }
   get isWeixinAuth() {
-    return this.loginType === Me.WECHAT || this.loginType === Me.WECHAT_OPEN || this.loginType === Me.WECHAT_PUBLIC;
+    return this.loginType === je.WECHAT || this.loginType === je.WECHAT_OPEN || this.loginType === je.WECHAT_PUBLIC;
   }
   get loginType() {
     return this._cache.getStore(this._cache.keys.loginTypeKey);
@@ -8357,21 +8806,21 @@ class Qe extends Ge {
     this._cache.updatePersistence("local");
     const { anonymousUuidKey: e2, refreshTokenKey: t2 } = this._cache.keys, n2 = this._cache.getStore(e2) || void 0, s2 = this._cache.getStore(t2) || void 0, r2 = await this._request.send("auth.signInAnonymously", { anonymous_uuid: n2, refresh_token: s2 });
     if (r2.uuid && r2.refresh_token) {
-      this._setAnonymousUUID(r2.uuid), this.setRefreshToken(r2.refresh_token), await this._request.refreshAccessToken(), Re(Ne), Re(Fe, { env: this.config.env, loginType: Me.ANONYMOUS, persistence: "local" });
+      this._setAnonymousUUID(r2.uuid), this.setRefreshToken(r2.refresh_token), await this._request.refreshAccessToken(), Re(Ne), Re(Fe, { env: this.config.env, loginType: je.ANONYMOUS, persistence: "local" });
       const e3 = new Ye(this.config.env);
       return await e3.user.refresh(), e3;
     }
-    throw new Q({ message: "\u533F\u540D\u767B\u5F55\u5931\u8D25" });
+    throw new Q({ message: "匿名登录失败" });
   }
   async linkAndRetrieveDataWithTicket(e2) {
     const { anonymousUuidKey: t2, refreshTokenKey: n2 } = this._cache.keys, s2 = this._cache.getStore(t2), r2 = this._cache.getStore(n2), i2 = await this._request.send("auth.linkAndRetrieveDataWithTicket", { anonymous_uuid: s2, refresh_token: r2, ticket: e2 });
     if (i2.refresh_token)
-      return this._clearAnonymousUUID(), this.setRefreshToken(i2.refresh_token), await this._request.refreshAccessToken(), Re(qe, { env: this.config.env }), Re(Fe, { loginType: Me.CUSTOM, persistence: "local" }), { credential: { refreshToken: i2.refresh_token } };
-    throw new Q({ message: "\u533F\u540D\u8F6C\u5316\u5931\u8D25" });
+      return this._clearAnonymousUUID(), this.setRefreshToken(i2.refresh_token), await this._request.refreshAccessToken(), Re(qe, { env: this.config.env }), Re(Fe, { loginType: je.CUSTOM, persistence: "local" }), { credential: { refreshToken: i2.refresh_token } };
+    throw new Q({ message: "匿名转化失败" });
   }
   _setAnonymousUUID(e2) {
     const { anonymousUuidKey: t2, loginTypeKey: n2 } = this._cache.keys;
-    this._cache.removeStore(t2), this._cache.setStore(t2, e2), this._cache.setStore(n2, Me.ANONYMOUS);
+    this._cache.removeStore(t2), this._cache.setStore(t2, e2), this._cache.setStore(n2, je.ANONYMOUS);
   }
   _clearAnonymousUUID() {
     this._cache.removeStore(this._cache.keys.anonymousUuidKey);
@@ -8383,8 +8832,8 @@ class Xe extends Ge {
       throw new Q({ code: "PARAM_ERROR", message: "ticket must be a string" });
     const { refreshTokenKey: t2 } = this._cache.keys, n2 = await this._request.send("auth.signInWithTicket", { ticket: e2, refresh_token: this._cache.getStore(t2) || "" });
     if (n2.refresh_token)
-      return this.setRefreshToken(n2.refresh_token), await this._request.refreshAccessToken(), Re(Ne), Re(Fe, { env: this.config.env, loginType: Me.CUSTOM, persistence: this.config.persistence }), await this.refreshUserInfo(), new Ye(this.config.env);
-    throw new Q({ message: "\u81EA\u5B9A\u4E49\u767B\u5F55\u5931\u8D25" });
+      return this.setRefreshToken(n2.refresh_token), await this._request.refreshAccessToken(), Re(Ne), Re(Fe, { env: this.config.env, loginType: je.CUSTOM, persistence: this.config.persistence }), await this.refreshUserInfo(), new Ye(this.config.env);
+    throw new Q({ message: "自定义登录失败" });
   }
 }
 class Ze extends Ge {
@@ -8393,8 +8842,8 @@ class Ze extends Ge {
       throw new Q({ code: "PARAM_ERROR", message: "email must be a string" });
     const { refreshTokenKey: n2 } = this._cache.keys, s2 = await this._request.send("auth.signIn", { loginType: "EMAIL", email: e2, password: t2, refresh_token: this._cache.getStore(n2) || "" }), { refresh_token: r2, access_token: i2, access_token_expire: o2 } = s2;
     if (r2)
-      return this.setRefreshToken(r2), i2 && o2 ? this.setAccessToken(i2, o2) : await this._request.refreshAccessToken(), await this.refreshUserInfo(), Re(Ne), Re(Fe, { env: this.config.env, loginType: Me.EMAIL, persistence: this.config.persistence }), new Ye(this.config.env);
-    throw s2.code ? new Q({ code: s2.code, message: `\u90AE\u7BB1\u767B\u5F55\u5931\u8D25: ${s2.message}` }) : new Q({ message: "\u90AE\u7BB1\u767B\u5F55\u5931\u8D25" });
+      return this.setRefreshToken(r2), i2 && o2 ? this.setAccessToken(i2, o2) : await this._request.refreshAccessToken(), await this.refreshUserInfo(), Re(Ne), Re(Fe, { env: this.config.env, loginType: je.EMAIL, persistence: this.config.persistence }), new Ye(this.config.env);
+    throw s2.code ? new Q({ code: s2.code, message: `邮箱登录失败: ${s2.message}` }) : new Q({ message: "邮箱登录失败" });
   }
   async activate(e2) {
     return this._request.send("auth.activateEndUserMail", { token: e2 });
@@ -8408,10 +8857,10 @@ class et extends Ge {
     if ("string" != typeof e2)
       throw new Q({ code: "PARAM_ERROR", message: "username must be a string" });
     "string" != typeof t2 && (t2 = "", console.warn("password is empty"));
-    const { refreshTokenKey: n2 } = this._cache.keys, s2 = await this._request.send("auth.signIn", { loginType: Me.USERNAME, username: e2, password: t2, refresh_token: this._cache.getStore(n2) || "" }), { refresh_token: r2, access_token_expire: i2, access_token: o2 } = s2;
+    const { refreshTokenKey: n2 } = this._cache.keys, s2 = await this._request.send("auth.signIn", { loginType: je.USERNAME, username: e2, password: t2, refresh_token: this._cache.getStore(n2) || "" }), { refresh_token: r2, access_token_expire: i2, access_token: o2 } = s2;
     if (r2)
-      return this.setRefreshToken(r2), o2 && i2 ? this.setAccessToken(o2, i2) : await this._request.refreshAccessToken(), await this.refreshUserInfo(), Re(Ne), Re(Fe, { env: this.config.env, loginType: Me.USERNAME, persistence: this.config.persistence }), new Ye(this.config.env);
-    throw s2.code ? new Q({ code: s2.code, message: `\u7528\u6237\u540D\u5BC6\u7801\u767B\u5F55\u5931\u8D25: ${s2.message}` }) : new Q({ message: "\u7528\u6237\u540D\u5BC6\u7801\u767B\u5F55\u5931\u8D25" });
+      return this.setRefreshToken(r2), o2 && i2 ? this.setAccessToken(o2, i2) : await this._request.refreshAccessToken(), await this.refreshUserInfo(), Re(Ne), Re(Fe, { env: this.config.env, loginType: je.USERNAME, persistence: this.config.persistence }), new Ye(this.config.env);
+    throw s2.code ? new Q({ code: s2.code, message: `用户名密码登录失败: ${s2.message}` }) : new Q({ message: "用户名密码登录失败" });
   }
 }
 class tt {
@@ -8451,13 +8900,13 @@ class tt {
     return await this._anonymousAuthProvider.linkAndRetrieveDataWithTicket(e2);
   }
   async signOut() {
-    if (this.loginType === Me.ANONYMOUS)
-      throw new Q({ message: "\u533F\u540D\u7528\u6237\u4E0D\u652F\u6301\u767B\u51FA\u64CD\u4F5C" });
+    if (this.loginType === je.ANONYMOUS)
+      throw new Q({ message: "匿名用户不支持登出操作" });
     const { refreshTokenKey: e2, accessTokenKey: t2, accessTokenExpireKey: n2 } = this._cache.keys, s2 = this._cache.getStore(e2);
     if (!s2)
       return;
     const r2 = await this._request.send("auth.logout", { refresh_token: s2 });
-    return this._cache.removeStore(e2), this._cache.removeStore(t2), this._cache.removeStore(n2), Re(Ne), Re(Fe, { env: this.config.env, loginType: Me.NULL, persistence: this.config.persistence }), r2;
+    return this._cache.removeStore(e2), this._cache.removeStore(t2), this._cache.removeStore(n2), Re(Ne), Re(Fe, { env: this.config.env, loginType: je.NULL, persistence: this.config.persistence }), r2;
   }
   async signUpWithEmailAndPassword(e2, t2) {
     return this._request.send("auth.signUpWithEmailAndPassword", { email: e2, password: t2 });
@@ -8549,10 +8998,10 @@ const nt = function(e2, t2) {
   }), t2.promise;
 }, rt = function({ fileList: e2 }, t2) {
   if (t2 = t2 || me(), !e2 || !Array.isArray(e2))
-    return { code: "INVALID_PARAM", message: "fileList\u5FC5\u987B\u662F\u975E\u7A7A\u7684\u6570\u7EC4" };
+    return { code: "INVALID_PARAM", message: "fileList必须是非空的数组" };
   for (let t3 of e2)
     if (!t3 || "string" != typeof t3)
-      return { code: "INVALID_PARAM", message: "fileList\u7684\u5143\u7D20\u5FC5\u987B\u662F\u975E\u7A7A\u7684\u5B57\u7B26\u4E32" };
+      return { code: "INVALID_PARAM", message: "fileList的元素必须是非空的字符串" };
   const n2 = { fileid_list: e2 };
   return He(this.config.env).send("storage.batchDeleteFile", n2).then((e3) => {
     e3.code ? t2(null, e3) : t2(null, { fileList: e3.data.delete_list, requestId: e3.requestId });
@@ -8560,10 +9009,10 @@ const nt = function(e2, t2) {
     t2(e3);
   }), t2.promise;
 }, it = function({ fileList: e2 }, t2) {
-  t2 = t2 || me(), e2 && Array.isArray(e2) || t2(null, { code: "INVALID_PARAM", message: "fileList\u5FC5\u987B\u662F\u975E\u7A7A\u7684\u6570\u7EC4" });
+  t2 = t2 || me(), e2 && Array.isArray(e2) || t2(null, { code: "INVALID_PARAM", message: "fileList必须是非空的数组" });
   let n2 = [];
   for (let s3 of e2)
-    "object" == typeof s3 ? (s3.hasOwnProperty("fileID") && s3.hasOwnProperty("maxAge") || t2(null, { code: "INVALID_PARAM", message: "fileList\u7684\u5143\u7D20\u5FC5\u987B\u662F\u5305\u542BfileID\u548CmaxAge\u7684\u5BF9\u8C61" }), n2.push({ fileid: s3.fileID, max_age: s3.maxAge })) : "string" == typeof s3 ? n2.push({ fileid: s3 }) : t2(null, { code: "INVALID_PARAM", message: "fileList\u7684\u5143\u7D20\u5FC5\u987B\u662F\u5B57\u7B26\u4E32" });
+    "object" == typeof s3 ? (s3.hasOwnProperty("fileID") && s3.hasOwnProperty("maxAge") || t2(null, { code: "INVALID_PARAM", message: "fileList的元素必须是包含fileID和maxAge的对象" }), n2.push({ fileid: s3.fileID, max_age: s3.maxAge })) : "string" == typeof s3 ? n2.push({ fileid: s3 }) : t2(null, { code: "INVALID_PARAM", message: "fileList的元素必须是字符串" });
   const s2 = { file_list: n2 };
   return He(this.config.env).send("storage.batchGetDownloadUrl", s2).then((e3) => {
     e3.code ? t2(null, e3) : t2(null, { fileList: e3.data.download_list, requestId: e3.requestId });
@@ -8590,7 +9039,7 @@ const nt = function(e2, t2) {
     return Promise.reject(e3);
   }
   if (!e2)
-    return Promise.reject(new Q({ code: "PARAM_ERROR", message: "\u51FD\u6570\u540D\u4E0D\u80FD\u4E3A\u7A7A" }));
+    return Promise.reject(new Q({ code: "PARAM_ERROR", message: "函数名不能为空" }));
   const c2 = { inQuery: n2, parse: s2, search: r2, function_name: e2, request_data: a2 };
   return He(this.config.env).send("functions.invokeFunction", c2).then((e3) => {
     if (e3.code)
@@ -8616,12 +9065,12 @@ class lt {
     this.config = e2 || this.config, this.authObj = void 0;
   }
   init(e2) {
-    switch (Se.adapter || (this.requestClient = new Se.adapter.reqClass({ timeout: e2.timeout || 5e3, timeoutMsg: `\u8BF7\u6C42\u5728${(e2.timeout || 5e3) / 1e3}s\u5185\u672A\u5B8C\u6210\uFF0C\u5DF2\u4E2D\u65AD` })), this.config = { ...ct, ...e2 }, true) {
+    switch (Se.adapter || (this.requestClient = new Se.adapter.reqClass({ timeout: e2.timeout || 5e3, timeoutMsg: `请求在${(e2.timeout || 5e3) / 1e3}s内未完成，已中断` })), this.config = { ...ct, ...e2 }, true) {
       case this.config.timeout > 6e5:
-        console.warn("timeout\u5927\u4E8E\u53EF\u914D\u7F6E\u4E0A\u9650[10\u5206\u949F]\uFF0C\u5DF2\u91CD\u7F6E\u4E3A\u4E0A\u9650\u6570\u503C"), this.config.timeout = 6e5;
+        console.warn("timeout大于可配置上限[10分钟]，已重置为上限数值"), this.config.timeout = 6e5;
         break;
       case this.config.timeout < 100:
-        console.warn("timeout\u5C0F\u4E8E\u53EF\u914D\u7F6E\u4E0B\u9650[100ms]\uFF0C\u5DF2\u91CD\u7F6E\u4E3A\u4E0B\u9650\u6570\u503C"), this.config.timeout = 100;
+        console.warn("timeout小于可配置下限[100ms]，已重置为下限数值"), this.config.timeout = 100;
     }
     return new lt(this.config);
   }
@@ -8665,7 +9114,7 @@ class lt {
   async invokeExtension(e2, t2) {
     const n2 = ut[e2];
     if (!n2)
-      throw new Q({ message: `\u6269\u5C55${e2} \u5FC5\u987B\u5148\u6CE8\u518C` });
+      throw new Q({ message: `扩展${e2} 必须先注册` });
     return await n2.invoke(t2, this);
   }
   useAdapters(e2) {
@@ -8751,9 +9200,9 @@ var wt = class extends he {
   uploadFileToOSS({ url: e2, formData: t2, name: n2, filePath: s2, fileType: r2, onUploadProgress: i2 }) {
     return new Promise((o2, a2) => {
       const c2 = this.adapter.uploadFile({ url: e2, formData: t2, name: n2, filePath: s2, fileType: r2, success(e3) {
-        e3 && e3.statusCode < 400 ? o2(e3) : a2(new Q({ code: "UPLOAD_FAILED", message: "\u6587\u4EF6\u4E0A\u4F20\u5931\u8D25" }));
+        e3 && e3.statusCode < 400 ? o2(e3) : a2(new Q({ code: "UPLOAD_FAILED", message: "文件上传失败" }));
       }, fail(e3) {
-        a2(new Q({ code: e3.code || "UPLOAD_FAILED", message: e3.message || e3.errMsg || "\u6587\u4EF6\u4E0A\u4F20\u5931\u8D25" }));
+        a2(new Q({ code: e3.code || "UPLOAD_FAILED", message: e3.message || e3.errMsg || "文件上传失败" }));
       } });
       "function" == typeof i2 && c2 && "function" == typeof c2.onProgressUpdate && c2.onProgressUpdate((e3) => {
         i2({ loaded: e3.totalBytesSent, total: e3.totalBytesExpectedToSend });
@@ -8762,7 +9211,7 @@ var wt = class extends he {
   }
   uploadFile({ filePath: e2, cloudPath: t2, fileType: n2 = "image", onUploadProgress: s2 }) {
     if (!t2)
-      throw new Q({ code: "CLOUDPATH_REQUIRED", message: "cloudPath\u4E0D\u53EF\u4E3A\u7A7A" });
+      throw new Q({ code: "CLOUDPATH_REQUIRED", message: "cloudPath不可为空" });
     let r2;
     return this.getOSSUploadOptionsFromPath({ cloudPath: t2 }).then((t3) => {
       const { url: i2, formData: o2, name: a2 } = t3.result;
@@ -8770,7 +9219,7 @@ var wt = class extends he {
       const c2 = { url: i2, formData: o2, name: a2, filePath: e2, fileType: n2 };
       return this.uploadFileToOSS(Object.assign({}, c2, { onUploadProgress: s2 }));
     }).then(() => this.reportOSSUpload({ cloudPath: t2 })).then((t3) => new Promise((n3, s3) => {
-      t3.success ? n3({ success: true, filePath: e2, fileID: r2 }) : s3(new Q({ code: "UPLOAD_FAILED", message: "\u6587\u4EF6\u4E0A\u4F20\u5931\u8D25" }));
+      t3.success ? n3({ success: true, filePath: e2, fileID: r2 }) : s3(new Q({ code: "UPLOAD_FAILED", message: "文件上传失败" }));
     }));
   }
   deleteFile({ fileList: e2 }) {
@@ -8778,17 +9227,17 @@ var wt = class extends he {
     return this.request(this.setupRequest(t2)).then((e3) => {
       if (e3.success)
         return e3.result;
-      throw new Q({ code: "DELETE_FILE_FAILED", message: "\u5220\u9664\u6587\u4EF6\u5931\u8D25" });
+      throw new Q({ code: "DELETE_FILE_FAILED", message: "删除文件失败" });
     });
   }
   getTempFileURL({ fileList: e2 } = {}) {
     if (!Array.isArray(e2) || 0 === e2.length)
-      throw new Q({ code: "INVALID_PARAM", message: "fileList\u7684\u5143\u7D20\u5FC5\u987B\u662F\u975E\u7A7A\u7684\u5B57\u7B26\u4E32" });
+      throw new Q({ code: "INVALID_PARAM", message: "fileList的元素必须是非空的字符串" });
     const t2 = { method: "serverless.file.resource.getTempFileURL", params: JSON.stringify({ fileList: e2 }) };
     return this.request(this.setupRequest(t2)).then((e3) => {
       if (e3.success)
         return { fileList: e3.result.fileList.map((e4) => ({ fileID: e4.fileID, tempFileURL: e4.tempFileURL })) };
-      throw new Q({ code: "GET_TEMP_FILE_URL_FAILED", message: "\u83B7\u53D6\u4E34\u65F6\u6587\u4EF6\u94FE\u63A5\u5931\u8D25" });
+      throw new Q({ code: "GET_TEMP_FILE_URL_FAILED", message: "获取临时文件链接失败" });
     });
   }
 };
@@ -8818,7 +9267,7 @@ function kt({ name: e2, data: t2 } = {}) {
     X.request({ method: "POST", url: o2, data: { name: e2, platform: S, provider: r2, spaceId: i2 }, timeout: 3e3, success(e3) {
       t3(e3);
     }, fail() {
-      t3({ data: { code: "NETWORK_ERROR", message: "\u8FDE\u63A5\u672C\u5730\u8C03\u8BD5\u670D\u52A1\u5931\u8D25\uFF0C\u8BF7\u68C0\u67E5\u5BA2\u6237\u7AEF\u662F\u5426\u548C\u4E3B\u673A\u5728\u540C\u4E00\u5C40\u57DF\u7F51\u4E0B\uFF0C\u81EA\u52A8\u5207\u6362\u4E3A\u5DF2\u90E8\u7F72\u7684\u4E91\u51FD\u6570\u3002" } });
+      t3({ data: { code: "NETWORK_ERROR", message: "连接本地调试服务失败，请检查客户端是否和主机在同一局域网下，自动切换为已部署的云函数。" } });
     } });
   }).then(({ data: e3 } = {}) => {
     const { code: t3, message: n3 } = e3 || {};
@@ -8827,22 +9276,22 @@ function kt({ name: e2, data: t2 } = {}) {
     if (0 !== n3) {
       switch (n3) {
         case "MODULE_ENCRYPTED":
-          console.error(`\u6B64\u4E91\u51FD\u6570\uFF08${e2}\uFF09\u4F9D\u8D56\u52A0\u5BC6\u516C\u5171\u6A21\u5757\u4E0D\u53EF\u672C\u5730\u8C03\u8BD5\uFF0C\u81EA\u52A8\u5207\u6362\u4E3A\u4E91\u7AEF\u5DF2\u90E8\u7F72\u7684\u4E91\u51FD\u6570`);
+          console.error(`此云函数（${e2}）依赖加密公共模块不可本地调试，自动切换为云端已部署的云函数`);
           break;
         case "FUNCTION_ENCRYPTED":
-          console.error(`\u6B64\u4E91\u51FD\u6570\uFF08${e2}\uFF09\u5DF2\u52A0\u5BC6\u4E0D\u53EF\u672C\u5730\u8C03\u8BD5\uFF0C\u81EA\u52A8\u5207\u6362\u4E3A\u4E91\u7AEF\u5DF2\u90E8\u7F72\u7684\u4E91\u51FD\u6570`);
+          console.error(`此云函数（${e2}）已加密不可本地调试，自动切换为云端已部署的云函数`);
           break;
         case "ACTION_ENCRYPTED":
-          console.error(s3 || "\u9700\u8981\u8BBF\u95EE\u52A0\u5BC6\u7684uni-clientDB-action\uFF0C\u81EA\u52A8\u5207\u6362\u4E3A\u4E91\u7AEF\u73AF\u5883");
+          console.error(s3 || "需要访问加密的uni-clientDB-action，自动切换为云端环境");
           break;
         case "NETWORK_ERROR": {
-          const e3 = "\u8FDE\u63A5\u672C\u5730\u8C03\u8BD5\u670D\u52A1\u5931\u8D25\uFF0C\u8BF7\u68C0\u67E5\u5BA2\u6237\u7AEF\u662F\u5426\u548C\u4E3B\u673A\u5728\u540C\u4E00\u5C40\u57DF\u7F51\u4E0B";
+          const e3 = "连接本地调试服务失败，请检查客户端是否和主机在同一局域网下";
           throw console.error(e3), new Error(e3);
         }
         case "SWITCH_TO_CLOUD":
           break;
         default: {
-          const e3 = `\u68C0\u6D4B\u672C\u5730\u8C03\u8BD5\u670D\u52A1\u51FA\u73B0\u9519\u8BEF\uFF1A${s3}\uFF0C\u8BF7\u68C0\u67E5\u7F51\u7EDC\u73AF\u5883\u6216\u91CD\u542F\u5BA2\u6237\u7AEF\u518D\u8BD5`;
+          const e3 = `检测本地调试服务出现错误：${s3}，请检查网络环境或重启客户端再试`;
           throw console.error(e3), new Error(e3);
         }
       }
@@ -8856,7 +9305,7 @@ function kt({ name: e2, data: t2 } = {}) {
     });
   });
 }
-const It = [{ rule: /fc_function_not_found|FUNCTION_NOT_FOUND/, content: "\uFF0C\u4E91\u51FD\u6570[{functionName}]\u5728\u4E91\u7AEF\u4E0D\u5B58\u5728\uFF0C\u8BF7\u68C0\u67E5\u6B64\u4E91\u51FD\u6570\u540D\u79F0\u662F\u5426\u6B63\u786E\u4EE5\u53CA\u8BE5\u4E91\u51FD\u6570\u662F\u5426\u5DF2\u4E0A\u4F20\u5230\u670D\u52A1\u7A7A\u95F4", mode: "append" }];
+const It = [{ rule: /fc_function_not_found|FUNCTION_NOT_FOUND/, content: "，云函数[{functionName}]在云端不存在，请检查此云函数名称是否正确以及该云函数是否已上传到服务空间", mode: "append" }];
 var bt = /[\\^$.*+?()[\]{}|]/g, Tt = RegExp(bt.source);
 function At(e2, t2, n2) {
   return e2.replace(new RegExp((s2 = t2) && Tt.test(s2) ? s2.replace(bt, "\\$&") : s2, "g"), n2);
@@ -8873,7 +9322,7 @@ function bn({ secretType: e2 } = {}) {
   return e2 === Pt || e2 === Et || e2 === Ot;
 }
 function Tn({ name: e2, data: t2 = {} } = {}) {
-  return "app" === S && "DCloud-clientDB" === e2 && "encryption" === t2.redirectTo && "getAppClientKey" === t2.action;
+  return "app" === S;
 }
 function An({ provider: e2, spaceId: t2, functionName: n2 } = {}) {
   const { appId: s2, uniPlatform: r2, osName: i2 } = ie();
@@ -8906,7 +9355,7 @@ function An({ provider: e2, spaceId: t2, functionName: n2 } = {}) {
     return false;
   if ((c2[l2] || []).find((e3 = {}) => e3.appId === s2 && (e3.platform || "").toLowerCase() === o2.toLowerCase()))
     return true;
-  throw console.error(`\u6B64\u5E94\u7528[appId: ${s2}, platform: ${o2}]\u4E0D\u5728\u4E91\u7AEF\u914D\u7F6E\u7684\u5141\u8BB8\u8BBF\u95EE\u7684\u5E94\u7528\u5217\u8868\u5185\uFF0C\u53C2\u8003\uFF1Ahttps://uniapp.dcloud.net.cn/uniCloud/secure-network.html#verify-client`), yn(pn);
+  throw console.error(`此应用[appId: ${s2}, platform: ${o2}]不在云端配置的允许访问的应用列表内，参考：https://uniapp.dcloud.net.cn/uniCloud/secure-network.html#verify-client`), yn(pn);
 }
 function Cn({ functionName: e2, result: t2, logPvd: n2 }) {
   if (this.__dev__.debugLog && t2 && t2.requestId) {
@@ -8938,9 +9387,9 @@ function Pn(e2) {
     const { provider: s2, spaceId: r2 } = e2.config, i2 = t3.name;
     let o2, a2;
     if (t3.data = t3.data || {}, e2.__dev__.debugInfo && !e2.__dev__.debugInfo.forceRemote && I ? (e2._callCloudFunction || (e2._callCloudFunction = n2, e2._callLocalFunction = kt), o2 = kt) : o2 = n2, o2 = o2.bind(e2), Tn(t3))
-      a2 = n2.call(e2, t3);
+      ;
     else if (function({ name: e3, data: t4 = {} }) {
-      return "mp-weixin" === S && "uni-id-co" === e3 && "secureNetworkHandshakeByWeixin" === t4.method;
+      return "uni-id-co" === e3 && "secureNetworkHandshakeByWeixin" === t4.method;
     }(t3))
       a2 = o2.call(e2, t3);
     else if (bn(t3)) {
@@ -8949,14 +9398,10 @@ function Pn(e2) {
       a2 = new wn({ secretType: t3.secretType, uniCloudIns: e2 }).wrapVerifyClientCallFunction(n2.bind(e2))(t3);
     } else
       a2 = o2(t3);
-    return Object.defineProperty(a2, "result", { get: () => (console.warn("\u5F53\u524D\u8FD4\u56DE\u7ED3\u679C\u4E3APromise\u7C7B\u578B\uFF0C\u4E0D\u53EF\u76F4\u63A5\u8BBF\u95EE\u5176result\u5C5E\u6027\uFF0C\u8BE6\u60C5\u8BF7\u53C2\u8003\uFF1Ahttps://uniapp.dcloud.net.cn/uniCloud/faq?id=promise"), {}) }), a2;
+    return Object.defineProperty(a2, "result", { get: () => (console.warn("当前返回结果为Promise类型，不可直接访问其result属性，详情请参考：https://uniapp.dcloud.net.cn/uniCloud/faq?id=promise"), {}) }), a2;
   };
 }
-wn = "mp-weixin" !== S && "app" !== S ? class {
-  constructor() {
-    throw yn({ message: `Platform ${S} is not supported by secure network` });
-  }
-} : class {
+wn = class {
   constructor() {
     throw yn({ message: `Platform ${S} is not enabled, please check whether secure network module is enabled in your manifest.json` });
   }
@@ -9086,14 +9531,14 @@ class Dn {
   }
   get set() {
     return this.isCommand ? this.getNextStageFn("set") : function() {
-      throw new Error("JQL\u7981\u6B62\u4F7F\u7528set\u65B9\u6CD5");
+      throw new Error("JQL禁止使用set方法");
     };
   }
   _send(e2, t2) {
     const n2 = this.getAction(), s2 = this.getCommand();
     if (s2.$db.push({ $method: e2, $param: Ln(t2) }), y) {
       const e3 = s2.$db.find((e4) => "collection" === e4.$method), t3 = e3 && e3.$param;
-      t3 && 1 === t3.length && "string" == typeof e3.$param[0] && e3.$param[0].indexOf(",") > -1 && console.warn("\u68C0\u6D4B\u5230\u4F7F\u7528JQL\u8BED\u6CD5\u8054\u8868\u67E5\u8BE2\u65F6\uFF0C\u672A\u4F7F\u7528getTemp\u5148\u8FC7\u6EE4\u4E3B\u8868\u6570\u636E\uFF0C\u5728\u4E3B\u8868\u6570\u636E\u91CF\u5927\u7684\u60C5\u51B5\u4E0B\u53EF\u80FD\u4F1A\u67E5\u8BE2\u7F13\u6162\u3002\n- \u5982\u4F55\u4F18\u5316\u8BF7\u53C2\u8003\u6B64\u6587\u6863\uFF1Ahttps://uniapp.dcloud.net.cn/uniCloud/jql?id=lookup-with-temp \n- \u5982\u679C\u4E3B\u8868\u6570\u636E\u91CF\u5F88\u5C0F\u8BF7\u5FFD\u7565\u6B64\u4FE1\u606F\uFF0C\u9879\u76EE\u53D1\u884C\u65F6\u4E0D\u4F1A\u51FA\u73B0\u6B64\u63D0\u793A\u3002");
+      t3 && 1 === t3.length && "string" == typeof e3.$param[0] && e3.$param[0].indexOf(",") > -1 && console.warn("检测到使用JQL语法联表查询时，未使用getTemp先过滤主表数据，在主表数据量大的情况下可能会查询缓慢。\n- 如何优化请参考此文档：https://uniapp.dcloud.net.cn/uniCloud/jql?id=lookup-with-temp \n- 如果主表数据量很小请忽略此信息，项目发行时不会出现此提示。");
     }
     return this._database._callCloudFunction({ action: n2, command: s2 });
   }
@@ -9121,13 +9566,13 @@ function Kn(e2, t2 = {}) {
     return Fn({ $method: t3, $param: Ln(Array.from(arguments)) }, null, e3);
   } });
 }
-class Mn extends class {
+class jn extends class {
   constructor({ uniClient: e2 = {}, isJQL: t2 = false } = {}) {
     this._uniClient = e2, this._authCallBacks = {}, this._dbCallBacks = {}, e2.isDefault && (this._dbCallBacks = C("_globalUniCloudDatabaseCallback")), t2 || (this.auth = xn(this._authCallBacks)), this._isJQL = t2, Object.assign(this, xn(this._dbCallBacks)), this.env = On({}, { get: (e3, t3) => ({ $env: t3 }) }), this.Geo = On({}, { get: (e3, t3) => qn({ path: ["Geo"], method: t3 }) }), this.serverDate = qn({ path: [], method: "serverDate" }), this.RegExp = qn({ path: [], method: "RegExp" });
   }
   getCloudEnv(e2) {
     if ("string" != typeof e2 || !e2.trim())
-      throw new Error("getCloudEnv\u53C2\u6570\u9519\u8BEF");
+      throw new Error("getCloudEnv参数错误");
     return { $env: e2.replace("$cloudEnv_", "") };
   }
   _callback(e2, t2) {
@@ -9146,7 +9591,7 @@ class Mn extends class {
     const e2 = Array.from(arguments), t2 = e2.map((e3) => {
       const t3 = e3.getAction(), n2 = e3.getCommand();
       if ("getTemp" !== n2.$db[n2.$db.length - 1].$method)
-        throw new Error("multiSend\u53EA\u652F\u6301\u5B50\u547D\u4EE4\u5185\u4F7F\u7528getTemp");
+        throw new Error("multiSend只支持子命令内使用getTemp");
       return { action: t3, command: n2 };
     });
     return this._callCloudFunction({ multiCommand: t2, queryList: e2 });
@@ -9172,16 +9617,16 @@ class Mn extends class {
       const { code: t3, message: n3, token: s3, tokenExpired: c3, systemInfo: u3 = [] } = e3.result;
       if (u3)
         for (let e4 = 0; e4 < u3.length; e4++) {
-          const { level: t4, message: n4, detail: s4 } = u3[e4], r3 = console["app" === S && "warn" === t4 ? "error" : t4] || console.log;
+          const { level: t4, message: n4, detail: s4 } = u3[e4], r3 = console[t4] || console.log;
           let i3 = "[System Info]" + n4;
           s4 && (i3 = `${i3}
-\u8BE6\u7EC6\u4FE1\u606F\uFF1A${s4}`), r3(i3);
+详细信息：${s4}`), r3(i3);
         }
       if (t3) {
         return a2(new Q({ code: t3, message: n3, requestId: e3.requestId }));
       }
       e3.result.errCode = e3.result.errCode || e3.result.code, e3.result.errMsg = e3.result.errMsg || e3.result.message, s3 && c3 && (te({ token: s3, tokenExpired: c3 }), this._callbackAuth("refreshToken", [{ token: s3, tokenExpired: c3 }]), this._callback("refreshToken", [{ token: s3, tokenExpired: c3 }]), z(q, { token: s3, tokenExpired: c3 }));
-      const l2 = [{ prop: "affectedDocs", tips: "affectedDocs\u4E0D\u518D\u63A8\u8350\u4F7F\u7528\uFF0C\u8BF7\u4F7F\u7528inserted/deleted/updated/data.length\u66FF\u4EE3" }, { prop: "code", tips: "code\u4E0D\u518D\u63A8\u8350\u4F7F\u7528\uFF0C\u8BF7\u4F7F\u7528errCode\u66FF\u4EE3" }, { prop: "message", tips: "message\u4E0D\u518D\u63A8\u8350\u4F7F\u7528\uFF0C\u8BF7\u4F7F\u7528errMsg\u66FF\u4EE3" }];
+      const l2 = [{ prop: "affectedDocs", tips: "affectedDocs不再推荐使用，请使用inserted/deleted/updated/data.length替代" }, { prop: "code", tips: "code不再推荐使用，请使用errCode替代" }, { prop: "message", tips: "message不再推荐使用，请使用errMsg替代" }];
       for (let t4 = 0; t4 < l2.length; t4++) {
         const { prop: n4, tips: s4 } = l2[t4];
         if (n4 in e3.result) {
@@ -9197,12 +9642,12 @@ class Mn extends class {
         });
       }(e3);
     }, (e3) => {
-      /fc_function_not_found|FUNCTION_NOT_FOUND/g.test(e3.message) && console.warn("clientDB\u672A\u521D\u59CB\u5316\uFF0C\u8BF7\u5728web\u63A7\u5236\u53F0\u4FDD\u5B58\u4E00\u6B21schema\u4EE5\u5F00\u542FclientDB");
+      /fc_function_not_found|FUNCTION_NOT_FOUND/g.test(e3.message) && console.warn("clientDB未初始化，请在web控制台保存一次schema以开启clientDB");
       return a2(new Q({ code: e3.code || "SYSTEM_ERROR", message: e3.message, requestId: e3.requestId }));
     });
   }
 }
-const jn = "token\u65E0\u6548\uFF0C\u8DF3\u8F6C\u767B\u5F55\u9875\u9762", Bn = "token\u8FC7\u671F\uFF0C\u8DF3\u8F6C\u767B\u5F55\u9875\u9762", $n = { TOKEN_INVALID_TOKEN_EXPIRED: Bn, TOKEN_INVALID_INVALID_CLIENTID: jn, TOKEN_INVALID: jn, TOKEN_INVALID_WRONG_TOKEN: jn, TOKEN_INVALID_ANONYMOUS_USER: jn }, Wn = { "uni-id-token-expired": Bn, "uni-id-check-token-failed": jn, "uni-id-token-not-exist": jn, "uni-id-check-device-feature-failed": jn };
+const Mn = "token无效，跳转登录页面", Bn = "token过期，跳转登录页面", $n = { TOKEN_INVALID_TOKEN_EXPIRED: Bn, TOKEN_INVALID_INVALID_CLIENTID: Mn, TOKEN_INVALID: Mn, TOKEN_INVALID_WRONG_TOKEN: Mn, TOKEN_INVALID_ANONYMOUS_USER: Mn }, Wn = { "uni-id-token-expired": Bn, "uni-id-check-token-failed": Mn, "uni-id-token-not-exist": Mn, "uni-id-check-device-feature-failed": Mn };
 function zn(e2, t2) {
   let n2 = "";
   return n2 = e2 ? `${e2}/${t2}` : t2, n2.replace(/^\//, "");
@@ -9329,13 +9774,17 @@ function ls() {
     switch (t2) {
       case "cloudobject":
         s2 = function(e3) {
-          const { errCode: t3 } = e3;
+          if ("object" != typeof e3)
+            return false;
+          const { errCode: t3 } = e3 || {};
           return t3 in Wn;
         }(n2);
         break;
       case "clientdb":
         s2 = function(e3) {
-          const { errCode: t3 } = e3;
+          if ("object" != typeof e3)
+            return false;
+          const { errCode: t3 } = e3 || {};
           return t3 in $n;
         }(n2);
     }
@@ -9384,7 +9833,7 @@ function gs() {
       return "%" + ("00" + e3.charCodeAt(0).toString(16)).slice(-2);
     }).join(""))));
   } catch (e3) {
-    throw new Error("\u83B7\u53D6\u5F53\u524D\u7528\u6237\u4FE1\u606F\u51FA\u9519\uFF0C\u8BE6\u7EC6\u9519\u8BEF\u4FE1\u606F\u4E3A\uFF1A" + e3.message);
+    throw new Error("获取当前用户信息出错，详细错误信息为：" + e3.message);
   }
   var s2;
   return n2.tokenExpired = 1e3 * n2.exp, delete n2.exp, delete n2.iat, n2;
@@ -9463,7 +9912,7 @@ var ms = s(function(e2, t2) {
         return new Promise((e5, i3) => {
           let o2 = index.chooseFile;
           if ("undefined" != typeof wx$1 && "function" == typeof wx$1.chooseMessageFile && (o2 = wx$1.chooseMessageFile), "function" != typeof o2)
-            return i3({ errMsg: s2 + " \u8BF7\u6307\u5B9A type \u7C7B\u578B\uFF0C\u8BE5\u5E73\u53F0\u4EC5\u652F\u6301\u9009\u62E9 image \u6216 video\u3002" });
+            return i3({ errMsg: s2 + " 请指定 type 类型，该平台仅支持选择 image 或 video。" });
           o2({ type: "all", count: t4, extension: n3, success(t5) {
             e5(r2(t5));
           }, fail(e6) {
@@ -9529,7 +9978,7 @@ function vs(e2) {
   return function(t2, n2 = {}) {
     n2 = function(e3, t3 = {}) {
       return e3.customUI = t3.customUI || e3.customUI, e3.parseSystemError = t3.parseSystemError || e3.parseSystemError, Object.assign(e3.loadingOptions, t3.loadingOptions), Object.assign(e3.errorOptions, t3.errorOptions), "object" == typeof t3.secretMethods && (e3.secretMethods = t3.secretMethods), e3;
-    }({ customUI: false, loadingOptions: { title: "\u52A0\u8F7D\u4E2D...", mask: true }, errorOptions: { type: "modal", retry: false } }, n2);
+    }({ customUI: false, loadingOptions: { title: "加载中...", mask: true }, errorOptions: { type: "modal", retry: false } }, n2);
     const { customUI: s2, loadingOptions: r2, errorOptions: i2, parseSystemError: o2 } = n2, a2 = !s2;
     return new Proxy({}, { get: (s3, c2) => function({ fn: e3, interceptorName: t3, getCallbackArgs: n3 } = {}) {
       return async function(...s4) {
@@ -9578,15 +10027,15 @@ function vs(e2) {
                     i3({ confirm: false, cancel: true });
                   } });
                 });
-              }({ title: "\u63D0\u793A", content: e3, showCancel: i2.retry, cancelText: "\u53D6\u6D88", confirmText: i2.retry ? "\u91CD\u8BD5" : "\u786E\u5B9A" });
+              }({ title: "提示", content: e3, showCancel: i2.retry, cancelText: "取消", confirmText: i2.retry ? "重试" : "确定" });
               if (i2.retry && t3)
                 return s4(...u2);
             }
           }
         const n3 = new Q({ subject: p2, code: g2, message: m2, requestId: h2.requestId });
-        throw n3.detail = h2.result, z(D, { type: j, content: n3 }), n3;
+        throw n3.detail = h2.result, z(D, { type: M, content: n3 }), n3;
       }
-      return z(D, { type: j, content: h2.result }), h2.result;
+      return z(D, { type: M, content: h2.result }), h2.result;
     }, interceptorName: "callObject", getCallbackArgs: function({ params: e3 } = {}) {
       return { objectName: t2, methodName: c2, params: e3 };
     } }) });
@@ -9597,8 +10046,6 @@ function Ss(e2) {
 }
 async function ks({ callLoginByWeixin: e2 = false } = {}) {
   const t2 = Ss(this);
-  if ("mp-weixin" !== S)
-    throw new Error(`[SecureNetwork] API \`initSecureNetworkByWeixin\` is not supported on platform \`${S}\``);
   const n2 = await new Promise((e3, t3) => {
     index.login({ success(t4) {
       e3(t4.code);
@@ -9645,15 +10092,6 @@ function As(e2) {
   }), e2.isReady = false, e2.isDefault = false;
   const s2 = e2.auth();
   e2.initUniCloudStatus = "pending", e2.initUniCloud = t2.then(() => s2.getLoginState()).then((e3) => e3 ? Promise.resolve() : s2.signInAnonymously()).then(() => {
-    if ("app" === S) {
-      const { osName: e3, osVersion: t3 } = ie();
-      "ios" === e3 && function(e4) {
-        if (!e4 || "string" != typeof e4)
-          return 0;
-        const t4 = e4.match(/^(\d+)./);
-        return t4 && t4[1] ? parseInt(t4[1]) : 0;
-      }(t3) >= 14 && console.warn("iOS 14\u53CA\u4EE5\u4E0A\u7248\u672C\u8FDE\u63A5uniCloud\u672C\u5730\u8C03\u8BD5\u670D\u52A1\u9700\u8981\u5141\u8BB8\u5BA2\u6237\u7AEF\u67E5\u627E\u5E76\u8FDE\u63A5\u5230\u672C\u5730\u7F51\u7EDC\u4E0A\u7684\u8BBE\u5907\uFF08\u4EC5\u5F00\u53D1\u6A21\u5F0F\u751F\u6548\uFF0C\u53D1\u884C\u6A21\u5F0F\u4F1A\u8FDE\u63A5uniCloud\u4E91\u7AEF\u670D\u52A1\uFF09");
-    }
     if (e2.__dev__.debugInfo) {
       const { address: t3, servePort: n3 } = e2.__dev__.debugInfo;
       return async function(e3, t4) {
@@ -9669,15 +10107,15 @@ function As(e2) {
       }(t3, n3);
     }
   }).then(({ address: t3, port: n3 } = {}) => {
-    const s3 = console["app" === S ? "error" : "warn"];
+    const s3 = console["warn"];
     if (t3)
       e2.__dev__.localAddress = t3, e2.__dev__.localPort = n3;
     else if (e2.__dev__.debugInfo) {
       let t4 = "";
-      "remote" === e2.__dev__.debugInfo.initialLaunchType ? (e2.__dev__.debugInfo.forceRemote = true, t4 = "\u5F53\u524D\u5BA2\u6237\u7AEF\u548CHBuilderX\u4E0D\u5728\u540C\u4E00\u5C40\u57DF\u7F51\u4E0B\uFF08\u6216\u5176\u4ED6\u7F51\u7EDC\u539F\u56E0\u65E0\u6CD5\u8FDE\u63A5HBuilderX\uFF09\uFF0CuniCloud\u672C\u5730\u8C03\u8BD5\u670D\u52A1\u4E0D\u5BF9\u5F53\u524D\u5BA2\u6237\u7AEF\u751F\u6548\u3002\n- \u5982\u679C\u4E0D\u4F7F\u7528uniCloud\u672C\u5730\u8C03\u8BD5\u670D\u52A1\uFF0C\u8BF7\u76F4\u63A5\u5FFD\u7565\u6B64\u4FE1\u606F\u3002\n- \u5982\u9700\u4F7F\u7528uniCloud\u672C\u5730\u8C03\u8BD5\u670D\u52A1\uFF0C\u8BF7\u5C06\u5BA2\u6237\u7AEF\u4E0E\u4E3B\u673A\u8FDE\u63A5\u5230\u540C\u4E00\u5C40\u57DF\u7F51\u4E0B\u5E76\u91CD\u65B0\u8FD0\u884C\u5230\u5BA2\u6237\u7AEF\u3002") : t4 = "\u65E0\u6CD5\u8FDE\u63A5uniCloud\u672C\u5730\u8C03\u8BD5\u670D\u52A1\uFF0C\u8BF7\u68C0\u67E5\u5F53\u524D\u5BA2\u6237\u7AEF\u662F\u5426\u4E0E\u4E3B\u673A\u5728\u540C\u4E00\u5C40\u57DF\u7F51\u4E0B\u3002\n- \u5982\u9700\u4F7F\u7528uniCloud\u672C\u5730\u8C03\u8BD5\u670D\u52A1\uFF0C\u8BF7\u5C06\u5BA2\u6237\u7AEF\u4E0E\u4E3B\u673A\u8FDE\u63A5\u5230\u540C\u4E00\u5C40\u57DF\u7F51\u4E0B\u5E76\u91CD\u65B0\u8FD0\u884C\u5230\u5BA2\u6237\u7AEF\u3002", t4 += "\n- \u5982\u679C\u5728HBuilderX\u5F00\u542F\u7684\u72B6\u6001\u4E0B\u5207\u6362\u8FC7\u7F51\u7EDC\u73AF\u5883\uFF0C\u8BF7\u91CD\u542FHBuilderX\u540E\u518D\u8BD5\n- \u68C0\u67E5\u7CFB\u7EDF\u9632\u706B\u5899\u662F\u5426\u62E6\u622A\u4E86HBuilderX\u81EA\u5E26\u7684nodejs\n- \u68C0\u67E5\u662F\u5426\u9519\u8BEF\u7684\u4F7F\u7528\u62E6\u622A\u5668\u4FEE\u6539uni.request\u65B9\u6CD5\u7684\u53C2\u6570", "web" === S && (t4 += "\n- \u90E8\u5206\u6D4F\u89C8\u5668\u5F00\u542F\u8282\u6D41\u6A21\u5F0F\u4E4B\u540E\u8BBF\u95EE\u672C\u5730\u5730\u5740\u53D7\u9650\uFF0C\u8BF7\u68C0\u67E5\u662F\u5426\u542F\u7528\u4E86\u8282\u6D41\u6A21\u5F0F"), 0 === S.indexOf("mp-") && (t4 += "\n- \u5C0F\u7A0B\u5E8F\u4E2D\u5982\u4F55\u4F7F\u7528uniCloud\uFF0C\u8BF7\u53C2\u8003\uFF1Ahttps://uniapp.dcloud.net.cn/uniCloud/publish.html#useinmp"), s3(t4);
+      "remote" === e2.__dev__.debugInfo.initialLaunchType ? (e2.__dev__.debugInfo.forceRemote = true, t4 = "当前客户端和HBuilderX不在同一局域网下（或其他网络原因无法连接HBuilderX），uniCloud本地调试服务不对当前客户端生效。\n- 如果不使用uniCloud本地调试服务，请直接忽略此信息。\n- 如需使用uniCloud本地调试服务，请将客户端与主机连接到同一局域网下并重新运行到客户端。") : t4 = "无法连接uniCloud本地调试服务，请检查当前客户端是否与主机在同一局域网下。\n- 如需使用uniCloud本地调试服务，请将客户端与主机连接到同一局域网下并重新运行到客户端。", t4 += "\n- 如果在HBuilderX开启的状态下切换过网络环境，请重启HBuilderX后再试\n- 检查系统防火墙是否拦截了HBuilderX自带的nodejs\n- 检查是否错误的使用拦截器修改uni.request方法的参数", 0 === S.indexOf("mp-") && (t4 += "\n- 小程序中如何使用uniCloud，请参考：https://uniapp.dcloud.net.cn/uniCloud/publish.html#useinmp"), s3(t4);
     }
   }).then(() => {
-    ne(), e2.isReady = true, e2.initUniCloudStatus = "fulfilled";
+    e2.isReady = true, e2.initUniCloudStatus = "fulfilled";
   }).catch((t3) => {
     console.error(t3), e2.initUniCloudStatus = "rejected";
   });
@@ -9688,8 +10126,8 @@ let Ps = new class {
     let t2 = {};
     const n2 = Cs[e2.provider];
     if (!n2)
-      throw new Error("\u672A\u63D0\u4F9B\u6B63\u786E\u7684provider\u53C2\u6570");
-    t2 = n2.init(e2), t2.__dev__ = {}, t2.__dev__.debugLog = "web" === S && navigator.userAgent.indexOf("HBuilderX") > 0 || "app" === S;
+      throw new Error("未提供正确的provider参数");
+    t2 = n2.init(e2), t2.__dev__ = {}, t2.__dev__.debugLog = "app" === S;
     const s2 = k;
     s2 && !s2.code && (t2.__dev__.debugInfo = s2), As(t2), t2.reInit = function() {
       As(this);
@@ -9704,14 +10142,14 @@ let Ps = new class {
           return e3.init(t3).database();
         if (this._database)
           return this._database;
-        const n3 = Kn(Mn, { uniClient: e3 });
+        const n3 = Kn(jn, { uniClient: e3 });
         return this._database = n3, n3;
       }, e3.databaseForJQL = function(t3) {
         if (t3 && Object.keys(t3).length > 0)
           return e3.init(t3).databaseForJQL();
         if (this._databaseForJQL)
           return this._databaseForJQL;
-        const n3 = Kn(Mn, { uniClient: e3, isJQL: true });
+        const n3 = Kn(jn, { uniClient: e3, isJQL: true });
         return this._databaseForJQL = n3, n3;
       };
     }(t2), function(e3) {
@@ -9737,7 +10175,7 @@ let Ps = new class {
   else {
     const t3 = ["auth", "callFunction", "uploadFile", "deleteFile", "getTempFileURL", "downloadFile", "database", "getCurrentUSerInfo", "importObject"];
     let n2;
-    n2 = e2 && e2.length > 0 ? "\u5E94\u7528\u6709\u591A\u4E2A\u670D\u52A1\u7A7A\u95F4\uFF0C\u8BF7\u901A\u8FC7uniCloud.init\u65B9\u6CD5\u6307\u5B9A\u8981\u4F7F\u7528\u7684\u670D\u52A1\u7A7A\u95F4" : "\u5E94\u7528\u672A\u5173\u8054\u670D\u52A1\u7A7A\u95F4\uFF0C\u8BF7\u5728uniCloud\u76EE\u5F55\u53F3\u952E\u5173\u8054\u670D\u52A1\u7A7A\u95F4", t3.forEach((e3) => {
+    n2 = e2 && e2.length > 0 ? "应用有多个服务空间，请通过uniCloud.init方法指定要使用的服务空间" : "应用未关联服务空间，请在uniCloud目录右键关联服务空间", t3.forEach((e3) => {
       Ps[e3] = function() {
         return console.error(n2), Promise.reject(new Q({ code: "SYS_ERR", message: n2 }));
       };
@@ -9745,7 +10183,7 @@ let Ps = new class {
   }
   Object.assign(Ps, { get mixinDatacom() {
     return ws(Ps);
-  } }), hs(Ps), Ps.addInterceptor = O, Ps.removeInterceptor = x, Ps.interceptObject = L, "web" === S && (window.uniCloud = Ps);
+  } }), hs(Ps), Ps.addInterceptor = O, Ps.removeInterceptor = x, Ps.interceptObject = L;
 })();
 var Es = Ps;
 const createHook = (lifecycle) => (hook, target = getCurrentInstance()) => {

@@ -35,5 +35,5 @@ const _sfc_main = {
     };
   }
 };
-const Component = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-f8db88d0"], ["__file", "E:/\u6307\u4EE4\u6267\u884C\u5668/components/list-tab/list-tab.vue"]]);
+const Component = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-f8db88d0"], ["__file", "E:/指令执行器/components/list-tab/list-tab.vue"]]);
 wx.createComponent(Component);

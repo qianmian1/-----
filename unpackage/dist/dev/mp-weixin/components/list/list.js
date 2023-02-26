@@ -15,42 +15,42 @@ if (!Math) {
 const _sfc_main = {
   __name: "list",
   setup(__props) {
-    let text = common_vendor.ref("\u7269\u54C1");
-    let text_t = common_vendor.ref("\u539F\u77F3");
+    let text = common_vendor.ref("物品");
+    let text_t = common_vendor.ref("原石");
     let value = common_vendor.ref("201");
     let show = common_vendor.ref(0);
     let vModeV = common_vendor.ref(1);
     let vMode = common_vendor.ref(1);
     let vModelValue = common_vendor.ref(1);
-    let text_1 = common_vendor.ref("\u6570\u91CF");
+    let text_1 = common_vendor.ref("数量");
     let list = common_vendor.reactive({
       a: [
         {
-          value: "\u83B7\u53D6\u6750\u6599"
+          value: "获取材料"
         },
         {
-          value: "\u83B7\u53D6\u5723\u9057\u7269"
+          value: "获取圣遗物"
         },
         {
-          value: "\u83B7\u53D6\u89D2\u8272"
+          value: "获取角色"
         },
         {
-          value: "\u83B7\u53D6\u6B66\u5668"
+          value: "获取武器"
         },
         {
-          value: "\u83B7\u53D6\u5168\u90E8"
+          value: "获取全部"
         },
         {
-          value: "\u83B7\u53D6\u6240\u6709\u6B66\u5668"
+          value: "获取所有武器"
         },
         {
-          value: "\u83B7\u53D6\u6240\u6709\u6750\u6599"
+          value: "获取所有材料"
         },
         {
-          value: "\u83B7\u53D6\u6240\u6709\u89D2\u8272"
+          value: "获取所有角色"
         },
         {
-          value: "\u83B7\u53D6\u89D2\u8272\u547D\u661F"
+          value: "获取角色命星"
         }
       ]
     });
@@ -61,62 +61,62 @@ const _sfc_main = {
         show.value = 0;
         switch (index) {
           case 0:
-            text_1.value = "\u6570\u91CF";
-            text_t.value = "\u539F\u77F3";
-            text.value = "\u7269\u54C1";
+            text_1.value = "数量";
+            text_t.value = "原石";
+            text.value = "物品";
             value.value = "201";
             break;
           case 2:
-            text_1.value = "\u7B49\u7EA7";
-            text.value = "\u89D2\u8272";
-            text_t.value = "\u51EF\u7279";
+            text_1.value = "等级";
+            text.value = "角色";
+            text_t.value = "凯特";
             value.value = "10000001";
             break;
           case 6:
-            text_1.value = "\u6570\u91CF";
-            text.value = "\u6750\u6599";
+            text_1.value = "数量";
+            text.value = "材料";
             text_t.value = "mats";
             value.value = "mats";
             break;
           case 7:
-            text_1.value = "\u7B49\u7EA7";
-            text.value = "\u89D2\u8272";
+            text_1.value = "等级";
+            text.value = "角色";
             text_t.value = "avatrs";
             value.value = "avatrs";
             break;
           case 8:
-            text.value = "\u547D\u661F";
-            text_t.value = "\u795E\u91CC\u7EEB\u534E\u7684\u547D\u661F";
+            text.value = "命星";
+            text_t.value = "神里绫华的命星";
             value.value = "1102";
             break;
         }
       } else if (index === 1) {
-        text.value = "\u5723\u9057\u7269";
-        text_t.value = "\u521D\u5B66\u8005\u4E4B\u7FBD";
+        text.value = "圣遗物";
+        text_t.value = "初学者之羽";
         value.value = "20002";
         show.value = 1;
       } else if (index >= 3 && index < 6) {
         show.value = 2;
         switch (index) {
           case 4:
-            text.value = "\u83B7\u53D6\u5168\u90E8";
+            text.value = "获取全部";
             text_t.value = "all";
             value.value = "all";
             break;
           case 5:
-            text.value = "\u6B66\u5668";
+            text.value = "武器";
             text_t.value = "weapons";
             value.value = "weapons";
             break;
           case 3:
-            text.value = "\u83B7\u53D6\u6B66\u5668";
-            text_t.value = "\u65E0\u950B\u5251";
+            text.value = "获取武器";
+            text_t.value = "无锋剑";
             value.value = "11101";
         }
       }
     };
     function CarryOut() {
-      let UID = "@<" + getApp().globalData.UID + ">";
+      let UID = "@" + getApp().globalData.UID;
       let date = null;
       if (as.value === 0 || as.value === 8 || as.value === 6) {
         date = "give " + value.value + " x" + vModelValue.value.toString() + " " + UID;
@@ -375,5 +375,5 @@ const _sfc_main = {
     };
   }
 };
-const Component = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__file", "E:/\u6307\u4EE4\u6267\u884C\u5668/components/list/list.vue"]]);
+const Component = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__file", "E:/指令执行器/components/list/list.vue"]]);
 wx.createComponent(Component);

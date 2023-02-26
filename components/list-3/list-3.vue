@@ -46,7 +46,7 @@
   let value = ref('123')
   let valu = ref('')
   let a = 'spawn'
-  let UID = '<' + '@' + getApp().globalData.UID + '>'
+  let UID = '@' + getApp().globalData.UID
   let date = a + ' ' + valu.value + ' ' + 'x' + vModelValue.value.toString() + ' ' + 'lv' + vModelValu.value
     .toString() + ' ' + UID
   let sw = () => {

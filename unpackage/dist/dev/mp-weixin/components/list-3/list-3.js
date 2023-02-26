@@ -15,13 +15,13 @@ const _sfc_main = {
   setup(__props) {
     let vModelValue = common_vendor.ref(1);
     let vModelValu = common_vendor.ref(90);
-    let text_1 = common_vendor.ref("\u6570\u91CF");
-    let text_2 = common_vendor.ref("\u7B49\u7EA7");
-    let text = common_vendor.ref("\u602A\u7269");
+    let text_1 = common_vendor.ref("数量");
+    let text_2 = common_vendor.ref("等级");
+    let text = common_vendor.ref("怪物");
     let value = common_vendor.ref("123");
     let valu = common_vendor.ref("");
     let a = "spawn";
-    let UID = "<@" + getApp().globalData.UID + ">";
+    let UID = "@" + getApp().globalData.UID;
     let date = a + " " + valu.value + " x" + vModelValue.value.toString() + " lv" + vModelValu.value.toString() + " " + UID;
     let sw = () => {
       common_vendor.index.navigateTo({
@@ -30,7 +30,7 @@ const _sfc_main = {
     };
     let CarryOut = () => {
       common_vendor.index.showToast({
-        title: "\u8BF7\u6C42\u4E2D",
+        title: "请求中",
         icon: "none"
       });
       common_vendor.index.request({
@@ -99,5 +99,5 @@ const _sfc_main = {
     };
   }
 };
-const Component = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-4b8e63b1"], ["__file", "E:/\u6307\u4EE4\u6267\u884C\u5668/components/list-3/list-3.vue"]]);
+const Component = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-4b8e63b1"], ["__file", "E:/指令执行器/components/list-3/list-3.vue"]]);
 wx.createComponent(Component);

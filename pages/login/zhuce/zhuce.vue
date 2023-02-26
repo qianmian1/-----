@@ -5,7 +5,7 @@
       <view class="input-boxname">
         <view class="input-boxname1">
           <view v-for="(item,index) in data.list" :key="index" class="txt" :class="{color:color===index}"
-            @tap="chken(index)">{{item.name}}
+            @tap="chack(index)">{{item.name}}
           </view>
         </view>
       </view>
@@ -14,10 +14,10 @@
       <text>密码</text>
       <uni-easyinput type="password" v-model="password" maxlength=16 placeholder="请输入密码" :styles="data.styles">
       </uni-easyinput>
-      <text>{{text}}</text>
-      <input type="text" v-model="ip" placeholder="请输入ip地址或域名" />
+      <text v-show="color===0?true:false">{{text}}</text>
+      <input type="text" v-model="ip" placeholder="请输入ip地址或域名" v-show="color===0?true:false" />
       <text>{{text_1}}</text>
-      <input type="text" v-model="token" :placeholder="'请输入插件'+text_1" />
+      <input type="text" v-model="token" :placeholder="'请输入'+text_1" />
       <text>{{text_2}}</text>
       <input type="text" v-model="UID" placeholder="请输入游戏UID" />
     </view>
@@ -57,34 +57,44 @@
       color: '#666',
       background: 'rgba(255, 255, 255, .1)',
       border: ' 1px solid #ffffff'
-    },
-    date: {
-
     }
   })
+
   watch(code, () => {
     login()
   })
+  let chack = (index) => {
+    color.value = index
+    if (index === 1) {
+      api.value = 'Player'
+      text_1.value = '邀请码,也可不填'
+    } else {
+      api.value = 'Service'
+      text_1.value = '游戏UID'
+    }
+  }
+  let date = {}
   let login = () => {
-    let date = data.date
-    if (api === 'Service') {
+    if (api.value === 'Service') {
       date.UID = UID.value
       date.ip = ip.value
-      date.token = token
+      date.token = token.value
+      date.api = api.value
     } else {
+      date.api = api.value
       date.zhudema = token.value
       date.UID = UID.value
     }
-    if (code === true) {
+    if (true) {
       uniCloud.callFunction({
         name: 'user',
         data: {
           username: username.value,
           password: password.value,
-          api: api.value,
+          api: 'enroll',
           date: date
         }
-      })
+      }).then(result => console.log(result))
     } else {
       uni.showToast({
         title: '请验证',
@@ -93,16 +103,6 @@
       uni.navigateTo({
         url: '/pages/login/yanzhenma?username:' + username.value.toString()
       })
-    }
-    let chken = (index) => {
-      color.value = index
-      if (index === 1) {
-        api.value = 'Player'
-        text_1.value = '邀请码'
-      } else {
-        api.value = 'Service'
-        text_1.value = '游戏UID'
-      }
     }
   }
 </script>

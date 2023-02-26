@@ -1,71 +1,94 @@
 "use strict";
 const common_vendor = require("../../common/vendor.js");
+if (!Array) {
+  const _easycom_uni_icons2 = common_vendor.resolveComponent("uni-icons");
+  _easycom_uni_icons2();
+}
+const _easycom_uni_icons = () => "../../uni_modules/uni-icons/components/uni-icons/uni-icons.js";
+if (!Math) {
+  _easycom_uni_icons();
+}
 const _sfc_main = {
-  data() {
-    return {
-      username: "",
-      password: "",
-      api: "login"
-    };
-  },
-  methods: {
-    login() {
-      if (this.username == "") {
+  __name: "login",
+  setup(__props) {
+    let username = common_vendor.ref("");
+    let password = common_vendor.ref("");
+    let api = common_vendor.ref("login");
+    let se = common_vendor.ref("password");
+    let eye = common_vendor.ref("eye");
+    function Si() {
+      console.log("11111");
+      if (se.value == "password") {
+        eye.value = "eye-slash";
+        se.value = "text";
+      } else {
+        eye.value = "eye";
+        se.value = "password";
+      }
+    }
+    function login() {
+      if (username.value == "") {
         common_vendor.index.showToast({
-          title: "\u7528\u6237\u540D\u4E0D\u80FD\u4E3A\u7A7A",
+          title: "用户名不能为空",
           icon: "none"
         });
-      } else if (this.password == "") {
+      } else if (password.value == "") {
         common_vendor.index.showToast({
-          title: "\u5BC6\u7801\u4E0D\u80FD\u4E3A\u7A7A",
+          title: "密码不能为空",
           icon: "none"
         });
-      } else if (this.username != "" && this.password != "") {
+      } else if (username.value != "" && password.value != "") {
         common_vendor.Es.callFunction({
           name: "user",
           data: {
-            username: this.username,
-            password: this.password,
-            api: this.api
+            username: username.value,
+            password: password.value,
+            api: api.value
           }
         }).then((res) => {
+          getApp().globalData.UID = res.result.user.UID;
+          getApp().globalData.Plugins = res.result.user.token;
+          getApp().globalData.ServiceIp = res.result.user.ip;
+          getApp().globalData.zhucheMa = res.result.user.zhucema;
+          getApp().globalData.asstoken = res.result.asstoken;
+          getApp().globalData.assxtoken = res.result.assxtoken;
           setTimeout(() => {
             common_vendor.index.redirectTo({
               url: "/pages/index/index"
             });
           }, 1e3);
         }).catch((e) => {
-          if (e.message == "\u5BC6\u7801\u9519\u8BEF") {
+          if (e.message == "密码错误") {
             common_vendor.index.showToast({
-              title: "\u5BC6\u7801\u6216\u8D26\u53F7\u9519\u8BEF",
+              title: "密码或账号错误",
               icon: "error"
             });
           }
-          if (e.message == "\u7528\u6237\u4E0D\u5B58\u5728") {
+          if (e.message == "用户不存在") {
             common_vendor.index.showToast({
-              title: "\u7528\u6237\u4E0D\u5B58\u5728",
+              title: "用户不存在",
               icon: "error"
             });
           }
         });
       }
-    },
-    zhuce() {
-      common_vendor.index.redirectTo({
-        url: "/pages/login/zhuce/zhuce"
-      });
     }
+    return (_ctx, _cache) => {
+      return {
+        a: common_vendor.unref(username),
+        b: common_vendor.o(($event) => common_vendor.isRef(username) ? username.value = $event.detail.value : username = $event.detail.value),
+        c: common_vendor.unref(se),
+        d: common_vendor.unref(password),
+        e: common_vendor.o(($event) => common_vendor.isRef(password) ? password.value = $event.detail.value : password = $event.detail.value),
+        f: common_vendor.o(Si),
+        g: common_vendor.p({
+          type: common_vendor.unref(eye),
+          size: "30px"
+        }),
+        h: common_vendor.o(($event) => login())
+      };
+    };
   }
 };
-function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
-  return {
-    a: $data.username,
-    b: common_vendor.o(($event) => $data.username = $event.detail.value),
-    c: $data.password,
-    d: common_vendor.o(($event) => $data.password = $event.detail.value),
-    e: common_vendor.o(($event) => $options.zhuce()),
-    f: common_vendor.o(($event) => $options.login())
-  };
-}
-const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["render", _sfc_render], ["__file", "E:/\u6307\u4EE4\u6267\u884C\u5668/pages/login/login.vue"]]);
+const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__file", "E:/指令执行器/pages/login/login.vue"]]);
 wx.createPage(MiniProgramPage);

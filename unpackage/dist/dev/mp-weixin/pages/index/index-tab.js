@@ -3,7 +3,7 @@ const common_vendor = require("../../common/vendor.js");
 const _sfc_main = {
   __name: "index-tab",
   setup(__props) {
-    common_vendor.ref("\u641C\u7D22");
+    common_vendor.ref("搜索");
     let data = common_vendor.reactive({
       list: []
     });
@@ -11,7 +11,7 @@ const _sfc_main = {
     common_vendor.onLoad((option) => {
       const id = common_vendor.ref(option.id);
       common_vendor.index.showLoading({
-        title: "\u52A0\u8F7D\u4E2D",
+        title: "加载中",
         mask: true
       });
       common_vendor.Es.callFunction({
@@ -49,12 +49,12 @@ const _sfc_main = {
       data.list = getApp().globalData.list;
       search.value = "";
       common_vendor.index.showToast({
-        title: "\u5DF2\u6210\u529F\u91CD\u7F6E",
+        title: "已成功重置",
         icon: "success"
       });
     }
     let h = (item) => {
-      console.log("\u88AB\u89E6\u53D1");
+      console.log("被触发");
     };
     function confirm() {
       let c = [];
@@ -68,11 +68,11 @@ const _sfc_main = {
         } else {
           if (c !== getApp().globalData.list.length && c.length != 0) {
             common_vendor.index.showToast({
-              title: "\u5171\u641C\u7D22" + data.list.length + "\u6761\u5185\u5BB9"
+              title: "共搜索" + data.list.length + "条内容"
             });
           } else if (i == c.length) {
             common_vendor.index.showToast({
-              title: "\u672A\u627E\u5230\u8BE5\u5185\u5BB9",
+              title: "未找到该内容",
               icon: "error"
             });
           }
@@ -82,6 +82,7 @@ const _sfc_main = {
     function fh(item) {
       common_vendor.index.switchTab({
         url: "/pages/index/index"
+        //+ item.vlue + '&key=' + item.text.toString()
       });
       common_vendor.index.$emit("update", {
         text: item.text,
@@ -106,5 +107,5 @@ const _sfc_main = {
     };
   }
 };
-const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__file", "E:/\u6307\u4EE4\u6267\u884C\u5668/pages/index/index-tab.vue"]]);
+const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__file", "E:/指令执行器/pages/index/index-tab.vue"]]);
 wx.createPage(MiniProgramPage);
