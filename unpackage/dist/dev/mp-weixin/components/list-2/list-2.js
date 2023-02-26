@@ -16,36 +16,36 @@ const _sfc_main = {
   __name: "list-2",
   setup(__props) {
     let show = common_vendor.ref(0);
-    let text = common_vendor.ref("\u7C7B\u578B");
-    let text_1 = common_vendor.ref("\u72B6\u6001");
+    let text = common_vendor.ref("类型");
+    let text_1 = common_vendor.ref("状态");
     let value = common_vendor.ref("godmode");
     let as = common_vendor.ref(0);
     let h = common_vendor.ref("0");
     let aq = common_vendor.ref(0);
     let ad = common_vendor.ref(0);
     let a = "setprop";
-    let UID = "<@" + getApp().globalData.UID + ">";
+    let UID = "@" + getApp().globalData.UID;
     let date = a + " " + value.value + " " + h.value + " " + UID;
     let vModelValue = common_vendor.ref(1);
     let list = common_vendor.reactive({
       a: [
         {
-          value: "\u65E0\u654C/\u65E0\u9650\u4F53\u529B/\u65E0\u9650\u80FD\u91CF/\u951A\u70B9\u89E3\u9501"
+          value: "无敌/无限体力/无限能量/锚点解锁"
         },
         {
-          value: "\u6DF1\u6E0A\u89E3\u9501"
+          value: "深渊解锁"
         },
         {
-          value: "\u6218\u4EE4\u7B49\u7EA7"
+          value: "战令等级"
         },
         {
-          value: "\u4E16\u754C\u7B49\u7EA7"
+          value: "世界等级"
         },
         {
-          value: "\u73A9\u5BB6\u7B49\u7EA7"
+          value: "玩家等级"
         }
       ],
-      j: ["\u65E0\u654C", "\u65E0\u9650\u4F53\u529B", "\u65E0\u9650\u80FD\u91CF", "\u951A\u70B9\u89E3\u9501"]
+      j: ["无敌", "无限体力", "无限能量", "锚点解锁"]
     });
     let op = (index) => {
       ad.value = index;
@@ -72,38 +72,38 @@ const _sfc_main = {
         aq.value = 1;
         switch (index) {
           case 1:
-            text.value = "\u6DF1\u6E0A";
+            text.value = "深渊";
             value.value = "abyss";
-            text_1.value = "\u5C42\u6570";
+            text_1.value = "层数";
             break;
           case 2:
-            text.value = "\u6218\u4EE4\u7B49\u7EA7";
+            text.value = "战令等级";
             value.value = "battlepass";
-            text_1.value = "\u7B49\u7EA7";
+            text_1.value = "等级";
             break;
           case 3:
-            text.value = "\u4E16\u754C\u7B49\u7EA7";
+            text.value = "世界等级";
             value.value = "worldlevel";
-            text_1.value = "\u7B49\u7EA7";
+            text_1.value = "等级";
             break;
           case 4:
-            text.value = "\u73A9\u5BB6\u7B49\u7EA7";
+            text.value = "玩家等级";
             value.value = "player_level";
-            text_1.value = "\u7B49\u7EA7";
+            text_1.value = "等级";
             break;
         }
         date = a + " " + value.value + " " + vModelValue.value.toString() + " " + UID;
       } else {
         aq.value = 0;
-        text.value = "\u7C7B\u578B";
+        text.value = "类型";
         value.value = "godmode";
-        text_1.value = "\u72B6\u6001";
+        text_1.value = "状态";
         date = a + " " + value.value + " " + h.value + " " + UID;
       }
     };
     let CarryOut = () => {
       common_vendor.index.showToast({
-        title: "\u8BF7\u6C42\u4E2D",
+        title: "请求中",
         icon: "none"
       });
       common_vendor.index.request({
@@ -182,5 +182,5 @@ const _sfc_main = {
     };
   }
 };
-const Component = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-161fa33e"], ["__file", "E:/\u6307\u4EE4\u6267\u884C\u5668/components/list-2/list-2.vue"]]);
+const Component = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-161fa33e"], ["__file", "E:/指令执行器/components/list-2/list-2.vue"]]);
 wx.createComponent(Component);

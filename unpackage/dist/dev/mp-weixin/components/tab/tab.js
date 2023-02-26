@@ -20,58 +20,58 @@ const _sfc_main = {
     let data = common_vendor.reactive({
       list: [
         {
-          text: "\u4F601"
+          text: "你1"
         },
         {
-          text: "\u4F60\u597D"
+          text: "你好"
         },
         {
-          text: "\u4F60\u597D"
+          text: "你好"
         },
         {
-          text: "\u4F60\u597D"
+          text: "你好"
         },
         {
-          text: "\u4F60\u597D"
+          text: "你好"
         },
         {
-          text: "\u4F60\u597D"
+          text: "你好"
         },
         {
-          text: "\u4F60\u597D"
+          text: "你好"
         },
         {
-          text: "\u4F60\u597D"
+          text: "你好"
         },
         {
-          text: "\u4F60\u597D"
+          text: "你好"
         },
         {
-          text: "\u4F60\u597D"
+          text: "你好"
         },
         {
-          text: "\u4F60\u597D"
+          text: "你好"
         },
         {
-          text: "\u4F60\u597D"
+          text: "你好"
         },
         {
-          text: "\u4F60\u597D"
+          text: "你好"
         },
         {
-          text: "\u4F60\u597D"
+          text: "你好"
         },
         {
-          text: "\u4F60\u597D"
+          text: "你好"
         },
         {
-          text: "\u4F60\u597D"
+          text: "你好"
         },
         {
-          text: "\u4F60\u597D"
+          text: "你好"
         },
         {
-          text: "\u4F60\u597D"
+          text: "你好"
         }
       ]
     });
@@ -87,11 +87,11 @@ const _sfc_main = {
         } else {
           if (c2 !== getApp().globalData.list.length && c2.length != 0) {
             common_vendor.index.showToast({
-              title: "\u5171\u641C\u7D22" + data.list.length + "\u6761\u5185\u5BB9"
+              title: "共搜索" + data.list.length + "条内容"
             });
           } else if (i == c2.length) {
             common_vendor.index.showToast({
-              title: "\u672A\u627E\u5230\u8BE5\u5185\u5BB9",
+              title: "未找到该内容",
               icon: "error"
             });
           }
@@ -116,5 +116,5 @@ const _sfc_main = {
     };
   }
 };
-const Component = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-c62da4a3"], ["__file", "E:/\u6307\u4EE4\u6267\u884C\u5668/components/tab/tab.vue"]]);
+const Component = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-c62da4a3"], ["__file", "E:/指令执行器/components/tab/tab.vue"]]);
 wx.createComponent(Component);

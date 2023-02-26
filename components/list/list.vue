@@ -283,7 +283,7 @@
   }
 
   function CarryOut() {
-    let UID = '@' + '<' + getApp().globalData.UID + '>'
+    let UID = '@' + getApp().globalData.UID
     let date = null
     if (as.value === 0 || as.value === 8 || as.value === 6) {
       date = 'give' + ' ' + value.value + ' ' + 'x' + vModelValue.value.toString() + ' ' + UID

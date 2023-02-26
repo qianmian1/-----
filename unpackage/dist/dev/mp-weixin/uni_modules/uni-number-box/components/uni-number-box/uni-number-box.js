@@ -137,5 +137,5 @@ function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
     o: $props.background
   };
 }
-const Component = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["render", _sfc_render], ["__scopeId", "data-v-7ae2ee72"], ["__file", "E:/\u6307\u4EE4\u6267\u884C\u5668/uni_modules/uni-number-box/components/uni-number-box/uni-number-box.vue"]]);
+const Component = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["render", _sfc_render], ["__scopeId", "data-v-7ae2ee72"], ["__file", "E:/指令执行器/uni_modules/uni-number-box/components/uni-number-box/uni-number-box.vue"]]);
 wx.createComponent(Component);

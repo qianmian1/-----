@@ -25,7 +25,7 @@
   let text_2 = ref('命星等级')
   let vModelValu = ref(6)
   let a = 'setConst'
-  let UID = '<' + '@' + getApp().globalData.UID + '>'
+  let UID = '@' + getApp().globalData.UID
   let date = a + ' ' + vModelValu.value.toString() + ' ' + UID
   name: "list-4"
   let CarryOut = () => {

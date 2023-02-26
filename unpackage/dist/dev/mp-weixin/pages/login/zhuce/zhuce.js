@@ -14,21 +14,21 @@ const _sfc_main = {
     let username = common_vendor.ref("");
     let password = common_vendor.ref("");
     let color = common_vendor.ref(0);
-    let text = common_vendor.ref("IP\u5730\u5740\u6216\u57DF\u540D");
+    let text = common_vendor.ref("IP地址或域名");
     let ip = common_vendor.ref("");
-    let text_1 = common_vendor.ref("\u63D2\u4EF6token");
+    let text_1 = common_vendor.ref("插件token");
     let token = common_vendor.ref("");
-    let text_2 = common_vendor.ref("\u6E38\u620FUID");
+    let text_2 = common_vendor.ref("游戏UID");
     let UID = common_vendor.ref("");
     let api = common_vendor.ref("Service");
     let code = common_vendor.ref(getApp().globalData.code);
     let data = common_vendor.reactive({
       list: [
         {
-          name: "\u670D\u4E3B\u6CE8\u518C"
+          name: "服主注册"
         },
         {
-          name: "\u73A9\u5BB6\u6CE8\u518C"
+          name: "玩家注册"
         }
       ],
       styles: {
@@ -44,14 +44,14 @@ const _sfc_main = {
       color.value = index;
       if (index === 1) {
         api.value = "Player";
-        text_1.value = "\u9080\u8BF7\u7801,\u4E5F\u53EF\u4E0D\u586B";
+        text_1.value = "邀请码,也可不填";
       } else {
         api.value = "Service";
-        text_1.value = "\u6E38\u620FUID";
+        text_1.value = "游戏UID";
       }
     };
+    let date = {};
     let login = () => {
-      let date = {};
       if (api.value === "Service") {
         date.UID = UID.value;
         date.ip = ip.value;
@@ -90,7 +90,7 @@ const _sfc_main = {
         e: common_vendor.p({
           type: "password",
           maxlength: "16",
-          placeholder: "\u8BF7\u8F93\u5165\u5BC6\u7801",
+          placeholder: "请输入密码",
           styles: common_vendor.unref(data).styles,
           modelValue: common_vendor.unref(password)
         }),
@@ -100,7 +100,7 @@ const _sfc_main = {
         i: common_vendor.unref(ip),
         j: common_vendor.o(($event) => common_vendor.isRef(ip) ? ip.value = $event.detail.value : ip = $event.detail.value),
         k: common_vendor.t(common_vendor.unref(text_1)),
-        l: "\u8BF7\u8F93\u5165" + common_vendor.unref(text_1),
+        l: "请输入" + common_vendor.unref(text_1),
         m: common_vendor.unref(token),
         n: common_vendor.o(($event) => common_vendor.isRef(token) ? token.value = $event.detail.value : token = $event.detail.value),
         o: common_vendor.t(common_vendor.unref(text_2)),
@@ -111,5 +111,5 @@ const _sfc_main = {
     };
   }
 };
-const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__file", "E:/\u6307\u4EE4\u6267\u884C\u5668/pages/login/zhuce/zhuce.vue"]]);
+const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__file", "E:/指令执行器/pages/login/zhuce/zhuce.vue"]]);
 wx.createPage(MiniProgramPage);

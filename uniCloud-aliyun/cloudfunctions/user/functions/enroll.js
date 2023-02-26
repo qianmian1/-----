@@ -6,7 +6,7 @@ module.exports = async (event, db, bcrypt, token1) => {
   } = event
   let {
     token,
-    Ip,
+    ip,
     UID,
     zhucema,
     api
@@ -17,12 +17,11 @@ module.exports = async (event, db, bcrypt, token1) => {
     throw Error('用户已被注册')
   }
   let img = 'http://q2.qlogo.cn/headimg_dl?dst_uin='
-  let name = 'http://users.qzone.qq.com/fcg-bin/cgi_get_portrait.fcg?uins='
+  let name = 'https://v.api.aa1.cn/api/qqnicheng/index.php?qq='
   let txt = new RegExp('@qq.com')
   if (txt.test(username)) {
     let user = username.replace(/@qq\.com/, '')
     name = name + user
-
     img = img + user + '&spec=100'
   } else {
     img = ''
@@ -57,7 +56,7 @@ module.exports = async (event, db, bcrypt, token1) => {
       img,
       zhucema,
       token,
-      Ip,
+      ip,
       UID,
       createdAt: Date.now()
     }

@@ -73,8 +73,8 @@
       text_1.value = '游戏UID'
     }
   }
+  let date = {}
   let login = () => {
-    let date = {}
     if (api.value === 'Service') {
       date.UID = UID.value
       date.ip = ip.value

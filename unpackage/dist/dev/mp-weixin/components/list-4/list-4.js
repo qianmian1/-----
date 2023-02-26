@@ -11,14 +11,14 @@ if (!Math) {
 const _sfc_main = {
   __name: "list-4",
   setup(__props) {
-    let text_2 = common_vendor.ref("\u547D\u661F\u7B49\u7EA7");
+    let text_2 = common_vendor.ref("命星等级");
     let vModelValu = common_vendor.ref(6);
     let a = "setConst";
-    let UID = "<@" + getApp().globalData.UID + ">";
+    let UID = "@" + getApp().globalData.UID;
     let date = a + " " + vModelValu.value.toString() + " " + UID;
     let CarryOut = () => {
       common_vendor.index.showToast({
-        title: "\u8BF7\u6C42\u4E2D",
+        title: "请求中",
         icon: "none"
       });
       common_vendor.index.request({
@@ -52,5 +52,5 @@ const _sfc_main = {
     };
   }
 };
-const Component = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-c9d32acc"], ["__file", "E:/\u6307\u4EE4\u6267\u884C\u5668/components/list-4/list-4.vue"]]);
+const Component = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-c9d32acc"], ["__file", "E:/指令执行器/components/list-4/list-4.vue"]]);
 wx.createComponent(Component);

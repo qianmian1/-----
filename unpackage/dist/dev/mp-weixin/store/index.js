@@ -1,6 +1,7 @@
 "use strict";
 const common_vendor = require("../common/vendor.js");
 const store = common_vendor.createStore({
+  //数据源
   state: {
     token: common_vendor.index.getStorageSync("token") || "",
     plugins: "",
@@ -13,6 +14,7 @@ const store = common_vendor.createStore({
     api: "",
     Switch: ""
   },
+  //唯一取值的地方
   getters: {
     gettoken(state) {
       return state.token;
@@ -45,6 +47,7 @@ const store = common_vendor.createStore({
       return state.Switch;
     }
   },
+  //修改state值的方法 时同步阻塞的
   mutations: {
     UpDatatoken(state, token) {
       state.token = token;
@@ -77,6 +80,7 @@ const store = common_vendor.createStore({
       state.Switch = Switch;
     }
   },
+  //异步调用mutations内的方法
   actions: {
     asyuncupdatatoken({
       commit

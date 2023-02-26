@@ -26,7 +26,7 @@
   name: 'list-5'
   let ad = ref(0)
   let valuek = ref('all')
-  let UID = '<' + '@' + getApp().globalData.UID + '>'
+  let UID = '@' + getApp().globalData.UID
   let a = 'clear'
 
   let list = reactive(['全部', '武器', '圣遗物', '材料'])

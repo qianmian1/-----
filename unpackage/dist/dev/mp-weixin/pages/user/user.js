@@ -6,8 +6,8 @@ const _sfc_main = {
       a: "",
       e: "",
       f: "",
-      ServiceIp: getApp().globalData.ServiceIp !== "" ? "121.36.98.174" : "\u65E0",
-      zhucheMa: getApp().globalData.zhucheMa !== "" ? 1 : "\u672A\u586B\u5199"
+      ServiceIp: getApp().globalData.ServiceIp !== "" ? "121.36.98.174" : "无",
+      zhucheMa: getApp().globalData.zhucheMa !== "" ? 1 : "未填写"
     };
   },
   onReady() {
@@ -18,7 +18,7 @@ const _sfc_main = {
       getApp().globalData.Plugins = this.f;
       getApp().globalData.Switch = this.e;
       common_vendor.index.showToast({
-        title: "\u63D0\u4EA4\u6210\u529F",
+        title: "提交成功",
         icon: "success"
       });
     },
@@ -71,5 +71,5 @@ function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
     n: common_vendor.o((...args) => $options.jk && $options.jk(...args))
   };
 }
-const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["render", _sfc_render], ["__file", "E:/\u6307\u4EE4\u6267\u884C\u5668/pages/user/user.vue"]]);
+const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["render", _sfc_render], ["__file", "E:/指令执行器/pages/user/user.vue"]]);
 wx.createPage(MiniProgramPage);
