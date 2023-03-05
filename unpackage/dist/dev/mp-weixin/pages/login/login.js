@@ -16,8 +16,12 @@ const _sfc_main = {
     let api = common_vendor.ref("login");
     let se = common_vendor.ref("password");
     let eye = common_vendor.ref("eye");
+    function getto() {
+      common_vendor.index.navigateTo({
+        url: "/pages/login/zhuce/zhuce"
+      });
+    }
     function Si() {
-      console.log("11111");
       if (se.value == "password") {
         eye.value = "eye-slash";
         se.value = "text";
@@ -27,12 +31,18 @@ const _sfc_main = {
       }
     }
     function login() {
+      common_vendor.index.showLoading({
+        title: "登录中",
+        mask: true
+      });
       if (username.value == "") {
+        common_vendor.index.hideLoading();
         common_vendor.index.showToast({
           title: "用户名不能为空",
           icon: "none"
         });
       } else if (password.value == "") {
+        common_vendor.index.hideLoading();
         common_vendor.index.showToast({
           title: "密码不能为空",
           icon: "none"
@@ -46,18 +56,34 @@ const _sfc_main = {
             api: api.value
           }
         }).then((res) => {
+          if (!res.result.succes) {
+            common_vendor.index.showToast({
+              title: "请求失败，请联系作者",
+              icon: "none"
+            });
+            return;
+          }
           getApp().globalData.UID = res.result.user.UID;
           getApp().globalData.Plugins = res.result.user.token;
           getApp().globalData.ServiceIp = res.result.user.ip;
           getApp().globalData.zhucheMa = res.result.user.zhucema;
           getApp().globalData.asstoken = res.result.asstoken;
           getApp().globalData.assxtoken = res.result.assxtoken;
+          getApp().globalData.name = res.result.user.name;
+          getApp().globalData.img = res.result.user.img;
+          common_vendor.index.hideLoading();
+          common_vendor.index.showToast({
+            title: "登录成功",
+            icon: "success"
+          });
           setTimeout(() => {
             common_vendor.index.redirectTo({
               url: "/pages/index/index"
             });
-          }, 1e3);
+          }, 1600);
         }).catch((e) => {
+          console.log(e);
+          common_vendor.index.hideLoading();
           if (e.message == "密码错误") {
             common_vendor.index.showToast({
               title: "密码或账号错误",
@@ -85,7 +111,8 @@ const _sfc_main = {
           type: common_vendor.unref(eye),
           size: "30px"
         }),
-        h: common_vendor.o(($event) => login())
+        h: common_vendor.o(getto),
+        i: common_vendor.o(($event) => login())
       };
     };
   }

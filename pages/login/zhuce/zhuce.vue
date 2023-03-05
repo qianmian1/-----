@@ -12,7 +12,8 @@
       <text>用户名</text>
       <input type="text" v-model="username" placeholder="请输入邮箱格式的用户名" />
       <text>密码</text>
-      <uni-easyinput type="password" v-model="password" maxlength=16 placeholder="请输入密码" :styles="data.styles">
+      <uni-easyinput type="password" v-model="password" maxlength=16 placeholder="请输入密码,密码为字母、数字、特殊字符，任意2种组成，1-9位"
+        :styles="data.styles">
       </uni-easyinput>
       <text v-show="color===0?true:false">{{text}}</text>
       <input type="text" v-model="ip" placeholder="请输入ip地址或域名" v-show="color===0?true:false" />
@@ -31,9 +32,11 @@
 <script setup>
   import {
     reactive,
-    ref,
-    watch
+    ref
   } from "vue";
+  import {
+    onLoad
+  } from '@dcloudio/uni-app';
   let username = ref('')
   let password = ref('')
   let color = ref(0)
@@ -54,14 +57,16 @@
       }
     ],
     styles: {
-      color: '#666',
+      color: '#ffffff',
       background: 'rgba(255, 255, 255, .1)',
-      border: ' 1px solid #ffffff'
+      borderColor: '#ffffff'
+
     }
   })
-
-  watch(code, () => {
-    login()
+  onLoad(() => {
+    if (getApp().globalData.code) {
+      login()
+    }
   })
   let chack = (index) => {
     color.value = index
@@ -75,33 +80,131 @@
   }
   let date = {}
   let login = () => {
-    if (api.value === 'Service') {
-      date.UID = UID.value
-      date.ip = ip.value
-      date.token = token.value
-      date.api = api.value
-    } else {
-      date.api = api.value
-      date.zhudema = token.value
-      date.UID = UID.value
+    if (!getApp().globalData.code) {
+      let you = (/^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+/g)
+      let pass = (/^(?![a-zA-Z]+$)(?!\d+$)(?![^\da-zA-Z\s]+$).{1,9}$/g)
+      let ipOrDomain =
+        /^((?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?))|(?:(?:(?:(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*(?:[A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9]){2,}))$/g
+      if (api.value === 'Service') {
+        if (username.value !== '' && password.value !== '' && ip.value !== '' && token.value !== '' && UID.value !==
+          '') {
+          if (!you.test(username.value)) {
+            uni.showToast({
+              title: '用户名格式不正确',
+              icon: 'none'
+            })
+            return
+          } else if (!pass.test(password.value)) {
+            uni.showToast({
+              title: '密码格式不正确,密码为由字母、数字、特殊字符，任意2种组成，1-9位',
+              icon: 'none'
+            })
+            return
+          } else if (!ipOrDomain.test(ip.value)) {
+            uni.showToast({
+              title: 'IP地址或域名格式不正确',
+              icon: 'none'
+            })
+            return
+          } else {
+            uni.request({
+              url: 'https://' + ip.value + '/opencommand/api',
+              method: 'POST',
+              data: {
+                action: 'ping'
+              }
+            }).catch(e => {
+              uni.showToast({
+                title: '此IP或域名可能不支持gc-opencommand-plugin插件',
+                icon: 'none',
+                duration: 2000
+              })
+              return
+            })
+          }
+        } else {
+          uni.showToast({
+            title: '不能为空',
+            icon: 'error'
+          })
+          return
+        }
+        date.UID = UID.value
+        date.ip = ip.value
+        date.token = token.value
+        date.api = api.value
+      } else {
+        if (username.value !== '' && password.value !== '' && UID.value !==
+          '') {
+          if (!you.test(username.value)) {
+            uni.showToast({
+              title: '用户名格式不正确',
+              icon: 'error'
+            })
+            return
+          } else if (!pass.test(password.value)) {
+            uni.showToast({
+              title: '密码格式不正确,密码为字母、数字、特殊字符，任意2种组成，1-9位',
+              icon: 'none'
+            })
+            return
+          } else if (!/^$|^\d{5,}$/.test(token.value)) {
+            uni.showToast({
+              title: '邀请码不正确，需要5位的数字',
+              icon: 'none'
+            })
+            return
+          }
+        } else {
+          uni.showToast({
+            title: '不能为空',
+            icon: 'error'
+          })
+          return
+        }
+        date.api = api.value
+        date.zhucema = token.value
+        date.UID = UID.value
+      }
     }
-    if (true) {
+    if (getApp().globalData.code) {
       uniCloud.callFunction({
         name: 'user',
         data: {
-          username: username.value,
-          password: password.value,
+          username: getApp().globalData.username,
+          password: getApp().globalData.password,
           api: 'enroll',
-          date: date
+          date: getApp().globalData.date
         }
-      }).then(result => console.log(result))
+      }).then(res => {
+        getApp().globalData.UID = res.result.user.UID
+        getApp().globalData.Plugins = res.result.user.token
+        getApp().globalData.ServiceIp = res.result.user.ip
+        getApp().globalData.zhucheMa = res.result.user.zhucema
+        getApp().globalData.asstoken = res.result.asstoken
+        getApp().globalData.assxtoken = res.result.assxtoken
+        getApp().globalData.name = res.result.user.name
+        getApp().globalData.img = res.result.user.img
+        uni.showToast({
+          title: '注册成功',
+          icon: 'success'
+        })
+        setTimeout(() => {
+          uni.redirectTo({
+            url: '/pages/index/index'
+          })
+        }, 1600)
+      })
     } else {
       uni.showToast({
         title: '请验证',
         icon: 'none'
       })
-      uni.navigateTo({
-        url: '/pages/login/yanzhenma?username:' + username.value.toString()
+      getApp().globalData.username = username.value
+      getApp().globalData.password = password.value
+      getApp().globalData.date = date
+      uni.reLaunch({
+        url: '/pages/login/yanzhenma'
       })
     }
   }
@@ -114,8 +217,9 @@
     justify-content: center;
     align-items: center;
     height: 100%;
-    background-image: url('https://ts1.cn.mm.bing.net/th/id/R-C.a402064196a557540957b9fb7eea620b?rik=sdJhO009o7J7vQ&riu=http%3a%2f%2fuploadfile.bizhizu.cn%2f2014%2f0628%2f20140628113305228.jpg&ehk=a5YRgvYtMo9W9kuhs3ROrHuQXejDweWZJSZA12NMZ8g%3d&risl=&pid=ImgRaw&r=0');
+    background-image: url('https://i.328888.xyz/2023/03/05/G1ExE.jpeg');
     block-size: 100% 80%;
+    background-size: 100%;
     background-position: 50% 50%;
     background-repeat: on-repeat;
   }

@@ -21,8 +21,10 @@ exports.main = async (event, context) => {
       return await Fun['login'](event, db, bcrypt, token1)
     } else if (event.api === 'enroll') {
       return await Fun['enroll'](event, db, bcrypt, token1)
+    } else if (event.api === 'login_token') {
+      return await Fun['login_token'](event, db, token1)
     }
-    if (Fun[event.api] !== 'function') {
+    if (typeof(Fun[event.api]) !== 'function') {
       throw Error('无接口')
     }
     let data = await Fun[event.api](event, db)

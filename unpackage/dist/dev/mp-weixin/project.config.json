@@ -11,7 +11,7 @@
         "minified": true,
         "newFeature": true,
         "bigPackageSizeSupport": true,
-        "ignoreUploadUnusedFiles": false,
+        "ignoreUploadUnusedFiles": true,
         "babelSetting": {
             "ignore": [],
             "disablePlugins": [],
@@ -21,7 +21,7 @@
     "compileType": "miniprogram",
     "libVersion": "",
     "appid": "wx1ad9d920d875fc06",
-    "projectname": "指令执行器",
+    "projectname": "工具",
     "condition": {
         "search": {
             "current": -1,

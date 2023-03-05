@@ -2,13 +2,13 @@
   <view>
     <view class="my_header">
       <view class="my_header_backgroud">
-        <image src="../../static/logo.png" mode=""></image>
+        <image src="../../static/images/01126-0.jpg" mode=""></image>
       </view>
       <view class="my_header_logo">
         <view class="my_header_logobox">
-          <image src="../../static/logo.png" mode="aspectFill"></image>
+          <image :src="img" mode="aspectFill"></image>
         </view>
-        <text class="my_header_name">苏瑶</text>
+        <text class="my_header_name">{{name}}</text>
       </view>
       <view class="my_header_info">
         <view class="my_header_info-box">
@@ -26,12 +26,13 @@
       </view>
     </view>
     <view class="my-content">
-      <view class="my-comtent_list">
+      <view class="my-comtent_list" v-if="zhucheMa==='-1'?true:false">
         <view class="my-comtent_list-title">
           <uni-icons class="icons" type="contact" size="16" color="#666"></uni-icons>
-          <text>测试</text>
+          <text>复制</text>
         </view>
-        <uni-icons type="arrowright" size="16" color="#666"></uni-icons>
+        <switch checked="true" @change="swct" color="#FFCC33" />
+        <text></text>
       </view>
       <view class="my-comtent_list" @tap="h">
         <view class="my-comtent_list-title">
@@ -41,44 +42,31 @@
         <uni-icons type="arrowright" size="16" color="#666"></uni-icons>
       </view>
     </view>
-    <input type="text" placeholder="服务器域名ip" v-model="a">
-    <input type="text" v-model="e" placeholder="游戏Id">
-    <input type="text" v-model="f" placeholder="插件token">
-    <button @click="jk">提交</button>
   </view>
 </template>
 
-<script>
-  export default {
-    data() {
-      return {
-        a: '',
-        e: '',
-        f: '',
-        ServiceIp: getApp().globalData.ServiceIp !== '' ? '121.36.98.174' : '无',
-        zhucheMa: getApp().globalData.zhucheMa !== '' ? 1 : '未填写'
-      }
-    },
-    onReady() {
-
-    },
-    methods: {
-      jk() {
-        getApp().globalData.ServiceIp = this.a
-        getApp().globalData.Plugins = this.f
-        getApp().globalData.Switch = this.e
-        uni.showToast({
-          title: '提交成功',
-          icon: 'success'
-        })
-      },
-      h() {
-        uni.navigateTo({
-          url: '/pages/user/guanyuwo'
-        })
-      }
+<script setup>
+  import {
+    ref
+  } from "vue";
+  let ServiceIp = ref(getApp().globalData.ServiceIp)
+  let zhucheMa = ref(getApp().globalData.zhucheMa)
+  let name = ref('')
+  let img = ref(getApp().globalData.img)
+  // uni.request({
+  //   url: getApp().globalData.name,
+  // }).then(res => {
+  //   name.value = res.data
+  // })
+  function swct(e) {
+    if (e.detail.value) {
+      getApp().globalData.copy = true
+    } else {
+      uni.navigateTo({
+        url: '/pages/user/token'
+      })
     }
-  };
+  }
 </script>
 
 <style lang="scss">
@@ -97,8 +85,8 @@
       right: 0;
       bottom: 0;
       left: 0;
-      filter: blur(8px);
-      opacity: 0.3;
+      filter: blur(2px);
+      opacity: 0.5;
 
       image {
         width: 100%;
@@ -170,6 +158,7 @@
           margin-right: 5px;
         }
       }
+
     }
   }
 </style>

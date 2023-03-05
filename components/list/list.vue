@@ -1,16 +1,6 @@
 <template>
   <view>
     <view class="box">
-      <!-- <view class="box-1">
-        <scroll-view scroll-x="true" class="tab-list">
-          <view class="tab-scroll_box">
-            <view v-for="(item,index) in list.a " :key="index" class="tab-scroll_item" :class="{as:as===index}"
-              @tap="taptab(index)">
-              {{item.vlue}}
-            </view>
-          </view>
-        </scroll-view>
-      </view> -->
       <list-tab :list='list.a' :as='as' @taptab='taptab'></list-tab>
       <!-- -------------------------------- -->
       <view class="my-content" v-show="show===0?true:false">
@@ -27,7 +17,7 @@
             <!--     <uni-icons custom-prefix="iconfont" type="icon-xinghao" size="10" color="red"></uni-icons> -->
             <text>{{text_1}}</text>
           </view>
-          <uni-number-box :max="99999" :min="1" v-model="vModelValue"></uni-number-box>
+          <uni-number-box :max="99999" :min="1" @change="valu"></uni-number-box>
           <uni-icons type="arrowright" size="16" color="#666"></uni-icons>
         </view>
       </view>
@@ -145,7 +135,7 @@
             <!--     <uni-icons custom-prefix="iconfont" type="icon-xinghao" size="10" color="red"></uni-icons> -->
             <text>等级</text>
           </view>
-          <uni-number-box :min="1" v-model="vModelValue"></uni-number-box>
+          <uni-number-box :min="1" @change="valu"></uni-number-box>
           <uni-icons type="arrowright" size="16" color="#666"></uni-icons>
         </view>
         <view class="my-comtent_list">
@@ -153,7 +143,7 @@
             <!--     <uni-icons custom-prefix="iconfont" type="icon-xinghao" size="10" color="red"></uni-icons> -->
             <text>数量</text>
           </view>
-          <uni-number-box :min="1" v-model="vModeV"></uni-number-box>
+          <uni-number-box :min="1" v-model="vModeV" @change="val"></uni-number-box>
           <uni-icons type="arrowright" size="16" color="#666"></uni-icons>
         </view>
         <view class="my-comtent_list">
@@ -161,7 +151,7 @@
             <!--     <uni-icons custom-prefix="iconfont" type="icon-xinghao" size="10" color="red"></uni-icons> -->
             <text>精炼</text>
           </view>
-          <uni-number-box :max="99999" :min="1" v-model="vMode"></uni-number-box>
+          <uni-number-box :max="99999" :min="1" v-model="vMode" @change="va"></uni-number-box>
           <uni-icons type="arrowright" size="16" color="#666"></uni-icons>
         </view>
       </view>
@@ -176,7 +166,8 @@
 <script setup>
   import {
     ref,
-    reactive
+    reactive,
+    watch
   } from "vue"
   // import {
   //   onLoad
@@ -189,6 +180,7 @@
   let vModeV = ref(1)
   let vMode = ref(1)
   let vModelValue = ref(1)
+  let vm = vModelValue.value
   let text_1 = ref('数量')
   let list = reactive({
     a: [{
@@ -283,16 +275,39 @@
   }
 
   function CarryOut() {
+    uni.showLoading({
+      title: '请求中',
+      mask: true
+    })
     let UID = '@' + getApp().globalData.UID
     let date = null
     if (as.value === 0 || as.value === 8 || as.value === 6) {
-      date = 'give' + ' ' + value.value + ' ' + 'x' + vModelValue.value.toString() + ' ' + UID
+      date = 'give' + ' ' + value.value + ' ' + 'x' + vm.toString() + ' ' + UID
     } else if (as.value === 2 || as.value === 7) {
-      date = 'give' + ' ' + value.value + ' ' + 'lv' + vModelValue.value.toString() + ' ' + UID
-    } else if (as.value === 3) {
-      date = 'give' + ' ' + value.value + ' ' + 'lv' + vModelValue.value.toString() + ' ' + 'x' + vModeV.value
-        .toString() +
-        ' ' + 'r' + vMode.value.toString() + ' ' + UID
+      date = 'give' + ' ' + value.value + ' ' + 'lv' + vm.toString() + ' ' + UID
+    } else if (as.value === 3 || as.value === 4 || as.value === 5) {
+      date = 'give' + ' ' + value.value + ' ' + 'lv' + vm.toString() + ' ' + 'x' + vModeV.value
+        .toString() + ' ' + 'r' + vMode.value.toString() + ' ' + UID
+    }
+    if (getApp().globalData.copy && getApp().globalData.zhucheMa == '-1') {
+      uni.setClipboardData({
+        data: '/' + date,
+        success: function() {
+          uni.hideLoading()
+          uni.showToast({
+            title: '复制成功',
+            icon: "success"
+          })
+        },
+        fail: function() {
+          uni.hideLoading()
+          uni.showToast({
+            title: '复制失败',
+            icon: "error"
+          })
+        }
+      })
+      return
     }
     uni.request({
       url: 'https://' + getApp().globalData.ServiceIp + '/opencommand/api',
@@ -303,11 +318,35 @@
         data: date
       }
     }).then(res => {
+      if (res.errMsg == 'request:ok') {
+        uni.hideLoading()
+        uni.showToast({
+          title: '执行成功',
+          icon: 'success'
+        })
+      } else {
+        uni.hideLoading()
+        uni.showToast({
+          title: res.data,
+          icon: 'none'
+        })
+      }
+    }).catch(e => {
+      uni.hideLoading()
       uni.showToast({
-        title: res.data.data,
+        title: '请求失败',
         icon: 'none'
       })
     })
+  }
+  let valu = (value) => {
+    vm = value
+  }
+  let val = (value) => {
+    vModeV.value = value
+  }
+  let va = (value) => {
+    vMode.value = value
   }
 
   function Sw() {
@@ -321,7 +360,7 @@
   })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
   .box {
     display: flex;
     flex-direction: column;
@@ -330,6 +369,7 @@
     margin-top: 10px;
     border-radius: 20px;
     background-color: #ffffff;
+    box-shadow: 3px 4px 1px rgba(0, 0, 0, .2);
 
     .box-1 {
       display: flex;
@@ -355,7 +395,7 @@
           .tab-scroll_item {
             flex-shrink: 0;
             padding: 0 10px;
-            cocor: #333;
+            color: #333;
 
             &.as {
               color: red;
@@ -402,7 +442,6 @@
       width: 200px;
       font-size: 14px;
       margin-top: 10px;
-      font-family: 微软雅黑;
     }
   }
 </style>

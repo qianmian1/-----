@@ -26,7 +26,7 @@ const _sfc_main = {
     };
   },
   onLoad(option) {
-    this.getCode(option.username);
+    this.getCode(getApp().globalData.username);
   },
   methods: {
     testSend(username) {
@@ -57,10 +57,16 @@ const _sfc_main = {
             icon: "none"
           });
         }
+      }).catch((e) => {
+        common_vendor.index.hideLoading();
+        common_vendor.index.showToast({
+          title: "发送失败请重试",
+          icon: "error"
+        });
       });
     },
     //当前登录按钮操作
-    testValidate(username) {
+    testValidate() {
       if (!this.code) {
         common_vendor.index.showToast({
           duration: 1500,
@@ -78,7 +84,7 @@ const _sfc_main = {
         data: {
           code: this.code,
           method: "validateCode",
-          email: username,
+          email: getApp().globalData.username,
           codeId: this.codeId,
           effectiveTime: 300
         }
@@ -162,7 +168,7 @@ function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
   } : {
     j: common_vendor.t($data.second)
   }, {
-    k: common_vendor.o(($event) => $options.testValidate(_ctx.option.username))
+    k: common_vendor.o((...args) => $options.testValidate && $options.testValidate(...args))
   });
 }
 const MiniProgramPage = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["render", _sfc_render], ["__file", "E:/指令执行器/pages/login/yanzhenma.vue"]]);

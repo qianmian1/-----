@@ -36,8 +36,8 @@ page {
   right: 0;
   bottom: 0;
   left: 0;
-  filter: blur(8px);
-  opacity: 0.3;
+  filter: blur(2px);
+  opacity: 0.5;
 }
 .my_header .my_header_backgroud image {
   width: 100%;

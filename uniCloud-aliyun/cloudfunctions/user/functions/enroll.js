@@ -17,7 +17,7 @@ module.exports = async (event, db, bcrypt, token1) => {
     throw Error('用户已被注册')
   }
   let img = 'http://q2.qlogo.cn/headimg_dl?dst_uin='
-  let name = 'https://v.api.aa1.cn/api/qqnicheng/index.php?qq='
+  let name = 'https://api.kuizuo.cn/api/qqnick?qq='
   let txt = new RegExp('@qq.com')
   if (txt.test(username)) {
     let user = username.replace(/@qq\.com/, '')
@@ -28,9 +28,6 @@ module.exports = async (event, db, bcrypt, token1) => {
     name = username
   }
   if (api === 'Player') {
-    if (zhucema == '') {
-      zhucema = -1
-    }
     let data = {
       _id: username,
       hash,
@@ -40,8 +37,19 @@ module.exports = async (event, db, bcrypt, token1) => {
       UID,
       createdAt: Date.now()
     }
+    if (zhucema == '') {
+      zhucema = '-1'
+    }
+
     await db.collection('PlayerUser').add(data)
     delete data.hash
+    if (zhucema !== -1) {
+      let ser = await db.collection('ServiceUser').where({
+        zhucema: zhucema
+      }).get()
+      data.ip = ser.data[0].ip
+      data.token = ser.data[0].token
+    }
     return {
       user: data,
       asstoken: await token1.Generate_Token(username, 3),

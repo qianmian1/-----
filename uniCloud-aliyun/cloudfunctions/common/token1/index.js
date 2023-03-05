@@ -1,16 +1,22 @@
 const jwt = require('jsonwebtoken');
 const miyao = 'qwert';
-//const jsencrypt = require('jsencrypt')
 const db = uniCloud.database({
   throwOnNotFound: false
 })
 // 生成token
 async function Generate_Token(username, time) {
-  return 'Bearer ' + jwt.sign({
-    data: username
-  }, miyao, {
-    expiresIn: time.toString() + 'h'
-  })
+  console.log('开始设置token');
+  try {
+    let a = 'Bearer ' + jwt.sign({
+      username
+    }, miyao, {
+      expiresIn: time.toString() + 'h'
+    })
+    console.log('开始设置token完成')
+    return a
+  } catch (e) {
+    console.log(e);
+  }
 };
 // 解密token
 async function Declassification_Token(token) {
