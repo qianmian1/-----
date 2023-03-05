@@ -31,6 +31,7 @@
   margin-top: 10px;
   border-radius: 20px;
   background-color: #ffffff;
+  box-shadow: 3px 4px 1px rgba(0, 0, 0, 0.2);
 }
 .box .my-content .my-comtent_list.data-v-873d3217 {
   display: flex;
@@ -57,13 +58,13 @@
 .box .my-content .my-comtent_list .my-comtent_list-title .icons.data-v-873d3217 {
   margin-right: 5px;
 }
-.box .btn-box.data-v-873d3217 {
+.btn-box.data-v-873d3217 {
   display: flex;
   height: 100%;
   width: 100%;
   align-items: flex-end;
 }
-.box .btn-box .btn.data-v-873d3217 {
+.btn-box .btn.data-v-873d3217 {
   background-color: skyblue;
   width: 200px;
   font-size: 14px;

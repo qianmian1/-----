@@ -3,7 +3,6 @@ const common_vendor = require("../../common/vendor.js");
 const _sfc_main = {
   __name: "index-tab",
   setup(__props) {
-    common_vendor.ref("搜索");
     let data = common_vendor.reactive({
       list: []
     });
@@ -15,29 +14,30 @@ const _sfc_main = {
         mask: true
       });
       common_vendor.Es.callFunction({
-        name: "list-tab",
+        name: "user",
         data: {
+          api: "list-tab",
           tab: "commandlist"
         }
       }).then((res) => {
         switch (id.value) {
           case "0":
-            data.list = res.result.wupinList;
+            data.list = res.result.data.wupinList;
             break;
           case "2":
-            data.list = res.result.commandList;
+            data.list = res.result.data.commandList;
             break;
           case "8":
-            data.list = res.result.mingxingList;
+            data.list = res.result.data.mingxingList;
             break;
           case "1":
-            data.list = res.result.shengyiwu;
+            data.list = res.result.data.shengyiwu;
             break;
           case "3":
-            data.list = res.result.wuqi;
+            data.list = res.result.data.wuqi;
             break;
           case "10":
-            data.list = res.result.Monster;
+            data.list = res.result.data.Monster;
             break;
         }
       });
@@ -53,9 +53,6 @@ const _sfc_main = {
         icon: "success"
       });
     }
-    let h = (item) => {
-      console.log("被触发");
-    };
     function confirm() {
       let c = [];
       const text = new RegExp(search.value);
@@ -101,8 +98,7 @@ const _sfc_main = {
             b: item.id,
             c: common_vendor.o(($event) => fh(item), item.id)
           };
-        }),
-        f: common_vendor.o(($event) => common_vendor.unref(h)())
+        })
       };
     };
   }

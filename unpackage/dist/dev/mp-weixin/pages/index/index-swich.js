@@ -8,12 +8,13 @@ const _sfc_main = {
     });
     common_vendor.onLoad(() => {
       common_vendor.Es.callFunction({
-        name: "list-tab",
+        name: "user",
         data: {
+          api: "list-tab",
           tab: "tab"
         }
       }).then((res) => {
-        date.list = res.result;
+        date.list = res.result.data;
       });
     });
     function gh(item) {

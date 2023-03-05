@@ -63,7 +63,7 @@
         .tab-scroll_item {
           flex-shrink: 0;
           padding: 0 10px;
-          cocor: #333;
+          color: #333;
 
           &.as {
             color: red;

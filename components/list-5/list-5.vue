@@ -11,9 +11,9 @@
         </view>
       </view>
     </view>
-    <view class="btn-box">
-      <button class="btn" @click="CarryOut">提交</button>
-    </view>
+  </view>
+  <view class="btn-box">
+    <button class="btn" @click="CarryOut">提交</button>
   </view>
 </template>
 
@@ -28,11 +28,9 @@
   let valuek = ref('all')
   let UID = '@' + getApp().globalData.UID
   let a = 'clear'
-
   let list = reactive(['全部', '武器', '圣遗物', '材料'])
   let yu = index => {
     ad.value = index
-    console.log(index);
     if (ad.value === 0) {
       valuek.value = 'all'
     } else if (ad.value === 1) {
@@ -43,12 +41,33 @@
       valuek.value = 'mat'
     }
   }
-  let date = a + ' ' + valuek.value + ' ' + UID
+
   let CarryOut = () => {
-    uni.showToast({
+    let date = a + ' ' + valuek.value + ' ' + UID
+    uni.showLoading({
       title: '请求中',
-      icon: 'none'
+      mask: true
     })
+    if (getApp().globalData.copy && getApp().globalData.zhucheMa == '-1') {
+      uni.setClipboardData({
+        data: '/' + date,
+        success: function() {
+          uni.hideLoading()
+          uni.showToast({
+            title: '复制成功',
+            icon: "success"
+          })
+        },
+        fail: function() {
+          uni.hideLoading()
+          uni.showToast({
+            title: '复制失败',
+            icon: "error"
+          })
+        }
+      })
+      return
+    }
     uni.request({
       url: 'https://' + getApp().globalData.ServiceIp + '/opencommand/api',
       method: "POST",
@@ -58,12 +77,19 @@
         data: date
       }
     }).then(res => {
-      if (res.data.data) {
+      if (res.data) {
+        uni.hideLoading()
         uni.showToast({
-          title: res.data.data,
+          title: res.data,
           icon: 'none'
         })
       }
+    }).catch(e => {
+      uni.hideLoading()
+      uni.showToast({
+        title: '请求失败',
+        icon: 'none'
+      })
     })
   }
 </script>
@@ -77,6 +103,7 @@
     margin-top: 10px;
     border-radius: 20px;
     background-color: #ffffff;
+    box-shadow: 3px 4px 1px rgba(0, 0, 0, .2);
 
     .my-content {
       .my-comtent_list {
@@ -115,19 +142,21 @@
       }
     }
 
-    .btn-box {
-      display: flex;
-      height: 100%;
-      width: 100%;
-      align-items: flex-end;
 
-      .btn {
-        background-color: skyblue;
-        width: 200px;
-        font-size: 14px;
-        margin-top: 10px;
-        font-family: 微软雅黑;
-      }
+  }
+
+  .btn-box {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    align-items: flex-end;
+
+    .btn {
+      background-color: skyblue;
+      width: 200px;
+      font-size: 14px;
+      margin-top: 10px;
+      font-family: 微软雅黑;
     }
   }
 </style>

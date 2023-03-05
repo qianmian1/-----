@@ -15,12 +15,35 @@ const _sfc_main = {
     let vModelValu = common_vendor.ref(6);
     let a = "setConst";
     let UID = "@" + getApp().globalData.UID;
-    let date = a + " " + vModelValu.value.toString() + " " + UID;
+    let upvModelValu = (value) => {
+      vModelValu.value = value;
+    };
     let CarryOut = () => {
-      common_vendor.index.showToast({
+      let date = a + " " + vModelValu.value.toString() + " " + UID;
+      common_vendor.index.showLoading({
         title: "请求中",
-        icon: "none"
+        mask: true
       });
+      if (getApp().globalData.copy && getApp().globalData.zhucheMa == "-1") {
+        common_vendor.index.setClipboardData({
+          data: "/" + date,
+          success: function() {
+            common_vendor.index.hideLoading();
+            common_vendor.index.showToast({
+              title: "复制成功",
+              icon: "success"
+            });
+          },
+          fail: function() {
+            common_vendor.index.hideLoading();
+            common_vendor.index.showToast({
+              title: "复制失败",
+              icon: "error"
+            });
+          }
+        });
+        return;
+      }
       common_vendor.index.request({
         url: "https://" + getApp().globalData.ServiceIp + "/opencommand/api",
         method: "POST",
@@ -31,21 +54,27 @@ const _sfc_main = {
         }
       }).then((res) => {
         if (res.data.data) {
+          common_vendor.index.hideLoading();
           common_vendor.index.showToast({
             title: res.data.data,
             icon: "none"
           });
         }
+      }).catch((e) => {
+        common_vendor.index.hideLoading();
+        common_vendor.index.showToast({
+          title: "请求失败",
+          icon: "none"
+        });
       });
     };
     return (_ctx, _cache) => {
       return {
         a: common_vendor.t(common_vendor.unref(text_2)),
-        b: common_vendor.o(($event) => common_vendor.isRef(vModelValu) ? vModelValu.value = $event : vModelValu = $event),
+        b: common_vendor.o(common_vendor.unref(upvModelValu)),
         c: common_vendor.p({
-          max: 99999,
-          min: 1,
-          modelValue: common_vendor.unref(vModelValu)
+          max: 6,
+          min: 1
         }),
         d: common_vendor.o((...args) => common_vendor.unref(CarryOut) && common_vendor.unref(CarryOut)(...args))
       };

@@ -22,6 +22,7 @@ const _sfc_main = {
     let vModeV = common_vendor.ref(1);
     let vMode = common_vendor.ref(1);
     let vModelValue = common_vendor.ref(1);
+    let vm = vModelValue.value;
     let text_1 = common_vendor.ref("数量");
     let list = common_vendor.reactive({
       a: [
@@ -116,14 +117,38 @@ const _sfc_main = {
       }
     };
     function CarryOut() {
+      common_vendor.index.showLoading({
+        title: "请求中",
+        mask: true
+      });
       let UID = "@" + getApp().globalData.UID;
       let date = null;
       if (as.value === 0 || as.value === 8 || as.value === 6) {
-        date = "give " + value.value + " x" + vModelValue.value.toString() + " " + UID;
+        date = "give " + value.value + " x" + vm.toString() + " " + UID;
       } else if (as.value === 2 || as.value === 7) {
-        date = "give " + value.value + " lv" + vModelValue.value.toString() + " " + UID;
-      } else if (as.value === 3) {
-        date = "give " + value.value + " lv" + vModelValue.value.toString() + " x" + vModeV.value.toString() + " r" + vMode.value.toString() + " " + UID;
+        date = "give " + value.value + " lv" + vm.toString() + " " + UID;
+      } else if (as.value === 3 || as.value === 4 || as.value === 5) {
+        date = "give " + value.value + " lv" + vm.toString() + " x" + vModeV.value.toString() + " r" + vMode.value.toString() + " " + UID;
+      }
+      if (getApp().globalData.copy && getApp().globalData.zhucheMa == "-1") {
+        common_vendor.index.setClipboardData({
+          data: "/" + date,
+          success: function() {
+            common_vendor.index.hideLoading();
+            common_vendor.index.showToast({
+              title: "复制成功",
+              icon: "success"
+            });
+          },
+          fail: function() {
+            common_vendor.index.hideLoading();
+            common_vendor.index.showToast({
+              title: "复制失败",
+              icon: "error"
+            });
+          }
+        });
+        return;
       }
       common_vendor.index.request({
         url: "https://" + getApp().globalData.ServiceIp + "/opencommand/api",
@@ -134,12 +159,36 @@ const _sfc_main = {
           data: date
         }
       }).then((res) => {
+        if (res.errMsg == "request:ok") {
+          common_vendor.index.hideLoading();
+          common_vendor.index.showToast({
+            title: "执行成功",
+            icon: "success"
+          });
+        } else {
+          common_vendor.index.hideLoading();
+          common_vendor.index.showToast({
+            title: res.data,
+            icon: "none"
+          });
+        }
+      }).catch((e) => {
+        common_vendor.index.hideLoading();
         common_vendor.index.showToast({
-          title: res.data.data,
+          title: "请求失败",
           icon: "none"
         });
       });
     }
+    let valu = (value2) => {
+      vm = value2;
+    };
+    let val = (value2) => {
+      vModeV.value = value2;
+    };
+    let va = (value2) => {
+      vMode.value = value2;
+    };
     function Sw() {
       common_vendor.index.navigateTo({
         url: "/pages/index/index-tab?id=" + as.value
@@ -171,11 +220,10 @@ const _sfc_main = {
         }),
         g: common_vendor.o(Sw),
         h: common_vendor.t(common_vendor.unref(text_1)),
-        i: common_vendor.o(($event) => common_vendor.isRef(vModelValue) ? vModelValue.value = $event : vModelValue = $event),
+        i: common_vendor.o(common_vendor.unref(valu)),
         j: common_vendor.p({
           max: 99999,
-          min: 1,
-          modelValue: common_vendor.unref(vModelValue)
+          min: 1
         }),
         k: common_vendor.p({
           type: "arrowright",
@@ -338,42 +386,43 @@ const _sfc_main = {
           color: "#666"
         }),
         Y: common_vendor.o(Sw),
-        Z: common_vendor.o(($event) => common_vendor.isRef(vModelValue) ? vModelValue.value = $event : vModelValue = $event),
+        Z: common_vendor.o(common_vendor.unref(valu)),
         aa: common_vendor.p({
-          min: 1,
-          modelValue: common_vendor.unref(vModelValue)
+          min: 1
         }),
         ab: common_vendor.p({
           type: "arrowright",
           size: "16",
           color: "#666"
         }),
-        ac: common_vendor.o(($event) => common_vendor.isRef(vModeV) ? vModeV.value = $event : vModeV = $event),
-        ad: common_vendor.p({
+        ac: common_vendor.o(common_vendor.unref(val)),
+        ad: common_vendor.o(($event) => common_vendor.isRef(vModeV) ? vModeV.value = $event : vModeV = $event),
+        ae: common_vendor.p({
           min: 1,
           modelValue: common_vendor.unref(vModeV)
         }),
-        ae: common_vendor.p({
+        af: common_vendor.p({
           type: "arrowright",
           size: "16",
           color: "#666"
         }),
-        af: common_vendor.o(($event) => common_vendor.isRef(vMode) ? vMode.value = $event : vMode = $event),
-        ag: common_vendor.p({
+        ag: common_vendor.o(common_vendor.unref(va)),
+        ah: common_vendor.o(($event) => common_vendor.isRef(vMode) ? vMode.value = $event : vMode = $event),
+        ai: common_vendor.p({
           max: 99999,
           min: 1,
           modelValue: common_vendor.unref(vMode)
         }),
-        ah: common_vendor.p({
+        aj: common_vendor.p({
           type: "arrowright",
           size: "16",
           color: "#666"
         }),
-        ai: common_vendor.unref(show) === 2 ? true : false,
-        aj: common_vendor.o(CarryOut)
+        ak: common_vendor.unref(show) === 2 ? true : false,
+        al: common_vendor.o(CarryOut)
       };
     };
   }
 };
-const Component = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__file", "E:/指令执行器/components/list/list.vue"]]);
+const Component = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__scopeId", "data-v-18578b00"], ["__file", "E:/指令执行器/components/list/list.vue"]]);
 wx.createComponent(Component);

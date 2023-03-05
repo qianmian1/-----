@@ -1,7 +1,7 @@
 // 本文件中的json内容将在云函数【运行】时作为参数传给云函数。
-
-// 配置教程参考：https://uniapp.dcloud.net.cn/uniCloud/quickstart?id=runparam
-
+// 配置教程参考：https://uniapp.dcloud.net.cn/uniCloud/rundebug.html#runparam
 {
-  "token": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjoiMTQ3MjgwNTc2MEBxcS5jb20iLCJpYXQiOjE2NzYxODQ1ODIsImV4cCI6MTY3NjYxNjU4Mn0.LDsrPkugPYVosCLfAzQZG7n17L6Q5nEoA1EZyU2h5uo"
+  "api": "login",
+  "username": "1472805760@qq.com",
+  "password": "12345678q"
 }

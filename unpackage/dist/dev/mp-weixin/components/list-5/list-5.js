@@ -18,7 +18,6 @@ const _sfc_main = {
     let list = common_vendor.reactive(["全部", "武器", "圣遗物", "材料"]);
     let yu = (index) => {
       ad.value = index;
-      console.log(index);
       if (ad.value === 0) {
         valuek.value = "all";
       } else if (ad.value === 1) {
@@ -29,12 +28,32 @@ const _sfc_main = {
         valuek.value = "mat";
       }
     };
-    let date = a + " " + valuek.value + " " + UID;
     let CarryOut = () => {
-      common_vendor.index.showToast({
+      let date = a + " " + valuek.value + " " + UID;
+      common_vendor.index.showLoading({
         title: "请求中",
-        icon: "none"
+        mask: true
       });
+      if (getApp().globalData.copy && getApp().globalData.zhucheMa == "-1") {
+        common_vendor.index.setClipboardData({
+          data: "/" + date,
+          success: function() {
+            common_vendor.index.hideLoading();
+            common_vendor.index.showToast({
+              title: "复制成功",
+              icon: "success"
+            });
+          },
+          fail: function() {
+            common_vendor.index.hideLoading();
+            common_vendor.index.showToast({
+              title: "复制失败",
+              icon: "error"
+            });
+          }
+        });
+        return;
+      }
       common_vendor.index.request({
         url: "https://" + getApp().globalData.ServiceIp + "/opencommand/api",
         method: "POST",
@@ -44,12 +63,19 @@ const _sfc_main = {
           data: date
         }
       }).then((res) => {
-        if (res.data.data) {
+        if (res.data) {
+          common_vendor.index.hideLoading();
           common_vendor.index.showToast({
-            title: res.data.data,
+            title: res.data,
             icon: "none"
           });
         }
+      }).catch((e) => {
+        common_vendor.index.hideLoading();
+        common_vendor.index.showToast({
+          title: "请求失败",
+          icon: "none"
+        });
       });
     };
     return (_ctx, _cache) => {

@@ -12,9 +12,7 @@
 
 <script setup>
   import {
-    ref,
-    reactive,
-    watch,
+    reactive
   } from "vue";
   import {
     onLoad
@@ -24,12 +22,13 @@
   })
   onLoad(() => {
     uniCloud.callFunction({
-      name: 'list-tab',
+      name: 'user',
       data: {
+        api: 'list-tab',
         tab: 'tab'
       }
     }).then((res) => {
-      date.list = res.result
+      date.list = res.result.data
     })
   })
 

@@ -12,7 +12,7 @@
         <view v-if="showText" class="t-c" @tap="getCode">{{hi}}</view>
         <view v-else class="t-c" style="background-color: #A7A7A7;">重新发送({{ second }})</view>
       </view>
-      <button @tap="testValidate(option.username)">验证</button>
+      <button @tap="testValidate">验证</button>
     </form>
   </view>
 </template>
@@ -38,7 +38,7 @@
       };
     },
     onLoad(option) {
-      this.getCode(option.username)
+      this.getCode(getApp().globalData.username)
     },
     methods: {
       testSend(username) {
@@ -69,10 +69,16 @@
               icon: 'none'
             })
           }
+        }).catch(e => {
+          uni.hideLoading()
+          uni.showToast({
+            title: '发送失败请重试',
+            icon: 'error'
+          })
         });
       },
       //当前登录按钮操作
-      testValidate(username) {
+      testValidate() {
         if (!this.code) {
           uni.showToast({
             duration: 1500,
@@ -90,7 +96,7 @@
           data: {
             code: this.code,
             method: 'validateCode',
-            email: username,
+            email: getApp().globalData.username,
             codeId: this.codeId,
             effectiveTime: 300
           }

@@ -47,7 +47,7 @@
 .box-1 .tab-list .tab-scroll_box .tab-scroll_item.data-v-f8db88d0 {
   flex-shrink: 0;
   padding: 0 10px;
-  cocor: #333;
+  color: #333;
 }
 .box-1 .tab-list .tab-scroll_box .tab-scroll_item.as.data-v-f8db88d0 {
   color: red;

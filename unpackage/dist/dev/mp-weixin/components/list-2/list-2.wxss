@@ -31,6 +31,7 @@
   margin-top: 10px;
   border-radius: 20px;
   background-color: #ffffff;
+  box-shadow: 3px 4px 1px rgba(0, 0, 0, 0.2);
 }
 .box .my-content .my-comtent_list.data-v-161fa33e {
   display: flex;
@@ -57,16 +58,15 @@
 .box .my-content .my-comtent_list .my-comtent_list-title .icons.data-v-161fa33e {
   margin-right: 5px;
 }
-.box .btn-box.data-v-161fa33e {
+.btn-box.data-v-161fa33e {
   display: flex;
   height: 100%;
   width: 100%;
   align-items: flex-end;
 }
-.box .btn-box .btn.data-v-161fa33e {
+.btn-box .btn.data-v-161fa33e {
   background-color: skyblue;
   width: 200px;
   font-size: 14px;
   margin-top: 10px;
-  font-family: 微软雅黑;
 }

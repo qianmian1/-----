@@ -21,23 +21,15 @@
     <view v-show="value==='clear'">
       <list-5></list-5>
     </view>
-    <view v-show="value===1">
-      <tab :height="height" :v_right="'flex-end'"></tab>
-    </view>
   </view>
-
 </template>
 
 <script setup>
   import {
     ref,
-    reactive,
-    watch,
   } from "vue";
   // let flex-start='flex-start'
-  let value = ref('clear')
-  let height = ref(uni.getSystemInfoSync().screenHeight - (uni.getSystemInfoSync().statusBarHeight + uni
-    .getMenuButtonBoundingClientRect().height))
+  let value = ref('give')
 
   function fh() {
     uni.navigateTo({

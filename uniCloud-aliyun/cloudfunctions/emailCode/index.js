@@ -139,7 +139,6 @@ exports.main = async (event, context) => {
       //随机生成验证码并发送
       var codeString = getRandomCode();
       var res = await send(event, true, codeString);
-      console.log(res)
       var result = {
         status: 0
       }
@@ -152,7 +151,6 @@ exports.main = async (event, context) => {
         result = await collection.add(event);
         result.status = 1;
       }
-      console.log(result)
       return result;
       break;
     case 'sendCustom':

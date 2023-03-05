@@ -20,13 +20,13 @@ const _sfc_main = {
     let text_1 = common_vendor.ref("状态");
     let value = common_vendor.ref("godmode");
     let as = common_vendor.ref(0);
-    let h = common_vendor.ref("0");
+    let boo = common_vendor.ref("0");
     let aq = common_vendor.ref(0);
     let ad = common_vendor.ref(0);
     let a = "setprop";
     let UID = "@" + getApp().globalData.UID;
-    let date = a + " " + value.value + " " + h.value + " " + UID;
-    let vModelValue = common_vendor.ref(1);
+    let vModeValue = common_vendor.ref(1);
+    let date = a + " " + value.value + " " + boo.value + " " + UID;
     let list = common_vendor.reactive({
       a: [
         {
@@ -47,23 +47,36 @@ const _sfc_main = {
       ],
       j: ["无敌", "无限体力", "无限能量", "锚点解锁"]
     });
-    let op = (index) => {
-      ad.value = index;
-      if (index === 0) {
+    let upvModeValue = (value2) => {
+      vModeValue.value = value2;
+    };
+    common_vendor.watch(ad, () => {
+      if (ad.value === 0) {
         value.value = "godmode";
-      } else if (index === 1) {
+        date = a + " " + value.value + " " + boo.value + " " + UID;
+      } else if (ad.value === 1) {
         value.value = "nostmina";
-      } else if (index === 2) {
+        date = a + " " + value.value + " " + boo.value + " " + UID;
+      } else if (ad.value === 2) {
         value.value = "unlimitedenergy";
+        date = a + " " + value.value + " " + boo.value + " " + UID;
       } else {
         value.value = "unlockmap";
+        date = a + " " + value.value + " " + boo.value + " " + UID;
       }
+    }, {
+      immediate: true
+    });
+    let op = (index) => {
+      ad.value = index;
     };
     let Switch2 = (e) => {
       if (e.detail.value === true) {
-        h.value = "1";
+        boo.value = "1";
+        date = a + " " + value.value + " " + boo.value + " " + UID;
       } else {
-        h.value = "0";
+        boo.value = "0";
+        date = a + " " + value.value + " " + boo.value + " " + UID;
       }
     };
     let Switch = (index) => {
@@ -78,7 +91,7 @@ const _sfc_main = {
             break;
           case 2:
             text.value = "战令等级";
-            value.value = "battlepass";
+            value.value = "bplevel";
             text_1.value = "等级";
             break;
           case 3:
@@ -92,20 +105,43 @@ const _sfc_main = {
             text_1.value = "等级";
             break;
         }
-        date = a + " " + value.value + " " + vModelValue.value.toString() + " " + UID;
       } else {
         aq.value = 0;
         text.value = "类型";
         value.value = "godmode";
         text_1.value = "状态";
-        date = a + " " + value.value + " " + h.value + " " + UID;
       }
     };
     let CarryOut = () => {
-      common_vendor.index.showToast({
+      if (as.value !== 0) {
+        date = a + " " + value.value + " " + vModeValue.value.toString() + " " + UID;
+      } else {
+        date = a + " " + value.value + " " + boo.value + " " + UID;
+      }
+      common_vendor.index.showLoading({
         title: "请求中",
-        icon: "none"
+        mask: true
       });
+      if (getApp().globalData.copy && getApp().globalData.zhucheMa == "-1") {
+        common_vendor.index.setClipboardData({
+          data: "/" + date,
+          success: function() {
+            common_vendor.index.hideLoading();
+            common_vendor.index.showToast({
+              title: "复制成功",
+              icon: "success"
+            });
+          },
+          fail: function() {
+            common_vendor.index.hideLoading();
+            common_vendor.index.showToast({
+              title: "复制失败",
+              icon: "error"
+            });
+          }
+        });
+        return;
+      }
       common_vendor.index.request({
         url: "https://" + getApp().globalData.ServiceIp + "/opencommand/api",
         method: "POST",
@@ -115,12 +151,25 @@ const _sfc_main = {
           data: date
         }
       }).then((res) => {
-        if (res.data.data) {
+        if (res.data !== "") {
+          common_vendor.index.hideLoading();
           common_vendor.index.showToast({
-            title: res.data.data,
-            icon: "none"
+            title: res.data,
+            icon: "success"
+          });
+        } else {
+          common_vendor.index.hideLoading();
+          common_vendor.index.showToast({
+            title: "执行成功",
+            icon: "success"
           });
         }
+      }).catch((e) => {
+        common_vendor.index.hideLoading();
+        common_vendor.index.showToast({
+          title: "请求失败",
+          icon: "none"
+        });
       });
     };
     return (_ctx, _cache) => {
@@ -153,31 +202,29 @@ const _sfc_main = {
           size: "16",
           color: "#666"
         }),
-        j: common_vendor.o((...args) => _ctx.Sw && _ctx.Sw(...args)),
-        k: common_vendor.unref(as) !== 0,
-        l: common_vendor.p({
+        j: common_vendor.unref(as) !== 0,
+        k: common_vendor.p({
           ["custom-prefix"]: "iconfont",
           type: "icon-xinghao",
           size: "10",
           color: "red"
         }),
-        m: common_vendor.t(common_vendor.unref(text_1)),
-        n: common_vendor.unref(aq) === 1,
-        o: common_vendor.o(($event) => common_vendor.isRef(vModelValue) ? vModelValue.value = $event : vModelValue = $event),
-        p: common_vendor.p({
+        l: common_vendor.t(common_vendor.unref(text_1)),
+        m: common_vendor.unref(aq) === 1,
+        n: common_vendor.o(common_vendor.unref(upvModeValue)),
+        o: common_vendor.p({
           max: 99999,
-          min: 1,
-          modelValue: common_vendor.unref(vModelValue)
+          min: 1
         }),
-        q: common_vendor.o((...args) => common_vendor.unref(Switch2) && common_vendor.unref(Switch2)(...args)),
-        r: common_vendor.unref(aq) === 0,
-        s: common_vendor.p({
+        p: common_vendor.o((...args) => common_vendor.unref(Switch2) && common_vendor.unref(Switch2)(...args)),
+        q: common_vendor.unref(aq) === 0,
+        r: common_vendor.p({
           type: "arrowright",
           size: "16",
           color: "#666"
         }),
-        t: common_vendor.unref(show) === 0 ? true : false,
-        v: common_vendor.o((...args) => common_vendor.unref(CarryOut) && common_vendor.unref(CarryOut)(...args))
+        s: common_vendor.unref(show) === 0 ? true : false,
+        t: common_vendor.o((...args) => common_vendor.unref(CarryOut) && common_vendor.unref(CarryOut)(...args))
       };
     };
   }

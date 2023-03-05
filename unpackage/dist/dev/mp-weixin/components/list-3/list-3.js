@@ -14,25 +14,51 @@ const _sfc_main = {
   __name: "list-3",
   setup(__props) {
     let vModelValue = common_vendor.ref(1);
-    let vModelValu = common_vendor.ref(90);
+    let vModelValu = common_vendor.ref(1);
     let text_1 = common_vendor.ref("数量");
     let text_2 = common_vendor.ref("等级");
     let text = common_vendor.ref("怪物");
-    let value = common_vendor.ref("123");
-    let valu = common_vendor.ref("");
+    let value = common_vendor.ref("丘丘人");
+    let valu = common_vendor.ref("21010101");
     let a = "spawn";
     let UID = "@" + getApp().globalData.UID;
-    let date = a + " " + valu.value + " x" + vModelValue.value.toString() + " lv" + vModelValu.value.toString() + " " + UID;
+    let upvm = (value2) => {
+      vModelValue.value = value2;
+    };
+    let upvmi = (value2) => {
+      vModelValu.value = value2;
+    };
     let sw = () => {
       common_vendor.index.navigateTo({
         url: "/pages/index/index-tab?id=10"
       });
     };
     let CarryOut = () => {
-      common_vendor.index.showToast({
+      let date = a + " " + valu.value + " x" + vModelValue.value.toString() + " lv" + vModelValu.value + " " + UID;
+      common_vendor.index.showLoading({
         title: "请求中",
-        icon: "none"
+        mask: true
       });
+      if (getApp().globalData.copy && getApp().globalData.zhucheMa == "-1") {
+        common_vendor.index.setClipboardData({
+          data: "/" + date,
+          success: function() {
+            common_vendor.index.hideLoading();
+            common_vendor.index.showToast({
+              title: "复制成功",
+              icon: "success"
+            });
+          },
+          fail: function() {
+            common_vendor.index.hideLoading();
+            common_vendor.index.showToast({
+              title: "复制失败",
+              icon: "error"
+            });
+          }
+        });
+        return;
+      }
       common_vendor.index.request({
         url: "https://" + getApp().globalData.ServiceIp + "/opencommand/api",
         method: "POST",
@@ -43,15 +69,23 @@ const _sfc_main = {
         }
       }).then((res) => {
         if (res.data.data) {
+          common_vendor.index.hideLoading();
           common_vendor.index.showToast({
             title: res.data.data,
             icon: "none"
           });
         }
+      }).catch((e) => {
+        common_vendor.index.hideLoading();
+        common_vendor.index.showToast({
+          title: "请求失败",
+          icon: "none"
+        });
       });
     };
     common_vendor.index.$on("update", function(data) {
       valu.value = data.value;
+      console.log(valu.value);
       value.value = data.text;
     });
     return (_ctx, _cache) => {
@@ -71,11 +105,10 @@ const _sfc_main = {
         }),
         e: common_vendor.o((...args) => common_vendor.unref(sw) && common_vendor.unref(sw)(...args)),
         f: common_vendor.t(common_vendor.unref(text_1)),
-        g: common_vendor.o(($event) => common_vendor.isRef(vModelValue) ? vModelValue.value = $event : vModelValue = $event),
+        g: common_vendor.o(common_vendor.unref(upvm)),
         h: common_vendor.p({
           max: 99999,
-          min: 1,
-          modelValue: common_vendor.unref(vModelValue)
+          min: 1
         }),
         i: common_vendor.p({
           type: "arrowright",
@@ -83,11 +116,10 @@ const _sfc_main = {
           color: "#666"
         }),
         j: common_vendor.t(common_vendor.unref(text_2)),
-        k: common_vendor.o(($event) => common_vendor.isRef(vModelValu) ? vModelValu.value = $event : vModelValu = $event),
+        k: common_vendor.o(common_vendor.unref(upvmi)),
         l: common_vendor.p({
           max: 99999,
-          min: 1,
-          modelValue: common_vendor.unref(vModelValu)
+          min: 1
         }),
         m: common_vendor.p({
           type: "arrowright",

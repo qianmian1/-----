@@ -4,58 +4,115 @@
       "path": "pages/index/index",
       "style": {
         // "navigationStyle": "custom",
-        "navigationBarTitleText": "uni-app",
+        "enablePullDownRefresh": false,
+        "navigationBarTitleText": "首页",
+        "disableScroll": true,
         "app-plus": {
+          "popGesture": "close",
+          "scrollIndicator": "none",
           "bounce": "none"
         }
       }
     }, {
       "path": "pages/user/user",
       "style": {
-        "navigationBarTitleText": "",
-        "enablePullDownRefresh": false
+        "navigationBarTitleText": "用户中心",
+        "enablePullDownRefresh": false,
+        "disableScroll": true,
+        "app-plus": {
+          "popGesture": "close",
+          "scrollIndicator": "none",
+          "bounce": "none"
+        }
       }
 
     }, {
       "path": "pages/login/login",
       "style": {
-        "navigationBarTitleText": "",
-        "enablePullDownRefresh": false
+        "navigationBarTitleText": "登录",
+        "enablePullDownRefresh": false,
+        "disableScroll": true,
+        "app-plus": {
+          "popGesture": "close",
+          "scrollIndicator": "none",
+          "bounce": "none"
+        }
       }
 
     }, {
       "path": "pages/login/zhuce/zhuce",
       "style": {
-        "navigationBarTitleText": "",
-        "enablePullDownRefresh": false
+        "navigationBarTitleText": "注册",
+        "enablePullDownRefresh": false,
+        "disableScroll": true,
+        "app-plus": {
+          "popGesture": "close",
+          "scrollIndicator": "none",
+          "bounce": "none"
+        }
       }
 
     }, {
       "path": "pages/login/yanzhenma",
       "style": {
         "navigationBarTitleText": "",
-        "enablePullDownRefresh": false
+        "enablePullDownRefresh": false,
+        "disableScroll": true,
+        "app-plus": {
+          "popGesture": "close",
+          "scrollIndicator": "none",
+          "bounce": "none"
+        }
       }
 
     }, {
       "path": "pages/user/guanyuwo",
       "style": {
         "navigationBarTitleText": "",
-        "enablePullDownRefresh": false
+        "enablePullDownRefresh": false,
+        "disableScroll": true,
+        "app-plus": {
+          "popGesture": "close",
+          "scrollIndicator": "none",
+          "bounce": "none"
+        }
       }
 
     }, {
       "path": "pages/index/index-tab",
       "style": {
         "navigationBarTitleText": "",
-        "enablePullDownRefresh": false
+        "enablePullDownRefresh": false,
+        "app-plus": {
+          "popGesture": "close",
+          "scrollIndicator": "none",
+          "bounce": "none"
+        }
       }
 
     }, {
       "path": "pages/index/index-swich",
       "style": {
         "navigationBarTitleText": "",
-        "enablePullDownRefresh": false
+        "enablePullDownRefresh": false,
+        "app-plus": {
+          "popGesture": "close",
+          "scrollIndicator": "none",
+          "bounce": "none"
+        }
+      }
+
+    }, {
+      "path": "pages/user/token",
+      "style": {
+        "navigationBarTitleText": "",
+        "enablePullDownRefresh": false,
+
+        "app-plus": {
+          "popGesture": "close",
+          "scrollIndicator": "none",
+          "bounce": "none"
+        }
       }
 
     }

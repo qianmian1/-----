@@ -7,8 +7,8 @@
   "id": "__UNI__FC4080F",
   "name": "指令执行器",
   "version": {
-    "name": "1.0.0",
-    "code": "100"
+    "name": "1.0.6",
+    "code": 101
   },
   "description": "",
   "developer": {
@@ -42,7 +42,8 @@
     "compilerVersion": 3,
     "distribute": {
       "splashscreen": {
-        "useOriginalMsgbox": true
+        "useOriginalMsgbox": true,
+        "androidStyle": "common"
       },
       "google": {
         "permissions": [
@@ -61,6 +62,11 @@
           "<uses-permission android:name=\"android.permission.FLASHLIGHT\"/>",
           "<uses-feature android:name=\"android.hardware.camera\"/>",
           "<uses-permission android:name=\"android.permission.WRITE_SETTINGS\"/>"
+        ],
+        "minSdkVersion": 21,
+        "abiFilters": [
+          "armeabi-v7a",
+          "arm64-v8a"
         ]
       },
       "apple": {
@@ -93,7 +99,7 @@
     "uni-app": {
       "control": "uni-v3",
       "vueVersion": "3",
-      "compilerVersion": "3.6.18",
+      "compilerVersion": "3.7.3",
       "nvueCompiler": "uni-app",
       "renderer": "auto",
       "nvue": {

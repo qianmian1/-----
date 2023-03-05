@@ -9,7 +9,7 @@
         <text>重置</text>
       </view>
     </view>
-    <scroll-view scroll-y="true" class="scro" lower-threshold="100px" @scrolltolower="h()">
+    <scroll-view scroll-y="true" class="scro" lower-threshold="100px">
       <view v-for="item in data.list" :key="item.id" @tap="fh(item)">
         <view class=".box">
           <view>{{item.text}}</view>
@@ -22,12 +22,10 @@
   import {
     ref,
     reactive,
-    watch,
   } from "vue";
   import {
     onLoad
   } from '@dcloudio/uni-app';
-  let Search = ref('搜索')
   let data = reactive({
     list: []
   })
@@ -39,33 +37,32 @@
       mask: true
     })
     uniCloud.callFunction({
-      name: 'list-tab',
+      name: 'user',
       data: {
+        api: 'list-tab',
         tab: 'commandlist'
       }
     }).then(res => {
       switch (id.value) {
         case '0':
-          data.list = res.result.wupinList
+          data.list = res.result.data.wupinList
 
           break
         case '2':
-          data.list = res.result.commandList
+          data.list = res.result.data.commandList
 
           break
         case '8':
-          data.list = res.result.mingxingList
-
+          data.list = res.result.data.mingxingList
           break
         case '1':
-          data.list = res.result.shengyiwu
-
+          data.list = res.result.data.shengyiwu
           break
         case '3':
-          data.list = res.result.wuqi
+          data.list = res.result.data.wuqi
           break
         case '10':
-          data.list = res.result.Monster
+          data.list = res.result.data.Monster
           break
       }
     })
@@ -83,9 +80,7 @@
       icon: 'success'
     })
   }
-  let h = (item) => {
-    console.log('被触发');
-  }
+
 
   function confirm() {
     let c = []
@@ -95,7 +90,6 @@
       if (text.test(item.text)) {
         item.id = i
         c.push(item)
-        // console.log(c);
         data.list = c
 
       } else {
@@ -110,12 +104,6 @@
           })
         }
       }
-    })
-  }
-
-  function back() {
-    uni.switchTab({
-      url: '/pages/index/index'
     })
   }
 

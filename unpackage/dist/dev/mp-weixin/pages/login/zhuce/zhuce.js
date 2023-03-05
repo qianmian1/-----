@@ -21,7 +21,7 @@ const _sfc_main = {
     let text_2 = common_vendor.ref("游戏UID");
     let UID = common_vendor.ref("");
     let api = common_vendor.ref("Service");
-    let code = common_vendor.ref(getApp().globalData.code);
+    common_vendor.ref(getApp().globalData.code);
     let data = common_vendor.reactive({
       list: [
         {
@@ -32,13 +32,15 @@ const _sfc_main = {
         }
       ],
       styles: {
-        color: "#666",
+        color: "#ffffff",
         background: "rgba(255, 255, 255, .1)",
-        border: " 1px solid #ffffff"
+        borderColor: "#ffffff"
       }
     });
-    common_vendor.watch(code, () => {
-      login();
+    common_vendor.onLoad(() => {
+      if (getApp().globalData.code) {
+        login();
+      }
     });
     let chack = (index) => {
       color.value = index;
@@ -52,26 +54,129 @@ const _sfc_main = {
     };
     let date = {};
     let login = () => {
-      if (api.value === "Service") {
-        date.UID = UID.value;
-        date.ip = ip.value;
-        date.token = token.value;
-        date.api = api.value;
-      } else {
-        date.api = api.value;
-        date.zhudema = token.value;
-        date.UID = UID.value;
+      if (!getApp().globalData.code) {
+        let you = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+/g;
+        let pass = /^(?![a-zA-Z]+$)(?!\d+$)(?![^\da-zA-Z\s]+$).{1,9}$/g;
+        let ipOrDomain = /^((?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?))|(?:(?:(?:(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*(?:[A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9]){2,}))$/g;
+        if (api.value === "Service") {
+          if (username.value !== "" && password.value !== "" && ip.value !== "" && token.value !== "" && UID.value !== "") {
+            if (!you.test(username.value)) {
+              common_vendor.index.showToast({
+                title: "用户名格式不正确",
+                icon: "none"
+              });
+              return;
+            } else if (!pass.test(password.value)) {
+              common_vendor.index.showToast({
+                title: "密码格式不正确,密码为由字母、数字、特殊字符，任意2种组成，1-9位",
+                icon: "none"
+              });
+              return;
+            } else if (!ipOrDomain.test(ip.value)) {
+              common_vendor.index.showToast({
+                title: "IP地址或域名格式不正确",
+                icon: "none"
+              });
+              return;
+            } else {
+              common_vendor.index.request({
+                url: "https://" + ip.value + "/opencommand/api",
+                method: "POST",
+                data: {
+                  action: "ping"
+                }
+              }).catch((e) => {
+                common_vendor.index.showToast({
+                  title: "此IP或域名可能不支持gc-opencommand-plugin插件",
+                  icon: "none",
+                  duration: 2e3
+                });
+                return;
+              });
+            }
+          } else {
+            common_vendor.index.showToast({
+              title: "不能为空",
+              icon: "error"
+            });
+            return;
+          }
+          date.UID = UID.value;
+          date.ip = ip.value;
+          date.token = token.value;
+          date.api = api.value;
+        } else {
+          if (username.value !== "" && password.value !== "" && UID.value !== "") {
+            if (!you.test(username.value)) {
+              common_vendor.index.showToast({
+                title: "用户名格式不正确",
+                icon: "error"
+              });
+              return;
+            } else if (!pass.test(password.value)) {
+              common_vendor.index.showToast({
+                title: "密码格式不正确,密码为字母、数字、特殊字符，任意2种组成，1-9位",
+                icon: "none"
+              });
+              return;
+            } else if (!/^$|^\d{5,}$/.test(token.value)) {
+              common_vendor.index.showToast({
+                title: "邀请码不正确，需要5位的数字",
+                icon: "none"
+              });
+              return;
+            }
+          } else {
+            common_vendor.index.showToast({
+              title: "不能为空",
+              icon: "error"
+            });
+            return;
+          }
+          date.api = api.value;
+          date.zhucema = token.value;
+          date.UID = UID.value;
+        }
       }
-      {
+      if (getApp().globalData.code) {
         common_vendor.Es.callFunction({
           name: "user",
           data: {
-            username: username.value,
-            password: password.value,
+            username: getApp().globalData.username,
+            password: getApp().globalData.password,
             api: "enroll",
-            date
+            date: getApp().globalData.date
           }
-        }).then((result) => console.log(result));
+        }).then((res) => {
+          getApp().globalData.UID = res.result.user.UID;
+          getApp().globalData.Plugins = res.result.user.token;
+          getApp().globalData.ServiceIp = res.result.user.ip;
+          getApp().globalData.zhucheMa = res.result.user.zhucema;
+          getApp().globalData.asstoken = res.result.asstoken;
+          getApp().globalData.assxtoken = res.result.assxtoken;
+          getApp().globalData.name = res.result.user.name;
+          getApp().globalData.img = res.result.user.img;
+          common_vendor.index.showToast({
+            title: "注册成功",
+            icon: "success"
+          });
+          setTimeout(() => {
+            common_vendor.index.redirectTo({
+              url: "/pages/index/index"
+            });
+          }, 1600);
+        });
+      } else {
+        common_vendor.index.showToast({
+          title: "请验证",
+          icon: "none"
+        });
+        getApp().globalData.username = username.value;
+        getApp().globalData.password = password.value;
+        getApp().globalData.date = date;
+        common_vendor.index.reLaunch({
+          url: "/pages/login/yanzhenma"
+        });
       }
     };
     return (_ctx, _cache) => {
@@ -90,7 +195,7 @@ const _sfc_main = {
         e: common_vendor.p({
           type: "password",
           maxlength: "16",
-          placeholder: "请输入密码",
+          placeholder: "请输入密码,密码为字母、数字、特殊字符，任意2种组成，1-9位",
           styles: common_vendor.unref(data).styles,
           modelValue: common_vendor.unref(password)
         }),
