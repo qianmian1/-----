@@ -52,7 +52,7 @@ module.exports = async (event, db, token1) => {
           }
         } else {
           asstoken = await token1.Generate_Token(username, 3)
-          assxtoken == await token1.Generate_Token(username, 120)
+          assxtoken = await token1.Generate_Token(username, 120)
           delete user.data[0].hash
           return {
             user: user.data[0],
