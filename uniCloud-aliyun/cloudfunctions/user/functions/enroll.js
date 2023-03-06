@@ -39,11 +39,12 @@ module.exports = async (event, db, bcrypt, token1) => {
     }
     if (zhucema == '') {
       zhucema = '-1'
+      data.zhucema = '-1'
     }
 
     await db.collection('PlayerUser').add(data)
     delete data.hash
-    if (zhucema !== -1) {
+    if (zhucema !== '-1') {
       let ser = await db.collection('ServiceUser').where({
         zhucema: zhucema
       }).get()
