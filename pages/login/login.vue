@@ -75,10 +75,10 @@
           api: api.value
         }
       }).then(res => {
-        if (!res.result.succes) {
+        if (res.result.errorMessage) {
           uni.showToast({
-            title: '请求失败，请联系作者',
-            icon: 'none'
+            title: res.result.errorMessage,
+            icon: 'error'
           })
           return
         }

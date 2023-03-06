@@ -5,18 +5,11 @@ const db = uniCloud.database({
 })
 // 生成token
 async function Generate_Token(username, time) {
-  console.log('开始设置token');
-  try {
-    let a = 'Bearer ' + jwt.sign({
-      username
-    }, miyao, {
-      expiresIn: time.toString() + 'h'
-    })
-    console.log('开始设置token完成')
-    return a
-  } catch (e) {
-    console.log(e);
-  }
+  return ' Bearer ' + jwt.sign({
+    username
+  }, miyao, {
+    expiresIn: time.toString() + 'h'
+  })
 };
 // 解密token
 async function Declassification_Token(token) {

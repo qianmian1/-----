@@ -56,10 +56,10 @@ const _sfc_main = {
             api: api.value
           }
         }).then((res) => {
-          if (!res.result.succes) {
+          if (res.result.errorMessage) {
             common_vendor.index.showToast({
-              title: "请求失败，请联系作者",
-              icon: "none"
+              title: res.result.errorMessage,
+              icon: "error"
             });
             return;
           }
