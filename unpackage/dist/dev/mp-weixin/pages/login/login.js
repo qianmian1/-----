@@ -1,5 +1,6 @@
 "use strict";
 const common_vendor = require("../../common/vendor.js");
+const common_Getapp = require("../../common/Getapp.js");
 if (!Array) {
   const _easycom_uni_icons2 = common_vendor.resolveComponent("uni-icons");
   _easycom_uni_icons2();
@@ -63,14 +64,9 @@ const _sfc_main = {
             });
             return;
           }
-          getApp().globalData.UID = res.result.user.UID;
-          getApp().globalData.Plugins = res.result.user.token;
-          getApp().globalData.ServiceIp = res.result.user.ip;
-          getApp().globalData.zhucheMa = res.result.user.zhucema;
-          getApp().globalData.asstoken = res.result.asstoken;
-          getApp().globalData.assxtoken = res.result.assxtoken;
-          getApp().globalData.name = res.result.user.name;
-          getApp().globalData.img = res.result.user.img;
+          common_Getapp.Getapp.setdata(res);
+          common_vendor.index.setStorageSync("asstoken", res.result.asstoken);
+          common_vendor.index.setStorageSync("assxtoken", res.result.assxtoken);
           common_vendor.index.hideLoading();
           common_vendor.index.showToast({
             title: "登录成功",
@@ -82,7 +78,6 @@ const _sfc_main = {
             });
           }, 1600);
         }).catch((e) => {
-          console.log(e);
           common_vendor.index.hideLoading();
           if (e.message == "密码错误") {
             common_vendor.index.showToast({

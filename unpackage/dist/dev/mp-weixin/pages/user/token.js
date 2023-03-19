@@ -1,12 +1,13 @@
 "use strict";
 const common_vendor = require("../../common/vendor.js");
+const common_Getapp = require("../../common/Getapp.js");
 const _sfc_main = {
   __name: "token",
   setup(__props) {
     let ip = common_vendor.ref("");
-    let uid = common_vendor.ref("");
+    let uid = common_vendor.ref(common_Getapp.Getapp.globa.UID.replace(/@/g, ""));
     let sw = common_vendor.ref(false);
-    let token = "";
+    let token = null;
     function gettoken() {
       common_vendor.index.showLoading({
         title: "请求中",
@@ -29,32 +30,44 @@ const _sfc_main = {
             });
             return;
           }
+          console.log(res);
           common_vendor.index.hideLoading();
+          console.log(res.data.data);
           token = res.data.data;
           sw.value = true;
         });
       } else {
+        setTimeout(() => {
+          common_vendor.index.hideLoading();
+          common_vendor.index.showToast({
+            icon: "error",
+            title: "请求失败请重试"
+          });
+        }, 3e3);
         common_vendor.index.request({
-          url: "https://" + ip.value + "opencommand/api",
+          url: "https://" + ip.value + "/opencommand/api",
           method: "POST",
           data: {
             action: "verify",
-            token,
-            data: +uid.value
+            data: +uid.value,
+            token
           }
         }).then((res) => {
           if (res.data.message == "Success") {
             common_vendor.index.hideLoading();
-            getApp().globalData.ServiceIp = ip.value;
-            getApp().globalData.Plugins = res.data.toekn;
-            getApp().globalData.copy = false;
+            common_Getapp.Getapp.globa.ServiceIp = ip.value;
+            common_Getapp.Getapp.globa.Plugins = token;
+            common_Getapp.Getapp.globa.zhucheMa = "1";
+            common_Getapp.Getapp.globa.copy = false;
             common_vendor.index.showToast({
               title: "验证成功",
               icon: "success"
             });
-            common_vendor.index.redirectTo({
-              url: "/pages/user/user"
-            });
+            setTimeout(() => {
+              common_vendor.index.redirectTo({
+                url: "/pages/user/user"
+              });
+            }, 1600);
           } else {
             common_vendor.index.hideLoading();
             common_vendor.index.showToast({
@@ -69,10 +82,11 @@ const _sfc_main = {
       return common_vendor.e({
         a: common_vendor.unref(ip),
         b: common_vendor.o(($event) => common_vendor.isRef(ip) ? ip.value = $event.detail.value : ip = $event.detail.value),
-        c: common_vendor.unref(uid),
-        d: common_vendor.o(($event) => common_vendor.isRef(uid) ? uid.value = $event.detail.value : uid = $event.detail.value),
-        e: common_vendor.unref(sw)
-      }, common_vendor.unref(sw) ? {} : {}, {
+        c: common_vendor.unref(sw)
+      }, common_vendor.unref(sw) ? {
+        d: common_vendor.unref(uid),
+        e: common_vendor.o(($event) => common_vendor.isRef(uid) ? uid.value = $event.detail.value : uid = $event.detail.value)
+      } : {}, {
         f: common_vendor.o(gettoken)
       });
     };

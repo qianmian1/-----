@@ -4,5 +4,9 @@
     "jsencrypt": "^3.3.1",
     "token1": "file:../common/token1"
   },
-  "extensions": {}
+  "extensions": {},
+  "cloudfunction-config": {
+    "path": "",
+    "runtime": "Nodejs12"
+  }
 }

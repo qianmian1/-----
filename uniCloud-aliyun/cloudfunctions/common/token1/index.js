@@ -5,7 +5,7 @@ const db = uniCloud.database({
 })
 // 生成token
 async function Generate_Token(username, time) {
-  return ' Bearer ' + jwt.sign({
+  return 'Bearer ' + jwt.sign({
     username
   }, miyao, {
     expiresIn: time.toString() + 'h'
@@ -13,8 +13,8 @@ async function Generate_Token(username, time) {
 };
 // 解密token
 async function Declassification_Token(token) {
-  let auth = jwt.verify(token.split(" ")[1], miyao)
-  let userid = auth.data;
+  let auth = jwt.verify(token.replace(/Bearer /, ""), miyao)
+  let userid = auth.username;
   return userid
 }
 // 随机数

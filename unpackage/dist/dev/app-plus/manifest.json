@@ -5,7 +5,7 @@
     "iPad"
   ],
   "id": "__UNI__FC4080F",
-  "name": "指令执行器",
+  "name": "工具",
   "version": {
     "name": "1.0.6",
     "code": 101
@@ -86,7 +86,7 @@
       "style": "dark",
       "background": "#F8F8F8"
     },
-    "arguments": "{\"name\":\"\",\"path\":\"pages/index/index-tab\",\"query\":\"\"}",
+    "arguments": "{\"name\":\"\",\"path\":\"pages/index/index\",\"query\":\"\"}",
     "uniStatistics": {
       "enable": false
     },
@@ -137,7 +137,11 @@
         }
       ],
       "selectedIndex": 0,
-      "shown": true
+      "shown": true,
+      "child": [
+        "lauchwebview"
+      ],
+      "selected": 0
     }
   },
   "launch_path": "__uniappview.html"

@@ -1,5 +1,6 @@
 "use strict";
 const common_vendor = require("../../common/vendor.js");
+const common_Getapp = require("../../common/Getapp.js");
 const common_assets = require("../../common/assets.js");
 const _sfc_main = {
   data() {
@@ -26,7 +27,7 @@ const _sfc_main = {
     };
   },
   onLoad(option) {
-    this.getCode(getApp().globalData.username);
+    this.getCode(common_Getapp.Getapp.globa.username);
   },
   methods: {
     testSend(username) {
@@ -46,7 +47,7 @@ const _sfc_main = {
           common_vendor.index.showToast({
             duration: 1500,
             icon: "none",
-            title: "发送成功",
+            title: "验证码已发送至您的邮箱",
             mask: true
           });
         } else {
@@ -84,7 +85,7 @@ const _sfc_main = {
         data: {
           code: this.code,
           method: "validateCode",
-          email: getApp().globalData.username,
+          email: common_Getapp.Getapp.globa.username,
           codeId: this.codeId,
           effectiveTime: 300
         }
@@ -98,9 +99,17 @@ const _sfc_main = {
               mask: true,
               icon: "none"
             });
-            getApp().globalData.code = true;
+            common_Getapp.Getapp.globa.code = true;
             common_vendor.index.redirectTo({
               url: "/pages/login/zhuce/zhuce"
+            });
+            break;
+          case -2:
+            common_vendor.index.showToast({
+              duration: 1500,
+              title: "当前邮箱未发送验证码",
+              mask: true,
+              icon: "none"
             });
             break;
           case 0:

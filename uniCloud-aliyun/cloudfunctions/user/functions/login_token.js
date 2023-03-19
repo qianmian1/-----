@@ -1,93 +1,66 @@
 module.exports = async (event, db, token1) => {
   let {
     asstoken,
-    assxtoken,
-    date
   } = event
   let username = null
   let user = null
-  if (date.api) {
-    user = await tu(asstoken)
-    if (user == -1 || user == -2) {
-      return user
-    }
-    return {
-      user: user.user,
-      asstoken: user.asstoken
-    }
-  } else {
-    user = await tu(assxtoken)
-    if (user == -1 || user == -2) {
-      return user
-    }
-    return {
-      user: user.user,
-      asstoken: user.asstoken,
-      assxtoken: user.assxtoken
-    }
+  let u = null
+  if (asstoken) {
+    let f = await getUserInfoByToken(asstoken)
+    return f
   }
-  async function ip(user) {
-    if (user.data[0].zhucema !== '-1') {
-      let ser = await db.collection('ServiceUser').where({
-        zhucema: user.data[0].zhucema
-      }).get()
-      user.data[0].ip = ser.data[0].ip
-      user.data[0].token = ser.data[0].token
-
-    }
-    delete user.data[0].hash
-    return user.data[0]
-  }
-  async function tu(token) {
+  async function getUserInfoByToken(asstoken) {
     try {
-      username = await token1.Declassification_Token(token)
-      user = await await db.collection('ServiceUser').doc(username).get()
-      if (user.data[0]) {
-        if (date.api) {
-          asstoken = await token1.Generate_Token(username, 3)
-          delete user.data[0].hash
-          return {
-            user: user.data[0],
-            asstoken
-          }
-        } else {
-          asstoken = await token1.Generate_Token(username, 3)
-          assxtoken = await token1.Generate_Token(username, 120)
-          delete user.data[0].hash
-          return {
-            user: user.data[0],
-            asstoken,
-            assxtoken
-          }
+      username = await token1.Declassification_Token(asstoken)
+      user = await db.collection('ServiceUser').doc(username).get()
+      let auth = user.data[0]
+      if (auth) {
+        u = await generateNewTokens(username)
+
+        delete auth.hash
+        return {
+          user: auth,
+          ...u
+          //asstoken: u.asstoken,
+          //assxtoken: u.assxtoken
         }
       } else {
-        user = await await db.collection('PlayerUser').doc(username).get()
-        if (user.data[0]) {
-          if (date.api) {
-            asstoken = await token1.Generate_Token(username, 3)
-            user = await ip(user)
-            return {
-              user: user,
-              asstoken
-            }
-          } else {
-            asstoken = await token1.Generate_Token(username, 3)
-            assxtoken == await token1.Generate_Token(username, 120)
-            user = await ip(user)
-            return {
-              user: user,
-              asstoken,
-              assxtoken
-            }
-          }
-
+        user = await db.collection('PlayerUser').doc(username).get()
+        if (user.data[0].zhucema !== '-1') {
+          let a = await db.collection('ServiceUser').where({
+            zhucema: user.data[0].zhucema
+          }).get()
+          let b = a.data[0]
+          user.data[0].ip = b.ip
+          user.data[0].token = b.token
+        }
+        u = await generateNewTokens(username)
+        delete user.data[0].hash
+        return {
+          user: user.data[0],
+          ...u
+          //asstoken: u.asstoken,
+          //assxtoken: u.assxtoken
         }
       }
     } catch (e) {
-      if (date.err === -1) {
-        return -3
+      if (e.message === 'jwt expired') {
+        return -1
+      } else {
+        return {
+          err: e.message
+        }
       }
-      return -1
+    }
+  }
+
+  async function generateNewTokens(username) {
+    if (username === '') {
+      throw Error('参数错误')
+    }
+    return {
+      asstoken: await token1.Generate_Token(username, 48),
+      assxtoken: await token1.Generate_Token(username, 1200)
     }
   }
 }

@@ -694,8 +694,9 @@ body {
   justify-content: center;
   align-items: center;
   height: 100%;
-  background-image: url("../../static/images/01126-0.jpg");
+  background-image: url("https://i.328888.xyz/2023/03/05/G1ExE.jpeg");
   block-size: 100% 80%;
+  background-size: 100%;
   background-position: 50% 50%;
   background-repeat: on-repeat;
 }

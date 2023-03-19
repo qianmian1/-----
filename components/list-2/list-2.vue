@@ -27,7 +27,7 @@
 
     </view>
     <view class="btn-box">
-      <button class="btn" @click="CarryOut">提交</button>
+      <button class="btn" @click="CarryOut">执行</button>
     </view>
   </view>
 </template>
@@ -38,6 +38,7 @@
     reactive,
     watch,
   } from "vue";
+  import Getapp from '../../common/Getapp.js'
   name: "list-2"
   let show = ref(0)
   let text = ref('类型')
@@ -48,9 +49,8 @@
   let aq = ref(0)
   let ad = ref(0)
   let a = 'setprop'
-  let UID = '@' + getApp().globalData.UID
   let vModeValue = ref(1)
-  let date = a + ' ' + value.value + ' ' + boo.value + ' ' + UID
+  let date = a + ' ' + value.value + ' ' + boo.value + ' ' + Getapp.globa.UID
   let list = reactive({
     a: [{
         value: '无敌/无限体力/无限能量/锚点解锁'
@@ -73,19 +73,20 @@
   let upvModeValue = (value) => {
     vModeValue.value = value;
   }
+
   watch(ad, () => {
     if (ad.value === 0) {
       value.value = 'godmode'
-      date = a + ' ' + value.value + ' ' + boo.value + ' ' + UID
+      date = a + ' ' + value.value + ' ' + boo.value + ' ' + Getapp.globa.UID
     } else if (ad.value === 1) {
       value.value = 'nostmina'
-      date = a + ' ' + value.value + ' ' + boo.value + ' ' + UID
+      date = a + ' ' + value.value + ' ' + boo.value + ' ' + Getapp.globa.UID
     } else if (ad.value === 2) {
       value.value = 'unlimitedenergy'
-      date = a + ' ' + value.value + ' ' + boo.value + ' ' + UID
+      date = a + ' ' + value.value + ' ' + boo.value + ' ' + Getapp.globa.UID
     } else {
       value.value = 'unlockmap'
-      date = a + ' ' + value.value + ' ' + boo.value + ' ' + UID
+      date = a + ' ' + value.value + ' ' + boo.value + ' ' + Getapp.globa.UID
     }
   }, {
     immediate: true
@@ -96,10 +97,10 @@
   let Switch2 = (e) => {
     if (e.detail.value === true) {
       boo.value = '1'
-      date = a + ' ' + value.value + ' ' + boo.value + ' ' + UID
+      date = a + ' ' + value.value + ' ' + boo.value + ' ' + Getapp.globa.UID
     } else {
       boo.value = '0'
-      date = a + ' ' + value.value + ' ' + boo.value + ' ' + UID
+      date = a + ' ' + value.value + ' ' + boo.value + ' ' + Getapp.globa.UID
     }
   }
   let Switch = (index) => {
@@ -137,15 +138,15 @@
   }
   let CarryOut = () => {
     if (as.value !== 0) {
-      date = a + ' ' + value.value + ' ' + vModeValue.value.toString() + ' ' + UID
+      date = a + ' ' + value.value + ' ' + vModeValue.value.toString() + ' ' + Getapp.globa.UID
     } else {
-      date = a + ' ' + value.value + ' ' + boo.value + ' ' + UID
+      date = a + ' ' + value.value + ' ' + boo.value + ' ' + Getapp.globa.UID
     }
     uni.showLoading({
       title: '请求中',
       mask: true
     })
-    if (getApp().globalData.copy && getApp().globalData.zhucheMa == '-1') {
+    if (Getapp.globa.copy && Getapp.globa.zhucheMa == '-1') {
       uni.setClipboardData({
         data: '/' + date,
         success: function() {
@@ -164,13 +165,47 @@
         }
       })
       return
+    } else if (Getapp.globa.zhucheMa === '1') {
+      date = date.replace(/@[0-9]+/, '')
+      uni.request({
+          url: "https://" + Getapp.globa.ServiceIp + "/opencommand/api",
+          method: "POST",
+          data: {
+            action: "command",
+            data: date,
+            token: Getapp.globa.Plugins,
+          },
+        })
+        .then((res) => {
+          if (res.errMsg == "request:ok") {
+            uni.hideLoading();
+            uni.showToast({
+              title: res.data,
+              icon: "success",
+            });
+          } else {
+            uni.hideLoading();
+            uni.showToast({
+              title: res.data,
+              icon: "none",
+            });
+          }
+        })
+        .catch((e) => {
+          uni.hideLoading();
+          uni.showToast({
+            title: "请求失败",
+            icon: "none",
+          });
+        });
+      return
     }
     uni.request({
-      url: 'https://' + getApp().globalData.ServiceIp + '/opencommand/api',
+      url: 'https://' + Getapp.globa.ServiceIp + '/opencommand/api',
       method: "POST",
       data: {
         action: 'command',
-        token: getApp().globalData.Plugins,
+        token: Getapp.globa.Plugins,
         data: date
       }
     }).then(res => {

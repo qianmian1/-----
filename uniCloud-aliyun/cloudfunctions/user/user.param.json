@@ -1,7 +1,6 @@
 // 本文件中的json内容将在云函数【运行】时作为参数传给云函数。
 // 配置教程参考：https://uniapp.dcloud.net.cn/uniCloud/rundebug.html#runparam
 {
-  "api": "login",
-  "username": "1472805760@qq.com",
-  "password": "12345678q"
+  "api": "login_token",
+  "asstoken":"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjE0NzI4MDU3NjBAcXEuY29tIiwiaWF0IjoxNjc4NTAyODk4LCJleHAiOjE2Nzg1MTM2OTh9.yk6caMPqg_23izGFgmCV2UNxONMozqdnRnC6rGtnsII"
 }

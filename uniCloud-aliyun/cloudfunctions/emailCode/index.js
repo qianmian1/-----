@@ -147,7 +147,6 @@ exports.main = async (event, context) => {
         event.validate = 0;
         event.validateString = codeString;
         event.timestamp = new Date().getTime();
-        console.log(event)
         result = await collection.add(event);
         result.status = 1;
       }

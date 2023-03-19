@@ -629,3 +629,6 @@ body {
 .my-content .my-comtent_list .my-comtent_list-title .icons {
   margin-right: 5px;
 }
+.my-content .my-comtent_list .hu:active {
+  background-color: rgba(0, 0, 0, 0.3);
+}

@@ -17,6 +17,7 @@
   </view>
 </template>
 <script>
+  import Getapp from "../../common/Getapp.js";
   export default {
     data() {
       return {
@@ -38,7 +39,7 @@
       };
     },
     onLoad(option) {
-      this.getCode(getApp().globalData.username)
+      this.getCode(Getapp.globa.username)
     },
     methods: {
       testSend(username) {
@@ -58,7 +59,7 @@
             uni.showToast({
               duration: 1500,
               icon: 'none',
-              title: '发送成功',
+              title: '验证码已发送至您的邮箱',
               mask: true
             })
           } else {
@@ -96,7 +97,7 @@
           data: {
             code: this.code,
             method: 'validateCode',
-            email: getApp().globalData.username,
+            email: Getapp.globa.username,
             codeId: this.codeId,
             effectiveTime: 300
           }
@@ -110,9 +111,17 @@
                 mask: true,
                 icon: 'none'
               })
-              getApp().globalData.code = true
+              Getapp.globa.code = true
               uni.redirectTo({
                 url: '/pages/login/zhuce/zhuce'
+              })
+              break
+            case -2:
+              uni.showToast({
+                duration: 1500,
+                title: '当前邮箱未发送验证码',
+                mask: true,
+                icon: 'none'
               })
               break
             case 0:

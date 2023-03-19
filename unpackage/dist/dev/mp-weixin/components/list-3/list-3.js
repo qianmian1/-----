@@ -1,5 +1,6 @@
 "use strict";
 const common_vendor = require("../../common/vendor.js");
+const common_Getapp = require("../../common/Getapp.js");
 if (!Array) {
   const _easycom_uni_icons2 = common_vendor.resolveComponent("uni-icons");
   const _easycom_uni_number_box2 = common_vendor.resolveComponent("uni-number-box");
@@ -21,7 +22,6 @@ const _sfc_main = {
     let value = common_vendor.ref("丘丘人");
     let valu = common_vendor.ref("21010101");
     let a = "spawn";
-    let UID = "@" + getApp().globalData.UID;
     let upvm = (value2) => {
       vModelValue.value = value2;
     };
@@ -34,12 +34,12 @@ const _sfc_main = {
       });
     };
     let CarryOut = () => {
-      let date = a + " " + valu.value + " x" + vModelValue.value.toString() + " lv" + vModelValu.value + " " + UID;
+      let date = a + " " + valu.value + " x" + vModelValue.value.toString() + " lv" + vModelValu.value + " " + common_Getapp.Getapp.globa.UID;
       common_vendor.index.showLoading({
         title: "请求中",
         mask: true
       });
-      if (getApp().globalData.copy && getApp().globalData.zhucheMa == "-1") {
+      if (common_Getapp.Getapp.globa.copy && common_Getapp.Getapp.globa.zhucheMa == "-1") {
         common_vendor.index.setClipboardData({
           data: "/" + date,
           success: function() {
@@ -58,13 +58,45 @@ const _sfc_main = {
           }
         });
         return;
+      } else if (common_Getapp.Getapp.globa.zhucheMa === "1") {
+        date = date.replace(/@[0-9]+/, "");
+        common_vendor.index.request({
+          url: "https://" + common_Getapp.Getapp.globa.ServiceIp + "/opencommand/api",
+          method: "POST",
+          data: {
+            action: "command",
+            data: date,
+            token: common_Getapp.Getapp.globa.Plugins
+          }
+        }).then((res) => {
+          if (res.errMsg == "request:ok") {
+            common_vendor.index.hideLoading();
+            common_vendor.index.showToast({
+              title: res.data,
+              icon: "success"
+            });
+          } else {
+            common_vendor.index.hideLoading();
+            common_vendor.index.showToast({
+              title: res.data,
+              icon: "none"
+            });
+          }
+        }).catch((e) => {
+          common_vendor.index.hideLoading();
+          common_vendor.index.showToast({
+            title: "请求失败",
+            icon: "none"
+          });
+        });
+        return;
       }
       common_vendor.index.request({
-        url: "https://" + getApp().globalData.ServiceIp + "/opencommand/api",
+        url: "https://" + common_Getapp.Getapp.globa.ServiceIp + "/opencommand/api",
         method: "POST",
         data: {
           action: "command",
-          token: getApp().globalData.Plugins,
+          token: common_Getapp.Getapp.globa.Plugins,
           data: date
         }
       }).then((res) => {
@@ -85,7 +117,6 @@ const _sfc_main = {
     };
     common_vendor.index.$on("update", function(data) {
       valu.value = data.value;
-      console.log(valu.value);
       value.value = data.text;
     });
     return (_ctx, _cache) => {

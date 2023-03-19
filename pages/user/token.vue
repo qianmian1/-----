@@ -4,11 +4,8 @@
       <view class="input-box">
         <input type="text" class="input" placeholder="IP地址或域名" v-model="ip">
       </view>
-      <view class="input-box">
-        <input type="text" class="input" placeholder="UID" v-model="uid">
-      </view>
       <view class="input-box" v-if='sw'>
-        <input type="text" class="input" placeholder="验证码">
+        <input type="text" class="input" v-model="uid" placeholder="验证码">
       </view>
       <button @click="gettoken" size="mini" style="background-color: #ffffff;">发送</button>
     </view>
@@ -19,10 +16,11 @@
   import {
     ref
   } from "vue";
+  import Getapp from '../../common/Getapp.js'
   let ip = ref('')
-  let uid = ref('')
+  let uid = ref(Getapp.globa.UID.replace(/@/g, ''))
   let sw = ref(false)
-  let token = ''
+  let token = null
 
   function gettoken() {
     uni.showLoading({
@@ -46,32 +44,45 @@
           })
           return
         }
+        console.log(res);
         uni.hideLoading()
+        console.log(res.data.data);
         token = res.data.data
         sw.value = true
       })
     } else {
+      setTimeout(() => {
+        uni.hideLoading()
+        uni.showToast({
+          icon: 'error',
+          title: '请求失败请重试',
+        })
+      }, 3000)
+
       uni.request({
-        url: 'https://' + ip.value + 'opencommand/api',
+        url: 'https://' + ip.value + '/opencommand/api',
         method: 'POST',
         data: {
           action: 'verify',
+          data: +uid.value,
           token: token,
-          data: +uid.value
         }
       }).then(res => {
         if (res.data.message == 'Success') {
           uni.hideLoading()
-          getApp().globalData.ServiceIp = ip.value
-          getApp().globalData.Plugins = res.data.toekn
-          getApp().globalData.copy = false
+          Getapp.globa.ServiceIp = ip.value
+          Getapp.globa.Plugins = token
+          Getapp.globa.zhucheMa = '1'
+          Getapp.globa.copy = false
           uni.showToast({
             title: '验证成功',
             icon: 'success'
           })
-          uni.redirectTo({
-            url: '/pages/user/user',
-          })
+          setTimeout(() => {
+            uni.redirectTo({
+              url: '/pages/user/user',
+            })
+          }, 1600)
         } else {
           uni.hideLoading()
           uni.showToast({

@@ -1,0 +1,1 @@
+<view class="data-v-95c2f405"><view class=".box data-v-95c2f405"> 该命令无参数 </view><view class="btn-box data-v-95c2f405"><button class="btn data-v-95c2f405" bindtap="{{a}}">执行</button></view></view>
