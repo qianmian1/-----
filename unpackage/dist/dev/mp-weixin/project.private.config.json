@@ -4,7 +4,8 @@
     "setting": {
         "compileHotReLoad": true,
         "preloadBackgroundData": false,
-        "autoAudits": false
+        "autoAudits": false,
+        "useIsolateContext": false
     },
     "condition": {
         "miniprogram": {

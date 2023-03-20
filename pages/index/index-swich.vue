@@ -34,7 +34,7 @@
 
   function gh(item) {
     uni.$emit('updata', {
-      value: item.text
+      value: item.value
     })
     uni.switchTab({
       url: '/pages/index/index'

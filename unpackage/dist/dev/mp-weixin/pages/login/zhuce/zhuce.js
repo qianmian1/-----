@@ -1,5 +1,6 @@
 "use strict";
 const common_vendor = require("../../../common/vendor.js");
+const common_Getapp = require("../../../common/Getapp.js");
 if (!Array) {
   const _easycom_uni_easyinput2 = common_vendor.resolveComponent("uni-easyinput");
   _easycom_uni_easyinput2();
@@ -21,7 +22,7 @@ const _sfc_main = {
     let text_2 = common_vendor.ref("游戏UID");
     let UID = common_vendor.ref("");
     let api = common_vendor.ref("Service");
-    common_vendor.ref(getApp().globalData.code);
+    common_vendor.ref(common_Getapp.Getapp.globa.code);
     let data = common_vendor.reactive({
       list: [
         {
@@ -38,7 +39,7 @@ const _sfc_main = {
       }
     });
     common_vendor.onLoad(() => {
-      if (getApp().globalData.code) {
+      if (common_Getapp.Getapp.globa.code) {
         login();
       }
     });
@@ -49,12 +50,12 @@ const _sfc_main = {
         text_1.value = "邀请码,也可不填";
       } else {
         api.value = "Service";
-        text_1.value = "游戏UID";
+        text_1.value = "插件token";
       }
     };
     let date = {};
     let login = () => {
-      if (!getApp().globalData.code) {
+      if (!common_Getapp.Getapp.globa.code) {
         let you = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+/g;
         let pass = /^(?![a-zA-Z]+$)(?!\d+$)(?![^\da-zA-Z\s]+$).{1,9}$/g;
         let ipOrDomain = /^((?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?))|(?:(?:(?:(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*(?:[A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9]){2,}))$/g;
@@ -138,24 +139,19 @@ const _sfc_main = {
           date.UID = UID.value;
         }
       }
-      if (getApp().globalData.code) {
+      if (common_Getapp.Getapp.globa.code) {
         common_vendor.Es.callFunction({
           name: "user",
           data: {
-            username: getApp().globalData.username,
-            password: getApp().globalData.password,
+            username: common_Getapp.Getapp.globa.username,
+            password: common_Getapp.Getapp.globa.password,
             api: "enroll",
-            date: getApp().globalData.date
+            date: common_Getapp.Getapp.globa.date
           }
         }).then((res) => {
-          getApp().globalData.UID = res.result.user.UID;
-          getApp().globalData.Plugins = res.result.user.token;
-          getApp().globalData.ServiceIp = res.result.user.ip;
-          getApp().globalData.zhucheMa = res.result.user.zhucema;
-          getApp().globalData.asstoken = res.result.asstoken;
-          getApp().globalData.assxtoken = res.result.assxtoken;
-          getApp().globalData.name = res.result.user.name;
-          getApp().globalData.img = res.result.user.img;
+          common_Getapp.Getapp.setdata(res);
+          common_vendor.index.setStorageSync("asstoken", res.result.asstoken);
+          common_vendor.index.setStorageSync("assxtoken", res.result.assxtoken);
           common_vendor.index.showToast({
             title: "注册成功",
             icon: "success"
@@ -171,9 +167,9 @@ const _sfc_main = {
           title: "请验证",
           icon: "none"
         });
-        getApp().globalData.username = username.value;
-        getApp().globalData.password = password.value;
-        getApp().globalData.date = date;
+        common_Getapp.Getapp.globa.username = username.value;
+        common_Getapp.Getapp.globa.password = password.value;
+        common_Getapp.Getapp.globa.date = date;
         common_vendor.index.reLaunch({
           url: "/pages/login/yanzhenma"
         });

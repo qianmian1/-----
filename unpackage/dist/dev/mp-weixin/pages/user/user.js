@@ -1,5 +1,6 @@
 "use strict";
 const common_vendor = require("../../common/vendor.js");
+const common_Getapp = require("../../common/Getapp.js");
 if (!Array) {
   const _easycom_uni_icons2 = common_vendor.resolveComponent("uni-icons");
   _easycom_uni_icons2();
@@ -11,13 +12,39 @@ if (!Math) {
 const _sfc_main = {
   __name: "user",
   setup(__props) {
-    let ServiceIp = common_vendor.ref(getApp().globalData.ServiceIp);
-    let zhucheMa = common_vendor.ref(getApp().globalData.zhucheMa);
+    let ServiceIp = common_vendor.ref(common_Getapp.Getapp.globa.ServiceIp);
+    let zhucheMa = common_vendor.ref(common_Getapp.Getapp.globa.zhucheMa);
     let name = common_vendor.ref("");
-    let img = common_vendor.ref(getApp().globalData.img);
+    let img = common_vendor.ref(common_Getapp.Getapp.globa.img);
+    common_vendor.index.request({
+      url: common_Getapp.Getapp.globa.name
+    }).then((res) => {
+      name.value = res.data;
+    });
+    function h() {
+      common_vendor.index.showToast({
+        title: "还没想好怎么做",
+        icon: "none"
+      });
+    }
+    function loginOut() {
+      common_vendor.index.removeStorageSync("asstoken");
+      common_vendor.index.removeStorageSync("assxtoken");
+      common_Getapp.Getapp.globa.code = false;
+      common_vendor.index.showToast({
+        title: "退出成功",
+        icon: "success",
+        duration: 1600
+      });
+      setTimeout(() => {
+        common_vendor.index.reLaunch({
+          url: "/pages/login/login"
+        });
+      }, 1600);
+    }
     function swct(e) {
       if (e.detail.value) {
-        getApp().globalData.copy = true;
+        common_Getapp.Getapp.globa.copy = false;
       } else {
         common_vendor.index.navigateTo({
           url: "/pages/user/token"
@@ -49,7 +76,13 @@ const _sfc_main = {
           size: "16",
           color: "#666"
         }),
-        j: common_vendor.o((...args) => _ctx.h && _ctx.h(...args))
+        j: common_vendor.o(h),
+        k: common_vendor.p({
+          type: "info",
+          size: "16",
+          color: "#666"
+        }),
+        l: common_vendor.o(loginOut)
       });
     };
   }

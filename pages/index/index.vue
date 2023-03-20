@@ -2,43 +2,57 @@
   <view>
     <view class="box">
       <view class="box-text-1">
-        <text class="text">{{value}}</text>
+        <text class="text">{{ value }}</text>
       </view>
       <text class="box-text" @tap="fh">切换命令</text>
     </view>
-    <view v-show="value==='give'">
+    <view v-show="value === 'give'">
       <list></list>
     </view>
-    <view v-show="value==='setprop'">
+    <view v-show="value === 'setprop'">
       <list-2></list-2>
     </view>
-    <view v-show="value==='spawn'">
+    <view v-show="value === 'spawn'">
       <list-3></list-3>
     </view>
-    <view v-show="value==='setConst'">
+    <view v-show="value === 'setConst'">
       <list-4></list-4>
     </view>
-    <view v-show="value==='clear'">
+    <view v-show="value === 'clear'">
       <list-5></list-5>
+    </view>
+    <view v-show="value==='setfetterlevel'">
+      <list-6></list-6>
+    </view>
+    <view v-show="value==='talent'">
+      <list-7></list-7>
+    </view>
+    <view v-show="value==='heal'">
+      <list-8 :str="value"></list-8>
+    </view>
+    <view v-show="value==='resetconst'">
+      <list-8 :str="value"></list-8>
+    </view>
+    <view v-show="value==='tpall'">
+      <list-8 :str="value"></list-8>
     </view>
   </view>
 </template>
 
 <script setup>
   import {
-    ref,
+    ref
   } from "vue";
-  // let flex-start='flex-start'
-  let value = ref('give')
+  let value = ref("give");
 
   function fh() {
     uni.navigateTo({
-      url: '/pages/index/index-swich'
-    })
+      url: "/pages/index/index-swich",
+    });
   }
-  uni.$on('updata', (date) => {
-    value.value = date.value
-  })
+  uni.$on("updata", (date) => {
+    value.value = date.value;
+  });
 </script>
 
 <style lang="scss" scoped>

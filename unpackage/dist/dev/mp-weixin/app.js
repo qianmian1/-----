@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
 const common_vendor = require("./common/vendor.js");
+const common_Getapp = require("./common/Getapp.js");
 if (!Math) {
   "./pages/index/index.js";
   "./pages/user/user.js";
@@ -13,114 +14,89 @@ if (!Math) {
   "./pages/user/token.js";
 }
 const _sfc_main = {
-  globalData: {
-    username: "",
-    password: "",
-    date: null,
-    ServiceIp: "",
-    Plugins: "",
-    zhucheMa: "",
-    code: false,
-    list: [],
-    UID: "",
-    asstoken: "",
-    assxtoken: "",
-    name: "",
-    img: "",
-    copy: true
-  },
   onLaunch: function() {
-    console.log("App Launch");
-    let token = common_vendor.index.getStorageSync("asstoken");
-    if (!token) {
-      common_vendor.index.redirectTo({
-        url: "/pages/login/login"
-      });
-    } else {
+    function req(asstoken = common_vendor.index.getStorageSync("asstoken")) {
       common_vendor.index.showLoading({
-        title: "登陆中",
+        title: "登录中",
         mask: true
       });
+      let set = null;
+      set = setTimeout(() => {
+        common_vendor.index.hideLoading();
+        common_vendor.index.showToast({
+          title: "请求超时",
+          duration: 1600,
+          icon: "none"
+        });
+        common_vendor.index.reLaunch({
+          url: "/pages/login/login"
+        });
+        return;
+      }, 5e3);
       common_vendor.Es.callFunction({
         name: "user",
         data: {
           api: "login_token",
-          asstoken: common_vendor.index.getStorageSync("asstoken"),
-          date: {
-            api: true
-          }
+          asstoken
         }
       }).then((res) => {
-        if (res.result == -1) {
-          common_vendor.Es.callFunction({
-            name: "user",
-            data: {
-              api: "login_token",
-              assxtoken: common_vendor.index.getStorageSync("assxtoken"),
-              date: {
-                api: false
-              }
-            }
-          }).then((res2) => {
-            getApp().globalData.UID = res2.result.user.UID;
-            getApp().globalData.Plugins = res2.result.user.token;
-            getApp().globalData.ServiceIp = res2.result.user.ip;
-            getApp().globalData.zhucheMa = res2.result.user.zhucema;
-            getApp().globalData.asstoken = res2.result.asstoken;
-            getApp().globalData.assxtoken = res2.result.assxtoken;
-            getApp().globalData.name = res2.result.user.name;
-            getApp().globalData.img = res2.result.user.img;
-            common_vendor.index.hideLoading();
-            common_vendor.index.showToast({
-              title: "登录成功",
-              icon: "success"
-            });
-            setTimeout(() => {
-              common_vendor.index.redirectTo({
-                url: "/pages/index/index"
-              });
-            }, 1600);
-          });
-        } else if (res.result == -2) {
+        if (res.result === -1 && getApp().globalData.cheng === 0) {
+          common_vendor.index.hideLoading();
+          clearTimeout(set);
+          getApp().globalData.cheng = 1;
+          req(token);
+          return;
+        } else if (res.result === -1 && getApp().globalData.cheng === 1) {
+          common_vendor.index.hideLoading();
+          clearTimeout(set);
           common_vendor.index.showToast({
-            title: "未登录",
-            icon: "error",
-            duration: 1600
+            title: "登陆失效，请重新登陆",
+            duration: 1600,
+            icon: "none"
           });
-          setTimeout(() => {
-            common_vendor.index.redirectTo({
-              url: "/pages/login/login"
-            });
-          }, 1600);
-        } else {
-          getApp().globalData.UID = res.result.user.UID;
-          getApp().globalData.Plugins = res.result.user.token;
-          getApp().globalData.ServiceIp = res.result.user.ip;
-          getApp().globalData.zhucheMa = res.result.user.zhucema;
-          getApp().globalData.asstoken = res.result.asstoken;
-          getApp().globalData.assxtoken = res.result.assxtoken;
-          getApp().globalData.name = res.result.user.name;
-          getApp().globalData.img = res.result.user.img;
+          common_vendor.index.reLaunch({
+            url: "/pages/login/login"
+          });
+          return;
+        } else if (res.result.err) {
           common_vendor.index.hideLoading();
           common_vendor.index.showToast({
-            title: "登录成功",
-            icon: "success"
+            title: "请求出错，请联系开发者",
+            duration: 1600,
+            icon: "none"
           });
-          setTimeout(() => {
-            common_vendor.index.redirectTo({
-              url: "/pages/index/index"
-            });
-          }, 1600);
+          common_vendor.index.reLaunch({
+            url: "/pages/login/login"
+          });
+          return;
         }
+        common_vendor.index.hideLoading();
+        clearTimeout(set);
+        common_Getapp.Getapp.setdata(res);
+        common_vendor.index.switchTab({
+          url: "/pages/index/index"
+        });
       });
     }
+    let token = common_vendor.index.getStorageSync("assxtoken");
+    if (!token) {
+      common_vendor.index.showToast({
+        title: "未登陆",
+        icon: "none",
+        duration: 1600
+      });
+      setTimeout(() => {
+        common_vendor.index.reLaunch({
+          url: "/pages/login/login"
+        });
+      }, 1600);
+      return;
+    }
+    req();
   },
   onShow: function() {
-    console.log("App Show");
   },
   onHide: function() {
-    common_vendor.index.setStorageSync("asstoken", getApp().globalData.asstoken);
-    common_vendor.index.setStorageSync("assxtoken", getApp().globalData.assxtoken);
   }
 };
 const App = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__file", "E:/指令执行器/App.vue"]]);

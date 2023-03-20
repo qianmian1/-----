@@ -1,5 +1,6 @@
 "use strict";
 const common_vendor = require("../../common/vendor.js");
+const common_Getapp = require("../../common/Getapp.js");
 const _sfc_main = {
   __name: "index-tab",
   setup(__props) {
@@ -46,7 +47,7 @@ const _sfc_main = {
       }, 2500);
     });
     function cd() {
-      data.list = getApp().globalData.list;
+      data.list = common_Getapp.Getapp.globa.list;
       search.value = "";
       common_vendor.index.showToast({
         title: "已成功重置",
@@ -56,14 +57,14 @@ const _sfc_main = {
     function confirm() {
       let c = [];
       const text = new RegExp(search.value);
-      getApp().globalData.list = data.list;
+      common_Getapp.Getapp.globa.list = data.list;
       data.list.forEach((item, i) => {
         if (text.test(item.text)) {
           item.id = i;
           c.push(item);
           data.list = c;
         } else {
-          if (c !== getApp().globalData.list.length && c.length != 0) {
+          if (c !== common_Getapp.Getapp().globa.list.length && c.length != 0) {
             common_vendor.index.showToast({
               title: "共搜索" + data.list.length + "条内容"
             });

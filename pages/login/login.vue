@@ -1,5 +1,4 @@
 <template>
-
   <view class="box">
     <text class="txt">登录</text>
     <view class="bod">
@@ -7,7 +6,7 @@
         <input type="text" v-model="username" placeholder="用户名" class="input" />
       </view>
       <view class="input-box">
-        <input v-model="password" placeholder="密码" :type="se" class="input" style="width: 88%;" />
+        <input v-model="password" placeholder="密码" :type="se" class="input" style="width: 88%" />
         <view>
           <uni-icons :type="eye" class="img" size="30px" @click="Si"></uni-icons>
         </view>
@@ -24,98 +23,96 @@
 </template>
 
 <script setup>
+  import Getapp from "../../common/Getapp.js";
   import {
     ref
   } from "vue";
-  let username = ref('')
-  let password = ref('')
-  let api = ref("login")
-  let se = ref('password')
-  let eye = ref('eye')
+  let username = ref("");
+  let password = ref("");
+  let api = ref("login");
+  let se = ref("password");
+  let eye = ref("eye");
 
   function getto() {
     uni.navigateTo({
-      url: '/pages/login/zhuce/zhuce'
-    })
+      url: "/pages/login/zhuce/zhuce",
+    });
   }
 
   function Si() {
-    if (se.value == 'password') {
-      eye.value = 'eye-slash'
-      se.value = 'text'
+    if (se.value == "password") {
+      eye.value = "eye-slash";
+      se.value = "text";
     } else {
-      eye.value = 'eye'
-      se.value = 'password'
+      eye.value = "eye";
+      se.value = "password";
     }
   }
 
   function login() {
     uni.showLoading({
-      title: '登录中',
-      mask: true
-    })
-    if (username.value == '') {
-      uni.hideLoading()
+      title: "登录中",
+      mask: true,
+    });
+    if (username.value == "") {
+      uni.hideLoading();
       uni.showToast({
-        title: '用户名不能为空',
-        icon: 'none'
-      })
-    } else if (password.value == '') {
-      uni.hideLoading()
+        title: "用户名不能为空",
+        icon: "none",
+      });
+    } else if (password.value == "") {
+      uni.hideLoading();
       uni.showToast({
-        title: '密码不能为空',
-        icon: 'none'
-      })
-    } else if (username.value != '' && password.value != '') {
-      uniCloud.callFunction({
-        name: 'user',
-        data: {
-          username: username.value,
-          password: password.value,
-          api: api.value
-        }
-      }).then(res => {
-        if (res.result.errorMessage) {
-          uni.showToast({
-            title: res.result.errorMessage,
-            icon: 'error'
-          })
-          return
-        }
-        getApp().globalData.UID = res.result.user.UID
-        getApp().globalData.Plugins = res.result.user.token
-        getApp().globalData.ServiceIp = res.result.user.ip
-        getApp().globalData.zhucheMa = res.result.user.zhucema
-        getApp().globalData.asstoken = res.result.asstoken
-        getApp().globalData.assxtoken = res.result.assxtoken
-        getApp().globalData.name = res.result.user.name
-        getApp().globalData.img = res.result.user.img
-        uni.hideLoading()
-        uni.showToast({
-          title: '登录成功',
-          icon: 'success'
+        title: "密码不能为空",
+        icon: "none",
+      });
+    } else if (username.value != "" && password.value != "") {
+      uniCloud
+        .callFunction({
+          name: "user",
+          data: {
+            username: username.value,
+            password: password.value,
+            api: api.value,
+          },
         })
-        setTimeout(() => {
-          uni.redirectTo({
-            url: '/pages/index/index'
-          })
-        }, 1600)
-      }).catch(e => {
-        console.log(e);
-        uni.hideLoading()
-        if (e.message == "密码错误") {
+        .then((res) => {
+          if (res.result.errorMessage) {
+            uni.showToast({
+              title: res.result.errorMessage,
+              icon: "error",
+            });
+            return;
+          }
+          Getapp.setdata(res);
+          uni.setStorageSync("asstoken", res.result.asstoken);
+          uni.setStorageSync("assxtoken", res.result.assxtoken);
+          uni.hideLoading();
           uni.showToast({
-            title: '密码或账号错误',
-            icon: 'error'
-          })
-        }
-        if (e.message == "用户不存在") {
-          uni.showToast({
-            title: '用户不存在',
-            icon: 'error'
-          })
-        }
-      })
+            title: "登录成功",
+            icon: "success",
+          });
+          setTimeout(() => {
+            uni.redirectTo({
+              url: "/pages/index/index",
+            });
+          }, 1600);
+        })
+        .catch((e) => {
+          uni.hideLoading();
+          if (e.message == "密码错误") {
+            uni.showToast({
+              title: "密码或账号错误",
+              icon: "error",
+            });
+          }
+          if (e.message == "用户不存在") {
+            uni.showToast({
+              title: "用户不存在",
+              icon: "error",
+            });
+          }
+        });
     }
   }
 </script>
@@ -126,7 +123,7 @@
     justify-content: center;
     align-items: center;
     height: 100%;
-    background-image: url('https://i.328888.xyz/2023/03/05/G10Uq.jpeg');
+    background-image: url("https://i.328888.xyz/2023/03/05/G10Uq.jpeg");
     background-size: 100%;
     background-position: 50% 50%;
     background-repeat: on-repeat;
@@ -140,7 +137,7 @@
     align-items: center;
     width: 600rpx;
     height: 350px;
-    background-color: rgba(255, 255, 255, .4);
+    background-color: rgba(255, 255, 255, 0.4);
     z-index: 1;
 
     .txt {
@@ -212,7 +209,7 @@
       font-size: 20px;
       margin: 0 auto;
       border-radius: 4px;
-      border: 1px solid #EEE;
+      border: 1px solid #eee;
       margin-top: 30px;
       line-height: 50px;
     }

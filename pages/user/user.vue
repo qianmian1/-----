@@ -8,25 +8,21 @@
         <view class="my_header_logobox">
           <image :src="img" mode="aspectFill"></image>
         </view>
-        <text class="my_header_name">{{name}}</text>
+        <text class="my_header_name">{{ name }}</text>
       </view>
       <view class="my_header_info">
         <view class="my_header_info-box">
-          <text class="my_header_info-title">
-            ip地址
-          </text>
-          <text>{{ServiceIp}}</text>
+          <text class="my_header_info-title"> ip地址 </text>
+          <text>{{ ServiceIp }}</text>
         </view>
         <view class="my_header_info-box">
-          <text class="my_header_info-title">
-            注册码
-          </text>
-          <text>{{zhucheMa}}</text>
+          <text class="my_header_info-title"> 注册码 </text>
+          <text>{{ zhucheMa }}</text>
         </view>
       </view>
     </view>
     <view class="my-content">
-      <view class="my-comtent_list" v-if="zhucheMa==='-1'?true:false">
+      <view class="my-comtent_list" v-if="zhucheMa === '-1' ? true : false">
         <view class="my-comtent_list-title">
           <uni-icons class="icons" type="contact" size="16" color="#666"></uni-icons>
           <text>复制</text>
@@ -41,6 +37,13 @@
         </view>
         <uni-icons type="arrowright" size="16" color="#666"></uni-icons>
       </view>
+      <view class="my-comtent_list hu" @click="loginOut">
+        <view class="my-comtent_list-title">
+          <uni-icons class="icons" type="info" size="16" color="#666"></uni-icons>
+          <text>退出登录</text>
+        </view>
+        <view class=""></view>
+      </view>
     </view>
   </view>
 </template>
@@ -49,22 +52,48 @@
   import {
     ref
   } from "vue";
-  let ServiceIp = ref(getApp().globalData.ServiceIp)
-  let zhucheMa = ref(getApp().globalData.zhucheMa)
-  let name = ref('')
-  let img = ref(getApp().globalData.img)
-  // uni.request({
-  //   url: getApp().globalData.name,
-  // }).then(res => {
-  //   name.value = res.data
-  // })
+  import Getapp from "../../common/Getapp.js";
+  let ServiceIp = ref(Getapp.globa.ServiceIp);
+  let zhucheMa = ref(Getapp.globa.zhucheMa);
+  let name = ref("");
+  let img = ref(Getapp.globa.img);
+  uni.request({
+      url: Getapp.globa.name,
+    })
+    .then((res) => {
+      name.value = res.data;
+    });
+
+  function h() {
+    uni.showToast({
+      title: '还没想好怎么做',
+      icon: 'none',
+    })
+  }
+
+  function loginOut() {
+    uni.removeStorageSync('asstoken')
+    uni.removeStorageSync('assxtoken')
+    Getapp.globa.code = false
+    uni.showToast({
+      title: '退出成功',
+      icon: 'success',
+      duration: 1600
+    })
+    setTimeout(() => {
+      uni.reLaunch({
+        url: "/pages/login/login",
+      })
+    }, 1600)
+  }
+
   function swct(e) {
     if (e.detail.value) {
-      getApp().globalData.copy = true
+      Getapp.globa.copy = false;
     } else {
       uni.navigateTo({
-        url: '/pages/user/token'
-      })
+        url: "/pages/user/token",
+      });
     }
   }
 </script>
@@ -158,7 +187,10 @@
           margin-right: 5px;
         }
       }
-
     }
+  }
+
+  .hu:active {
+    background-color: rgba(0, 0, 0, .1);
   }
 </style>

@@ -9,7 +9,7 @@
         <text>重置</text>
       </view>
     </view>
-    <scroll-view scroll-y="true" class="scro" lower-threshold="100px">
+    <scroll-view scroll-y="true" class="scro">
       <view v-for="item in data.list" :key="item.id" @tap="fh(item)">
         <view class=".box">
           <view>{{item.text}}</view>
@@ -26,6 +26,7 @@
   import {
     onLoad
   } from '@dcloudio/uni-app';
+  import Getapp from '../../common/Getapp.js'
   let data = reactive({
     list: []
   })
@@ -73,7 +74,7 @@
   })
 
   function cd() {
-    data.list = getApp().globalData.list
+    data.list = Getapp.globa.list
     search.value = ''
     uni.showToast({
       title: '已成功重置',
@@ -85,7 +86,7 @@
   function confirm() {
     let c = []
     const text = new RegExp(search.value)
-    getApp().globalData.list = data.list
+    Getapp.globa.list = data.list
     data.list.forEach((item, i) => {
       if (text.test(item.text)) {
         item.id = i
@@ -93,7 +94,7 @@
         data.list = c
 
       } else {
-        if (c !== getApp().globalData.list.length && c.length != 0) {
+        if (c !== Getapp().globa.list.length && c.length != 0) {
           uni.showToast({
             title: '共搜索' + data.list.length + '条内容'
           })

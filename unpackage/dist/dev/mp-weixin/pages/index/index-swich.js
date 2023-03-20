@@ -19,7 +19,7 @@ const _sfc_main = {
     });
     function gh(item) {
       common_vendor.index.$emit("updata", {
-        value: item.text
+        value: item.value
       });
       common_vendor.index.switchTab({
         url: "/pages/index/index"

@@ -1,115 +1,96 @@
 <script>
+  import Getapp from "./common/Getapp.js";
   export default {
-    globalData: {
-      username: '',
-      password: '',
-      date: null,
-      ServiceIp: '',
-      Plugins: '',
-      zhucheMa: '',
-      code: false,
-      list: [],
-      UID: '',
-      asstoken: '',
-      assxtoken: '',
-      name: '',
-      img: '',
-      copy: true
-    },
     onLaunch: function() {
-      console.log('App Launch')
-      let token = uni.getStorageSync('asstoken')
-      if (!token) {
-        uni.redirectTo({
-          url: '/pages/login/login'
-        })
-      } else {
+
+
+      function req(asstoken = uni.getStorageSync("asstoken")) {
         uni.showLoading({
-          title: '登陆中',
-          mask: true
-        })
-        uniCloud.callFunction({
-          name: 'user',
-          data: {
-            api: 'login_token',
-            asstoken: uni.getStorageSync('asstoken'),
-            date: {
-              api: true
-            }
-          }
-        }).then(res => {
-          if (res.result == -1) {
-            uniCloud.callFunction({
-              name: 'user',
-              data: {
-                api: 'login_token',
-                assxtoken: uni.getStorageSync('assxtoken'),
-                date: {
-                  api: false
-                }
-              }
-            }).then(res => {
-              getApp().globalData.UID = res.result.user.UID
-              getApp().globalData.Plugins = res.result.user.token
-              getApp().globalData.ServiceIp = res.result.user.ip
-              getApp().globalData.zhucheMa = res.result.user.zhucema
-              getApp().globalData.asstoken = res.result.asstoken
-              getApp().globalData.assxtoken = res.result.assxtoken
-              getApp().globalData.name = res.result.user.name
-              getApp().globalData.img = res.result.user.img
-              uni.hideLoading()
+          title: "登录中",
+          mask: true,
+        });
+
+        let set = null;
+        set = setTimeout(() => {
+          uni.hideLoading();
+          uni.showToast({
+            title: "请求超时",
+            duration: 1600,
+            icon: "none",
+          });
+          uni.reLaunch({
+            url: "/pages/login/login",
+          });
+          return;
+        }, 5000);
+        uniCloud
+          .callFunction({
+            name: "user",
+            data: {
+              api: "login_token",
+              asstoken,
+            },
+          })
+          .then((res) => {
+            if (res.result === -1 && getApp().globalData.cheng === 0) {
+              uni.hideLoading();
+              clearTimeout(set);
+              getApp().globalData.cheng = 1;
+              req(token);
+              return;
+            } else if (res.result === -1 && getApp().globalData.cheng === 1) {
+              uni.hideLoading();
+              clearTimeout(set);
               uni.showToast({
-                title: '登录成功',
-                icon: 'success'
-              })
-              setTimeout(() => {
-                uni.redirectTo({
-                  url: '/pages/index/index'
-                })
-              }, 1600)
-            })
-          } else if (res.result == -2) {
-            uni.showToast({
-              title: '未登录',
-              icon: 'error',
-              duration: 1600
-            })
-            setTimeout(() => {
-              uni.redirectTo({
-                url: '/pages/login/login'
-              })
-            }, 1600)
-          } else {
-            getApp().globalData.UID = res.result.user.UID
-            getApp().globalData.Plugins = res.result.user.token
-            getApp().globalData.ServiceIp = res.result.user.ip
-            getApp().globalData.zhucheMa = res.result.user.zhucema
-            getApp().globalData.asstoken = res.result.asstoken
-            getApp().globalData.assxtoken = res.result.assxtoken
-            getApp().globalData.name = res.result.user.name
-            getApp().globalData.img = res.result.user.img
-            uni.hideLoading()
-            uni.showToast({
-              title: '登录成功',
-              icon: 'success'
-            })
-            setTimeout(() => {
-              uni.redirectTo({
-                url: '/pages/index/index'
-              })
-            }, 1600)
-          }
-        })
+                title: "登陆失效，请重新登陆",
+                duration: 1600,
+                icon: "none",
+              });
+              uni.reLaunch({
+                url: "/pages/login/login",
+              });
+              return;
+            } else if (res.result.err) {
+              uni.hideLoading();
+              uni.showToast({
+                title: "请求出错，请联系开发者",
+                duration: 1600,
+                icon: "none",
+              });
+              uni.reLaunch({
+                url: "/pages/login/login",
+              });
+              return;
+            }
+            uni.hideLoading();
+            clearTimeout(set);
+            Getapp.setdata(res);
+
+            uni.switchTab({
+              url: "/pages/index/index",
+            });
+          });
       }
+      let token = uni.getStorageSync("assxtoken");
+      if (!token) {
+        uni.showToast({
+          title: "未登陆",
+          icon: "none",
+          duration: 1600
+        });
+        setTimeout(() => {
+          uni.reLaunch({
+            url: "/pages/login/login",
+          });
+        }, 1600)
+        return;
+      }
+      req();
+
     },
-    onShow: function() {
-      console.log('App Show')
-    },
-    onHide: function() {
-      uni.setStorageSync('asstoken', getApp().globalData.asstoken)
-      uni.setStorageSync('assxtoken', getApp().globalData.assxtoken)
-    }
-  }
+    onShow: function() {},
+    onHide: function() {},
+  };
 </script>
 
 <style>

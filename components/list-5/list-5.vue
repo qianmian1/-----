@@ -1,19 +1,21 @@
 <template>
-  <view class="box">
-    <view class="my-content">
-      <view class="my-comtent_list">
-        <view class="my-comtent_list-title">
-          <uni-icons custom-prefix="iconfont" type="icon-xinghao" size="10" color="red"></uni-icons>
-          <text>类型</text>
-        </view>
-        <view v-for="(item,index) in list" :key='index' @tap='yu(index)' class="text-box">
-          <text :class="{ad:ad===index}" class="text">{{item}}</text>
+  <view>
+    <view class="box">
+      <view class="my-content">
+        <view class="my-comtent_list">
+          <view class="my-comtent_list-title">
+            <uni-icons custom-prefix="iconfont" type="icon-xinghao" size="10" color="red"></uni-icons>
+            <text>类型</text>
+          </view>
+          <view v-for="(item,index) in list" :key='index' @tap='yu(index)' class="text-box">
+            <text :class="{ad:ad===index}" class="text">{{item}}</text>
+          </view>
         </view>
       </view>
     </view>
-  </view>
-  <view class="btn-box">
-    <button class="btn" @click="CarryOut">提交</button>
+    <view class="btn-box">
+      <button class="btn" @click="CarryOut">执行</button>
+    </view>
   </view>
 </template>
 
@@ -21,12 +23,11 @@
   import {
     ref,
     reactive,
-    watch
   } from "vue";
+  import Getapp from '../../common/Getapp.js'
   name: 'list-5'
   let ad = ref(0)
   let valuek = ref('all')
-  let UID = '@' + getApp().globalData.UID
   let a = 'clear'
   let list = reactive(['全部', '武器', '圣遗物', '材料'])
   let yu = index => {
@@ -43,37 +44,71 @@
   }
 
   let CarryOut = () => {
-    let date = a + ' ' + valuek.value + ' ' + UID
+    let date = a + ' ' + valuek.value + ' ' + Getapp.globa.UID
     uni.showLoading({
       title: '请求中',
       mask: true
     })
-    if (getApp().globalData.copy && getApp().globalData.zhucheMa == '-1') {
+    if (!Getapp.globa.copy && Getapp.globa.zhucheMa == "-1") {
       uni.setClipboardData({
-        data: '/' + date,
+        data: "/" + date,
         success: function() {
-          uni.hideLoading()
+          uni.hideLoading();
           uni.showToast({
-            title: '复制成功',
-            icon: "success"
-          })
+            title: "复制成功",
+            icon: "success",
+          });
         },
         fail: function() {
-          uni.hideLoading()
+          uni.hideLoading();
           uni.showToast({
-            title: '复制失败',
-            icon: "error"
-          })
-        }
-      })
+            title: "复制失败",
+            icon: "error",
+          });
+        },
+      });
+      return;
+    } else if (Getapp.globa.zhucheMa === '1') {
+      date = date.replace(/@[0-9]+/, '')
+      uni.request({
+          url: "https://" + Getapp.globa.ServiceIp + "/opencommand/api",
+          method: "POST",
+          data: {
+            action: "command",
+            data: date,
+            token: Getapp.globa.Plugins,
+          },
+        })
+        .then((res) => {
+          if (res.errMsg == "request:ok") {
+            uni.hideLoading();
+            uni.showToast({
+              title: res.data,
+              icon: "success",
+            });
+          } else {
+            uni.hideLoading();
+            uni.showToast({
+              title: res.data,
+              icon: "none",
+            });
+          }
+        })
+        .catch((e) => {
+          uni.hideLoading();
+          uni.showToast({
+            title: "请求失败",
+            icon: "none",
+          });
+        });
       return
     }
     uni.request({
-      url: 'https://' + getApp().globalData.ServiceIp + '/opencommand/api',
+      url: 'https://' + Getapp.globa.ServiceIp + '/opencommand/api',
       method: "POST",
       data: {
         action: 'command',
-        token: getApp().globalData.Plugins,
+        token: Getapp.globa.Plugins,
         data: date
       }
     }).then(res => {

@@ -1,5 +1,6 @@
 "use strict";
 const common_vendor = require("../../common/vendor.js");
+const common_Getapp = require("../../common/Getapp.js");
 if (!Array) {
   const _easycom_list_tab2 = common_vendor.resolveComponent("list-tab");
   const _easycom_uni_icons2 = common_vendor.resolveComponent("uni-icons");
@@ -121,16 +122,15 @@ const _sfc_main = {
         title: "请求中",
         mask: true
       });
-      let UID = "@" + getApp().globalData.UID;
       let date = null;
       if (as.value === 0 || as.value === 8 || as.value === 6) {
-        date = "give " + value.value + " x" + vm.toString() + " " + UID;
+        date = "give " + value.value + " x" + vm.toString() + " " + common_Getapp.Getapp.globa.UID;
       } else if (as.value === 2 || as.value === 7) {
-        date = "give " + value.value + " lv" + vm.toString() + " " + UID;
+        date = "give " + value.value + " lv" + vm.toString() + " " + common_Getapp.Getapp.globa.UID;
       } else if (as.value === 3 || as.value === 4 || as.value === 5) {
-        date = "give " + value.value + " lv" + vm.toString() + " x" + vModeV.value.toString() + " r" + vMode.value.toString() + " " + UID;
+        date = "give " + value.value + " lv" + vm.toString() + " x" + vModeV.value.toString() + " r" + vMode.value.toString() + " " + common_Getapp.Getapp.globa.UID;
       }
-      if (getApp().globalData.copy && getApp().globalData.zhucheMa == "-1") {
+      if (!common_Getapp.Getapp.globa.copy && common_Getapp.Getapp.globa.zhucheMa == "-1") {
         common_vendor.index.setClipboardData({
           data: "/" + date,
           success: function() {
@@ -149,20 +149,52 @@ const _sfc_main = {
           }
         });
         return;
+      } else if (common_Getapp.Getapp.globa.zhucheMa === "1") {
+        date = date.replace(/@[0-9]+/, "");
+        common_vendor.index.request({
+          url: "https://" + common_Getapp.Getapp.globa.ServiceIp + "/opencommand/api",
+          method: "POST",
+          data: {
+            action: "command",
+            data: date,
+            token: common_Getapp.Getapp.globa.Plugins
+          }
+        }).then((res) => {
+          if (res.errMsg == "request:ok") {
+            common_vendor.index.hideLoading();
+            common_vendor.index.showToast({
+              title: res.data,
+              icon: "success"
+            });
+          } else {
+            common_vendor.index.hideLoading();
+            common_vendor.index.showToast({
+              title: res.data,
+              icon: "none"
+            });
+          }
+        }).catch((e) => {
+          common_vendor.index.hideLoading();
+          common_vendor.index.showToast({
+            title: "请求失败",
+            icon: "none"
+          });
+        });
+        return;
       }
       common_vendor.index.request({
-        url: "https://" + getApp().globalData.ServiceIp + "/opencommand/api",
+        url: "https://" + common_Getapp.Getapp.globa.ServiceIp + "/opencommand/api",
         method: "POST",
         data: {
           action: "command",
-          token: getApp().globalData.Plugins,
-          data: date
+          data: date,
+          token: common_Getapp.Getapp.globa.Plugins
         }
       }).then((res) => {
         if (res.errMsg == "request:ok") {
           common_vendor.index.hideLoading();
           common_vendor.index.showToast({
-            title: "执行成功",
+            title: res.data,
             icon: "success"
           });
         } else {
