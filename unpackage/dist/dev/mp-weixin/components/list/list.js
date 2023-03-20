@@ -130,7 +130,7 @@ const _sfc_main = {
       } else if (as.value === 3 || as.value === 4 || as.value === 5) {
         date = "give " + value.value + " lv" + vm.toString() + " x" + vModeV.value.toString() + " r" + vMode.value.toString() + " " + common_Getapp.Getapp.globa.UID;
       }
-      if (common_Getapp.Getapp.globa.copy && common_Getapp.Getapp.globa.zhucheMa == "-1") {
+      if (!common_Getapp.Getapp.globa.copy && common_Getapp.Getapp.globa.zhucheMa == "-1") {
         common_vendor.index.setClipboardData({
           data: "/" + date,
           success: function() {

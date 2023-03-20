@@ -73,7 +73,7 @@
           Getapp.globa.ServiceIp = ip.value
           Getapp.globa.Plugins = token
           Getapp.globa.zhucheMa = '1'
-          Getapp.globa.copy = false
+          Getapp.globa.copy = true
           uni.showToast({
             title: '验证成功',
             icon: 'success'

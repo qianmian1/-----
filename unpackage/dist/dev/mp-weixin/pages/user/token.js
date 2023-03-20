@@ -58,7 +58,7 @@ const _sfc_main = {
             common_Getapp.Getapp.globa.ServiceIp = ip.value;
             common_Getapp.Getapp.globa.Plugins = token;
             common_Getapp.Getapp.globa.zhucheMa = "1";
-            common_Getapp.Getapp.globa.copy = false;
+            common_Getapp.Getapp.globa.copy = true;
             common_vendor.index.showToast({
               title: "验证成功",
               icon: "success"

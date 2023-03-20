@@ -14,23 +14,6 @@ if (!Math) {
   "./pages/user/token.js";
 }
 const _sfc_main = {
-  globalData: {
-    username: "",
-    password: "",
-    date: null,
-    ServiceIp: "",
-    Plugins: "",
-    zhucheMa: "-1",
-    code: false,
-    list: [],
-    UID: "",
-    asstoken: "",
-    assxtoken: "",
-    name: "",
-    img: "",
-    copy: false,
-    cheng: 0
-  },
   onLaunch: function() {
     function req(asstoken = common_vendor.index.getStorageSync("asstoken")) {
       common_vendor.index.showLoading({

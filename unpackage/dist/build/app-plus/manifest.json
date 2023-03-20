@@ -7,8 +7,8 @@
   "id": "__UNI__FC4080F",
   "name": "指令执行器",
   "version": {
-    "name": "1.0.6",
-    "code": 101
+    "name": "1.1.0",
+    "code": 111
   },
   "description": "",
   "developer": {
@@ -143,5 +143,6 @@
       "selected": 0
     }
   },
+  "locale": "auto",
   "launch_path": "__uniappview.html"
 }

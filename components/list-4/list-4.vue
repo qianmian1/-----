@@ -36,7 +36,7 @@
       title: "请求中",
       mask: true,
     });
-    if (Getapp.globa.copy && Getapp.globa.zhucheMa == "-1") {
+    if (!Getapp.globa.copy && Getapp.globa.zhucheMa == "-1") {
       uni.setClipboardData({
         data: "/" + date,
         success: function() {

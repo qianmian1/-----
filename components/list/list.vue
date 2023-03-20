@@ -290,7 +290,7 @@
         "give" + " " + value.value + " " + "lv" + vm.toString() + " " + "x" + vModeV.value.toString() + " " + "r" +
         vMode.value.toString() + " " + Getapp.globa.UID;
     }
-    if (Getapp.globa.copy && Getapp.globa.zhucheMa == "-1") {
+    if (!Getapp.globa.copy && Getapp.globa.zhucheMa == "-1") {
       uni.setClipboardData({
         data: "/" + date,
         success: function() {

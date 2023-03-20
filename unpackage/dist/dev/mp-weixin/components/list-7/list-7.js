@@ -41,7 +41,7 @@ const _sfc_main = {
         title: "请求中",
         mask: true
       });
-      if (common_Getapp.Getapp.globa.copy && common_Getapp.Getapp.globa.zhucheMa == "-1") {
+      if (!common_Getapp.Getapp.globa.copy && common_Getapp.Getapp.globa.zhucheMa == "-1") {
         common_vendor.index.setClipboardData({
           data: "/" + date,
           success: function() {

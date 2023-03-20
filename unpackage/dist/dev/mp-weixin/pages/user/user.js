@@ -21,6 +21,12 @@ const _sfc_main = {
     }).then((res) => {
       name.value = res.data;
     });
+    function h() {
+      common_vendor.index.showToast({
+        title: "还没想好怎么做",
+        icon: "none"
+      });
+    }
     function loginOut() {
       common_vendor.index.removeStorageSync("asstoken");
       common_vendor.index.removeStorageSync("assxtoken");
@@ -38,7 +44,7 @@ const _sfc_main = {
     }
     function swct(e) {
       if (e.detail.value) {
-        common_Getapp.Getapp.globa.copy = true;
+        common_Getapp.Getapp.globa.copy = false;
       } else {
         common_vendor.index.navigateTo({
           url: "/pages/user/token"
@@ -70,7 +76,7 @@ const _sfc_main = {
           size: "16",
           color: "#666"
         }),
-        j: common_vendor.o((...args) => _ctx.h && _ctx.h(...args)),
+        j: common_vendor.o(h),
         k: common_vendor.p({
           type: "info",
           size: "16",

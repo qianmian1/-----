@@ -64,6 +64,13 @@
       name.value = res.data;
     });
 
+  function h() {
+    uni.showToast({
+      title: '还没想好怎么做',
+      icon: 'none',
+    })
+  }
+
   function loginOut() {
     uni.removeStorageSync('asstoken')
     uni.removeStorageSync('assxtoken')
@@ -82,7 +89,7 @@
 
   function swct(e) {
     if (e.detail.value) {
-      Getapp.globa.copy = true;
+      Getapp.globa.copy = false;
     } else {
       uni.navigateTo({
         url: "/pages/user/token",

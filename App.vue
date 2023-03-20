@@ -1,23 +1,6 @@
 <script>
   import Getapp from "./common/Getapp.js";
   export default {
-    globalData: {
-      username: "",
-      password: "",
-      date: null,
-      ServiceIp: "",
-      Plugins: "",
-      zhucheMa: "-1",
-      code: false,
-      list: [],
-      UID: "",
-      asstoken: "",
-      assxtoken: "",
-      name: "",
-      img: "",
-      copy: false,
-      cheng: 0,
-    },
     onLaunch: function() {
 
 

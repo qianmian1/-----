@@ -21,7 +21,7 @@
     "compileType": "miniprogram",
     "libVersion": "",
     "appid": "wx1ad9d920d875fc06",
-    "projectname": "工具",
+    "projectname": "指令执行器",
     "condition": {
         "search": {
             "current": -1,
